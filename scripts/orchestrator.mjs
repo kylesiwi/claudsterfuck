@@ -53,6 +53,7 @@ import {
   isPathSafe,
   getProviderAvailability
 } from "./lib/providers.mjs";
+import { reconstructFromNdjson, summarizeEvent } from "./lib/event-stream.mjs";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -631,6 +632,104 @@ function writeJsonArtifact(filePath, payload) {
   return filePath;
 }
 
+/**
+ * Emit the terminal latest-event.json record once a run has finished, so consumers
+ * (statusline, monitor) see the final status immediately after the watch loop
+ * finalizes the run.
+ */
+function writeLatestEventTerminal(runArtifactsDir, { provider, runId, route, status }) {
+  try {
+    const payload = {
+      provider,
+      runId,
+      route: route ?? null,
+      icon: status === "completed" ? "✓" : "✗",
+      label: status === "completed" ? "complete" : "failed",
+      eventType: "terminal",
+      timestamp: new Date().toISOString()
+    };
+    fs.writeFileSync(
+      path.join(runArtifactsDir, "latest-event.json"),
+      `${JSON.stringify(payload, null, 2)}\n`,
+      "utf8"
+    );
+  } catch {}
+}
+
+/**
+ * Tail the detached run's stdout file, parse each new NDJSON line since the last
+ * position, and update latest-event.json with a compact summary of the most recent
+ * event. This lets the statusline reflect live worker progress while the watch
+ * loop polls.
+ *
+ * Maintains state via the options object so the caller can preserve the byte offset
+ * across watch iterations.
+ */
+function tailStdoutForEvents(stdoutFile, runArtifactsDir, state) {
+  if (!stdoutFile || !runArtifactsDir || !state) return;
+  let stat;
+  try {
+    stat = fs.statSync(stdoutFile);
+  } catch {
+    return;
+  }
+  if (!stat || stat.size <= state.offset) {
+    return;
+  }
+
+  let fd;
+  try {
+    fd = fs.openSync(stdoutFile, "r");
+    const length = stat.size - state.offset;
+    const buffer = Buffer.alloc(length);
+    fs.readSync(fd, buffer, 0, length, state.offset);
+    state.offset = stat.size;
+    const chunk = buffer.toString("utf8");
+    const lines = (state.carry + chunk).split(/\r?\n/);
+    state.carry = lines.pop() ?? "";
+
+    let lastSummary = null;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || !trimmed.startsWith("{")) continue;
+      let event;
+      try {
+        event = JSON.parse(trimmed);
+      } catch {
+        continue;
+      }
+      const summary = summarizeEvent(state.provider, event);
+      if (summary) lastSummary = summary;
+    }
+
+    if (lastSummary) {
+      try {
+        fs.writeFileSync(
+          path.join(runArtifactsDir, "latest-event.json"),
+          `${JSON.stringify(
+            {
+              provider: state.provider,
+              runId: state.runId,
+              route: state.route ?? null,
+              icon: lastSummary.icon,
+              label: lastSummary.label,
+              eventType: lastSummary.eventType,
+              timestamp: new Date().toISOString()
+            },
+            null,
+            2
+          )}\n`,
+          "utf8"
+        );
+      } catch {}
+    }
+  } catch {} finally {
+    if (fd !== undefined) {
+      try { fs.closeSync(fd); } catch {}
+    }
+  }
+}
+
 function normalizeException(error) {
   const message = error instanceof Error ? error.stack || error.message : String(error);
   return {
@@ -896,6 +995,7 @@ function buildCodexArgs(options) {
     "-C", options.cwd,
     "--skip-git-repo-check",
     "--sandbox", options.writeEnabled ? "workspace-write" : "read-only",
+    "--json",
     "--output-last-message", options.outputFile
   ];
 
@@ -909,7 +1009,7 @@ function buildCodexArgs(options) {
 function buildGeminiArgs(options) {
   const args = [
     "-p", GEMINI_STDIN_PROMPT,
-    "--output-format", "json",
+    "--output-format", "stream-json",
     "--approval-mode", options.writeEnabled ? "yolo" : "plan"
   ];
 
@@ -1012,9 +1112,14 @@ function finalizeCodexResult(cwd, runId, run, processInfo) {
   const stdoutRaw = safeReadText(processInfo.stdoutFile, 500000) ?? "";
   const stderrRaw = safeReadText(processInfo.stderrFile, 100000) ?? "";
 
-  const finalOutput = fs.existsSync(outputFile)
+  const fileFinalOutput = fs.existsSync(outputFile)
     ? fs.readFileSync(outputFile, "utf8").trim()
     : "";
+
+  // Parse NDJSON events from stdout to extract providerSessionId (thread_id) and, if the
+  // --output-last-message file is missing or empty, the final agent_message text.
+  const reconstructed = reconstructFromNdjson("codex", stdoutRaw);
+  const finalOutput = fileFinalOutput || reconstructed.finalOutput || "";
 
   const exitCode = computeCodexDetachedExitCode({ finalOutput, route: run.route, stderrRaw });
   const errorSummary = exitCode === 0
@@ -1024,6 +1129,18 @@ function finalizeCodexResult(cwd, runId, run, processInfo) {
   // Write raw stdout/stderr artifacts
   writeTextArtifact(path.join(runArtifactsDir, "stdout.raw.txt"), stdoutRaw);
   writeTextArtifact(path.join(runArtifactsDir, "stderr.raw.txt"), stderrRaw);
+
+  // Mirror the NDJSON stream into events.jsonl and emit a terminal latest-event.json
+  // so downstream consumers (statusline, monitor) have a canonical event source.
+  if (stdoutRaw) {
+    writeTextArtifact(path.join(runArtifactsDir, "events.jsonl"), stdoutRaw);
+  }
+  writeLatestEventTerminal(runArtifactsDir, {
+    provider: "codex",
+    runId,
+    route: run.route,
+    status: exitCode === 0 ? "completed" : "failed"
+  });
 
   // Artifact handoff for return-artifacts mode
   const artifactMode = run.artifactMode ?? null;
@@ -1038,7 +1155,8 @@ function finalizeCodexResult(cwd, runId, run, processInfo) {
     route: run.route,
     status: exitCode === 0 ? "completed" : "failed",
     finalOutput,
-    providerSessionId: null,
+    providerSessionId: reconstructed.providerSessionId,
+    tokenUsage: reconstructed.tokenUsage ?? null,
     errorSummary,
     writtenArtifacts
   };
@@ -1050,46 +1168,48 @@ function finalizeCodexResult(cwd, runId, run, processInfo) {
     stdout: stdoutRaw,
     stderr: stderrRaw,
     finalOutput,
-    providerSessionId: null,
+    providerSessionId: reconstructed.providerSessionId,
+    tokenUsage: reconstructed.tokenUsage ?? null,
     errorSummary,
     writtenArtifacts
   };
 }
 
 /**
- * Finalize a Gemini run: parse JSON output for session_id and response.
+ * Finalize a Gemini run: parse NDJSON stream-json output to reconstruct the
+ * session_id and assistant response from the event stream.
  */
 function finalizeGeminiResult(cwd, runId, run, processInfo) {
   const runArtifactsDir = resolveRunArtifactsDir(cwd, runId);
   const stdoutRaw = safeReadText(processInfo.stdoutFile, 500000) ?? "";
   const stderrRaw = safeReadText(processInfo.stderrFile, 100000) ?? "";
 
-  // Gemini CLI outputs {session_id, response} then optional telemetry JSON.
-  // JSON.parse(entireStdout) fails when telemetry follows. Use a string-aware
-  // extractor that stops at the true end of the first top-level object.
-  let parsed = null;
-  try {
-    parsed = stdoutRaw.trim() ? JSON.parse(stdoutRaw.trim()) : null;
-  } catch {
-    parsed = extractFirstJsonObject(stdoutRaw);
-  }
-
-  const providerSessionId = typeof parsed?.session_id === "string" ? parsed.session_id : null;
-  const finalOutput =
-    typeof parsed?.response === "string" ? parsed.response.trim() : stdoutRaw.trim();
+  const reconstructed = reconstructFromNdjson("gemini", stdoutRaw);
+  const providerSessionId = reconstructed.providerSessionId;
+  const finalOutput = reconstructed.finalOutput;
   const hasOutput = finalOutput.length > 0;
 
   // Empty output from Gemini is always a failure — a successful run must produce output.
-  // Previous logic treated empty-stdout + empty-stderr as exitCode 0 (success), which
-  // masked silent failures like PowerShell stdin forwarding bugs and EPERM relaunch crashes.
   const exitCode = hasOutput ? 0 : 1;
   const errorSummary = exitCode === 0
     ? null
-    : summarizeError(stderrRaw) || "Gemini produced no output (possible spawn or relaunch failure)";
+    : summarizeError(reconstructed.providerReportedError || stderrRaw) ||
+      "Gemini produced no output (possible spawn or relaunch failure)";
 
   // Write raw artifacts
   writeTextArtifact(path.join(runArtifactsDir, "stdout.raw.txt"), stdoutRaw);
   writeTextArtifact(path.join(runArtifactsDir, "stderr.raw.txt"), stderrRaw);
+
+  // Mirror NDJSON into events.jsonl and emit terminal latest-event.json
+  if (stdoutRaw) {
+    writeTextArtifact(path.join(runArtifactsDir, "events.jsonl"), stdoutRaw);
+  }
+  writeLatestEventTerminal(runArtifactsDir, {
+    provider: "gemini",
+    runId,
+    route: run.route,
+    status: exitCode === 0 ? "completed" : "failed"
+  });
 
   const normalizedResult = {
     runId,
@@ -1098,6 +1218,7 @@ function finalizeGeminiResult(cwd, runId, run, processInfo) {
     status: exitCode === 0 ? "completed" : "failed",
     finalOutput,
     providerSessionId,
+    tokenUsage: reconstructed.tokenUsage ?? null,
     errorSummary
   };
 
@@ -1109,6 +1230,7 @@ function finalizeGeminiResult(cwd, runId, run, processInfo) {
     stderr: stderrRaw,
     finalOutput,
     providerSessionId,
+    tokenUsage: reconstructed.tokenUsage ?? null,
     errorSummary
   };
 }
@@ -1484,6 +1606,14 @@ export async function handleWatch(cwd, args) {
   const pid = processInfo.pid;
   const deadline = Date.now() + (timeoutSeconds * 1000);
   const startedAtMs = parseIsoMs(processInfo.startedAt);
+  const runArtifactsDirForTail = resolveRunArtifactsDir(cwd, runId);
+  const tailState = {
+    offset: 0,
+    carry: "",
+    provider: run.provider,
+    runId,
+    route: run.route
+  };
 
   emitLog("watch-start", { runId, pid, timeoutSeconds });
 
@@ -1500,12 +1630,19 @@ export async function handleWatch(cwd, args) {
   while (Date.now() < deadline) {
     const alive = isProcessAlive(pid);
 
+    // Drain NDJSON events from the detached stdout file so latest-event.json reflects
+    // live worker progress (statusline consumes this every refresh).
+    tailStdoutForEvents(processInfo.stdoutFile, runArtifactsDirForTail, tailState);
+
     if (!alive) {
       // Process finished - finalize and return full result
       emitLog("watch-process-exited", { runId, pid });
 
       // Brief pause to let OS flush file buffers
       await sleep(500);
+
+      // Drain any final events that landed after the process exited
+      tailStdoutForEvents(processInfo.stdoutFile, runArtifactsDirForTail, tailState);
 
       const result = finalizeRun(cwd, runId, run, processInfo);
 

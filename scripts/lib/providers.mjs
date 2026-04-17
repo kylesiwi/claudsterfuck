@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 
+import { createEventStreamRecorder } from "./event-stream.mjs";
+
 const GEMINI_STDIN_PROMPT =
   "Read the complete task instructions from stdin and follow them exactly. Treat stdin as the authoritative task.";
 
@@ -520,6 +522,7 @@ export async function runCodexTask(options) {
     "--skip-git-repo-check",
     "--sandbox",
     options.writeEnabled ? "workspace-write" : "read-only",
+    "--json",
     "--output-last-message",
     options.outputFile
   ];
@@ -528,8 +531,6 @@ export async function runCodexTask(options) {
     args.push("--model", options.model);
   }
 
-  // Live streaming: append each stdout line to stdout.live.txt and maintain progress.json
-  // while the process is running so the run is diagnosable before exit.
   const liveStdoutPath = path.join(runArtifactsDir, "stdout.live.txt");
   const progressPath = path.join(runArtifactsDir, "progress.json");
   let liveLineCount = 0;
@@ -548,6 +549,13 @@ export async function runCodexTask(options) {
     } catch {}
   }
 
+  const eventRecorder = createEventStreamRecorder({
+    provider: "codex",
+    runId: options.runId ?? path.basename(runArtifactsDir),
+    route: options.route ?? null,
+    runArtifactsDir
+  });
+
   function onStdoutLine(line) {
     try {
       fs.appendFileSync(liveStdoutPath, `${line}\n`, "utf8");
@@ -556,6 +564,7 @@ export async function runCodexTask(options) {
     if (liveLineCount === 1 || liveLineCount % 20 === 0) {
       writeProgress(true);
     }
+    eventRecorder.handleLine(line);
   }
 
   const result = await runCommand("codex", args, {
@@ -569,11 +578,12 @@ export async function runCodexTask(options) {
 
   writeProgress(false);
 
-  const finalOutput = fs.existsSync(options.outputFile)
+  const recorded = eventRecorder.getResult();
+  const fileFinalOutput = fs.existsSync(options.outputFile)
     ? fs.readFileSync(options.outputFile, "utf8").trim()
     : "";
-  // Write-enabled routes produce file-system changes as their primary output.
-  // Empty last-message.txt with a clean exit is valid for those routes.
+  const finalOutput = fileFinalOutput || recorded.finalOutputFromEvents || "";
+
   const effectiveExitCode =
     finalOutput.length === 0 && result.exitCode === 0 && !options.writeEnabled
       ? 1
@@ -584,10 +594,8 @@ export async function runCodexTask(options) {
       ? null
       : summarizeError(result.stderr || result.stdout) || (finalOutput.length === 0 ? "Codex produced no output" : null);
 
-  // Artifact handoff: when the route uses return-artifacts mode, parse the structured
-  // JSON response and write the declared files to disk using Node's fs instead of relying
-  // on Codex's sandboxed patch/write tools, which can hit Windows command-line length limits
-  // for large generated files.
+  eventRecorder.finalize(effectiveExitCode === 0 ? "completed" : "failed");
+
   const writtenArtifacts =
     options.artifactMode === "return-artifacts" && finalOutput
       ? writeArtifactsFromOutput(finalOutput, options.cwd, runArtifactsDir)
@@ -598,16 +606,18 @@ export async function runCodexTask(options) {
     stdout: result.stdout,
     stderr: result.stderr,
     finalOutput,
-    providerSessionId: null,
+    providerSessionId: recorded.providerSessionId,
     errorSummary,
     liveStdoutFile: liveLineCount > 0 ? liveStdoutPath : null,
     progressFile: progressPath,
+    eventsFile: recorded.eventsFile,
+    tokenUsage: recorded.tokenUsage,
     writtenArtifacts,
     normalized: {
       provider: "codex",
       status: effectiveExitCode === 0 ? "completed" : "failed",
       finalOutput,
-      providerSessionId: null,
+      providerSessionId: recorded.providerSessionId,
       errorSummary
     }
   };
@@ -618,7 +628,7 @@ export async function runGeminiTask(options) {
     "-p",
     GEMINI_STDIN_PROMPT,
     "--output-format",
-    "json",
+    "stream-json",
     "--approval-mode",
     options.writeEnabled ? "yolo" : "plan"
   ];
@@ -627,18 +637,65 @@ export async function runGeminiTask(options) {
     args.push("--model", options.model);
   }
 
+  const runArtifactsDir = options.runArtifactsDir || null;
+  const liveStdoutPath = runArtifactsDir ? path.join(runArtifactsDir, "stdout.live.txt") : null;
+  if (runArtifactsDir) {
+    ensureDirectory(path.join(runArtifactsDir, "_"));
+  }
+
+  const eventRecorder = runArtifactsDir
+    ? createEventStreamRecorder({
+        provider: "gemini",
+        runId: options.runId ?? path.basename(runArtifactsDir),
+        route: options.route ?? null,
+        runArtifactsDir
+      })
+    : null;
+
+  function onStdoutLine(line) {
+    if (liveStdoutPath) {
+      try {
+        fs.appendFileSync(liveStdoutPath, `${line}\n`, "utf8");
+      } catch {}
+    }
+    if (eventRecorder) {
+      eventRecorder.handleLine(line);
+    }
+  }
+
   const result = await runCommand("gemini", args, {
     cwd: options.cwd,
     env: { ...process.env, ...(options.env ?? {}), GEMINI_CLI_NO_RELAUNCH: "true" },
     stdin: options.prompt,
     timeoutMs: options.timeoutMs,
+    onStdoutLine,
     spawnFn: options.spawnFn
   });
 
-  const parsed = parseJson(result.stdout);
-  const providerSessionId = typeof parsed?.session_id === "string" ? parsed.session_id : null;
-  const finalOutput =
-    typeof parsed?.response === "string" ? parsed.response.trim() : result.stdout.trim();
+  let providerSessionId = null;
+  let finalOutput = "";
+  let tokenUsage = null;
+  let eventsFile = null;
+  let providerReportedError = null;
+
+  if (eventRecorder) {
+    const recorded = eventRecorder.getResult();
+    providerSessionId = recorded.providerSessionId;
+    finalOutput = recorded.finalOutputFromEvents ?? "";
+    tokenUsage = recorded.tokenUsage;
+    eventsFile = recorded.eventsFile;
+    providerReportedError = recorded.providerReportedError;
+  } else {
+    // Fallback path when no runArtifactsDir is provided (unit tests or ad-hoc invocation):
+    // parse the stdout buffer as NDJSON and reconstruct the same fields.
+    const recovered = reconstructGeminiFromStdout(result.stdout);
+    providerSessionId = recovered.providerSessionId;
+    finalOutput = recovered.finalOutput;
+    tokenUsage = recovered.tokenUsage;
+    providerReportedError = recovered.providerReportedError;
+  }
+
+  finalOutput = (finalOutput ?? "").trim();
   const effectiveExitCode =
     finalOutput.length === 0 && result.exitCode === 0
       ? 1
@@ -647,7 +704,12 @@ export async function runGeminiTask(options) {
     ? timeoutSummary(options.timeoutMs)
     : effectiveExitCode === 0
       ? null
-      : summarizeError(result.stderr || result.stdout) || (finalOutput.length === 0 ? "Gemini produced no output" : null);
+      : summarizeError(providerReportedError || result.stderr || result.stdout) ||
+        (finalOutput.length === 0 ? "Gemini produced no output" : null);
+
+  if (eventRecorder) {
+    eventRecorder.finalize(effectiveExitCode === 0 ? "completed" : "failed");
+  }
 
   return {
     exitCode: effectiveExitCode,
@@ -656,6 +718,9 @@ export async function runGeminiTask(options) {
     finalOutput,
     providerSessionId,
     errorSummary,
+    eventsFile,
+    tokenUsage,
+    liveStdoutFile: liveStdoutPath,
     normalized: {
       provider: "gemini",
       status: effectiveExitCode === 0 ? "completed" : "failed",
@@ -663,6 +728,45 @@ export async function runGeminiTask(options) {
       providerSessionId,
       errorSummary
     }
+  };
+}
+
+function reconstructGeminiFromStdout(stdout) {
+  let providerSessionId = null;
+  let accumulated = "";
+  let completedMessage = null;
+  let tokenUsage = null;
+  let providerReportedError = null;
+
+  const lines = String(stdout ?? "").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || !trimmed.startsWith("{")) continue;
+    let event;
+    try {
+      event = JSON.parse(trimmed);
+    } catch {
+      continue;
+    }
+    if (event.type === "init" && typeof event.session_id === "string") {
+      providerSessionId = event.session_id;
+    } else if (event.type === "message" && event.role === "assistant" && typeof event.content === "string") {
+      if (event.delta === true) {
+        accumulated += event.content;
+      } else {
+        completedMessage = event.content;
+      }
+    } else if (event.type === "result") {
+      if (event.stats && typeof event.stats === "object") tokenUsage = event.stats;
+      if (typeof event.error === "string") providerReportedError = event.error;
+    }
+  }
+
+  return {
+    providerSessionId,
+    finalOutput: (completedMessage ?? accumulated ?? "").trim(),
+    tokenUsage,
+    providerReportedError
   };
 }
 

@@ -13,6 +13,8 @@ const CYAN = "\x1b[36m";
 const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
 const RED = "\x1b[31m";
+const MAGENTA = "\x1b[35m";
+const EVENT_LABEL_MAX = 50;
 
 export function workspaceHash(cwd) {
   const fallback = cwd || process.cwd();
@@ -31,10 +33,54 @@ export function resolveStateFileForWorkspace(cwd) {
   return path.join(stateRoot, workspaceHash(cwd || process.cwd()), "state.json");
 }
 
+export function resolveRunArtifactsDir(cwd, runId) {
+  const pluginData = process.env[PLUGIN_DATA_ENV];
+  const stateRoot = pluginData ? path.join(pluginData, "state") : path.join(os.tmpdir(), "claudsterfuck");
+  return path.join(stateRoot, workspaceHash(cwd || process.cwd()), "runs", runId);
+}
+
 export function readRouteForSession(cwd, sessionId) {
   try {
     const state = JSON.parse(fs.readFileSync(resolveStateFileForWorkspace(cwd), "utf8"));
     return state?.sessions?.[sessionId]?.currentTurn?.route || null;
+  } catch {
+    return null;
+  }
+}
+
+export function readActiveRunEvent(cwd, sessionId) {
+  try {
+    const state = JSON.parse(fs.readFileSync(resolveStateFileForWorkspace(cwd), "utf8"));
+    const session = state?.sessions?.[sessionId];
+    const turn = session?.currentTurn;
+    if (!turn) return null;
+    // Prefer the current turn's latest run if it is still running; otherwise scan
+    // all sessions for any worker-running turn (handles the case where the user's
+    // session_id doesn't match the one that dispatched).
+    const preferredRunId = turn.latestRunId;
+    if (preferredRunId && turn.phase === "worker-running") {
+      const event = readLatestEventFile(cwd, preferredRunId);
+      if (event) return event;
+    }
+    const sessions = Object.values(state?.sessions ?? {});
+    for (const s of sessions) {
+      const t = s?.currentTurn;
+      if (t?.phase === "worker-running" && t?.latestRunId) {
+        const event = readLatestEventFile(cwd, t.latestRunId);
+        if (event) return event;
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function readLatestEventFile(cwd, runId) {
+  try {
+    const dir = resolveRunArtifactsDir(cwd, runId);
+    const raw = fs.readFileSync(path.join(dir, "latest-event.json"), "utf8");
+    return JSON.parse(raw);
   } catch {
     return null;
   }
@@ -71,6 +117,11 @@ function formatDuration(msValue) {
   return `${minutes}m ${seconds}s`;
 }
 
+function truncate(s, n) {
+  const str = String(s ?? "");
+  return str.length <= n ? str : str.slice(0, n - 1) + "…";
+}
+
 export function buildStatusLineOutput(payload) {
   const modelName = payload?.model?.display_name || payload?.model?.id || "unknown";
   const workspaceDir = payload?.workspace?.current_dir || process.cwd();
@@ -78,12 +129,23 @@ export function buildStatusLineOutput(payload) {
   const totalCost = Number(payload?.cost?.total_cost_usd || 0);
   const safeCost = Number.isFinite(totalCost) ? totalCost : 0;
   const durationMs = Number(payload?.cost?.total_duration_ms || 0);
-  const route = readRouteForSession(workspaceDir, payload?.session_id || "");
+  const sessionId = payload?.session_id || "";
+  const route = readRouteForSession(workspaceDir, sessionId);
+  const activeEvent = readActiveRunEvent(workspaceDir, sessionId);
   const label = route ? `[cf · ${route}]` : "[cf]";
   const color = progressColor(usedPercentage);
   const bar = buildProgressBar(usedPercentage);
   const line1 = `${CYAN}${label}${RESET}  ${DIM}${modelName}${RESET}`;
   const line2 = `${color}${bar}${RESET} ${usedPercentage}% · $${safeCost.toFixed(2)} · ${formatDuration(durationMs)}`;
+
+  // Third line: live worker event summary (only while a run is active/terminal)
+  if (activeEvent && activeEvent.label) {
+    const icon = activeEvent.icon || "·";
+    const eventLabel = truncate(activeEvent.label, EVENT_LABEL_MAX);
+    const line3 = `${MAGENTA}${icon}${RESET} ${DIM}${activeEvent.provider || "?"}:${RESET} ${eventLabel}`;
+    return `${line1}\n${line2}\n${line3}`;
+  }
+
   return `${line1}\n${line2}`;
 }
 
