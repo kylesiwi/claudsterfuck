@@ -68,5 +68,13 @@
         ]
       }
     ]
+  },
+  "subagentStatusLine": {
+    "type": "command",
+    "command": "node \"$CLAUDE_PROJECT_DIR/scripts/subagent-statusline.mjs\""
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"$CLAUDE_PROJECT_DIR/scripts/statusline.mjs\""
   }
 }
