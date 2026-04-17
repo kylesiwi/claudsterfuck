@@ -1,6 +1,6 @@
 # claudsterfuck
 
-A Claude Code plugin for deterministic multi-provider orchestration. Routes your prompts to Codex or Gemini workers based on intent — implementation tasks go to Codex, design/review tasks go to Gemini — with automatic delegation, a live monitor window, and dispatch+poll execution so Claude stays in control the whole time.
+A Claude Code plugin for deterministic multi-provider orchestration. Routes your prompts to Codex or Gemini workers based on intent — implementation tasks go to Codex, design/review tasks go to Gemini — with automatic delegation, live NDJSON event streaming into the Claude statusline and a separate monitor window, and dispatch+poll execution so Claude stays in control the whole time.
 
 ## Requirements
 
@@ -141,6 +141,15 @@ Even though these two routes are "free chat", they do NOT break the plugin's int
 | `/claudsterfuck:recover` | Mark dead workers as failed |
 | `/claudsterfuck:result` | Show the last completed run result |
 | `/claudsterfuck:reroute` | Change route on the active turn |
+
+## Live Visibility
+
+While a worker runs, you get progress on two surfaces without the main Claude thread burning any tokens on telemetry:
+
+- **Statusline third line** in the Claude Code UI shows the most recent worker event — e.g. `⚙ codex: exec: npm test` or `💬 gemini: generating…`. Updates every ~2 seconds.
+- **Monitor window** opens automatically in a separate terminal, rendering the structured event stream (reasoning, tool calls with exit codes, token usage, completion banner). Pass `--no-monitor` on dispatch to skip it.
+
+Both surfaces read NDJSON event streams emitted natively by the provider CLIs (`codex exec --json`, `gemini --output-format stream-json`). Events are archived per run in `events.jsonl` under `${CLAUDE_PLUGIN_DATA}/state/<workspace>/runs/<runId>/` for post-hoc inspection.
 
 ## License
 
