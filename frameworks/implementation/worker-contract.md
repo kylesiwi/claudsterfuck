@@ -6,6 +6,11 @@
 - Follow the plan and existing codebase patterns unless the task explicitly authorizes change.
 - Surface uncertainty honestly.
 
+Environment assumptions:
+
+- All project dependencies are pre-installed. Never run `npm install` or any package manager install command — the sandbox is network-restricted and install commands will hang.
+- If tests or builds fail due to missing modules, report the module names and mark verification blocked. Do not attempt to install or retry.
+
 Escalate when:
 
 - the task requires an architectural choice not already settled

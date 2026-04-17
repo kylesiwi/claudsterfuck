@@ -17,3 +17,9 @@ Guardrails:
 - Partial checks are not proof.
 - "Should work" is not proof.
 - If verification fails, report the real state with evidence instead of optimistic wording.
+
+Environment constraints:
+
+- Never run `npm install`, `yarn install`, `pnpm install`, or any package manager install command. The worker sandbox is network-restricted and install commands will hang or fail with ENOTCACHED.
+- Assume all project dependencies are pre-installed by the host before dispatch.
+- If a test or build step fails due to a missing module, record the missing module names and mark the verification step as **blocked** — do not attempt to install, retry, or work around it.
