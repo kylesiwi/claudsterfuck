@@ -71,10 +71,10 @@ route:implement Build the backend for the payment system
 
 Note that if you force the route without any other parameters, it will use the stored objective from the prior chat turn. Example of a multi-turn conversation:
 ```
-- route:chat I am thinking about building a website, and I want to include a payment system. I am located in Chile.
-(Claude replies normally with information)
-- route:design
-(Claude keeps the objective you mentioned in your last turn and now routes it to "design"; i.e. Gemini)
+>>> route:chat What are some payment system alternatives for my site? I'm based in Chile.
+- (Claude replies normally with information)
+>>> route:design
+- (Claude keeps the objective you mentioned in your last turn and now routes it to "design"; i.e. Gemini)
 ```
 
 ## Routes
