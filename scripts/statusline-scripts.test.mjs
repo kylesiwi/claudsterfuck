@@ -4,10 +4,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import {
-  buildSubagentStatusRows,
-  resolveStateFileForWorkspace as resolveSubagentStateFile
-} from "./subagent-statusline.mjs";
 import { buildStatusLineOutput, resolveStateFileForWorkspace as resolveStatusStateFile } from "./statusline.mjs";
 
 async function run(name, fn) {
@@ -41,88 +37,6 @@ function writeState(stateFile, payload) {
   fs.mkdirSync(path.dirname(stateFile), { recursive: true });
   fs.writeFileSync(stateFile, JSON.stringify(payload, null, 2), "utf8");
 }
-
-await run("subagent-statusline: formats running row with route and token count", () => {
-  const env = createEnv();
-  try {
-    const workspace = path.join(env.root, "proj");
-    fs.mkdirSync(workspace, { recursive: true });
-    const stateFile = resolveSubagentStateFile(workspace);
-    writeState(stateFile, {
-      sessions: {
-        a: {
-          currentTurn: {
-            phase: "worker-running",
-            route: "implement",
-            latestRunStatus: "running"
-          }
-        }
-      }
-    });
-
-    const nowMs = Date.parse("2026-04-17T01:00:00.000Z");
-    const rows = buildSubagentStatusRows(
-      {
-        tasks: [
-          {
-            id: "t1",
-            name: "claudsterfuck-codex-worker",
-            status: "running",
-            startTime: "2026-04-17T00:58:55.000Z",
-            tokenCount: 4200,
-            cwd: workspace
-          },
-          {
-            id: "t2",
-            name: "other-worker",
-            status: "running",
-            startTime: "2026-04-17T00:58:55.000Z",
-            tokenCount: 4200,
-            cwd: workspace
-          }
-        ]
-      },
-      { nowMs }
-    );
-
-    assert.equal(rows.length, 1);
-    assert.equal(rows[0].id, "t1");
-    assert.match(rows[0].content, /\[Codex · implement\]/);
-    assert.match(rows[0].content, /● running/);
-    assert.match(rows[0].content, /01:05/);
-    assert.match(rows[0].content, /4.2k tok/);
-  } finally {
-    env.cleanup();
-  }
-});
-
-await run("subagent-statusline: falls back when route missing and token count empty", () => {
-  const env = createEnv();
-  try {
-    const workspace = path.join(env.root, "proj2");
-    fs.mkdirSync(workspace, { recursive: true });
-    const rows = buildSubagentStatusRows(
-      {
-        tasks: [
-          {
-            id: "t1",
-            name: "claudsterfuck-gemini-worker",
-            status: "completed",
-            startTime: "2026-04-17T00:59:59.000Z",
-            tokenCount: 0,
-            cwd: workspace
-          }
-        ]
-      },
-      { nowMs: Date.parse("2026-04-17T01:00:00.000Z") }
-    );
-    assert.equal(rows.length, 1);
-    assert.match(rows[0].content, /\[Gemini\]/);
-    assert.match(rows[0].content, /0 tok/);
-  } finally {
-    env.cleanup();
-  }
-});
 
 await run("statusline: renders route, model, progress, cost and duration", () => {
   const env = createEnv();

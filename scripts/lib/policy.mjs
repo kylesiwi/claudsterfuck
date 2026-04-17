@@ -2,11 +2,6 @@ import path from "node:path";
 
 import { TURN_PHASES } from "./state.mjs";
 
-export const WORKER_AGENT_TYPES = {
-  codex: "claudsterfuck-codex-worker",
-  gemini: "claudsterfuck-gemini-worker"
-};
-
 const COMPANION_ACTIONS = ["setup", "dispatch", "watch", "status", "inspect", "result", "reset", "cancel", "reroute", "recover"];
 const CONFIRMATION_ALLOWLIST = new Set(["AskUserQuestion", "Read", "Glob", "Grep"]);
 const WRITE_TOOLS = new Set(["Write", "Edit", "MultiEdit"]);
@@ -35,40 +30,6 @@ function isVerificationCommand(command) {
       command
     )
   );
-}
-
-function matchesWorkerAgent(subagentType, expectedAgent) {
-  if (!subagentType || !expectedAgent) {
-    return false;
-  }
-
-  return (
-    subagentType === expectedAgent ||
-    subagentType.endsWith(`:${expectedAgent}`) ||
-    subagentType.endsWith(`/${expectedAgent}`)
-  );
-}
-
-function isKnownWorkerAgent(agentType) {
-  return Object.values(WORKER_AGENT_TYPES).some((workerAgent) => matchesWorkerAgent(agentType, workerAgent));
-}
-
-function resolveProviderForWorkerAgent(agentType) {
-  const entries = Object.entries(WORKER_AGENT_TYPES);
-  for (const [provider, workerAgent] of entries) {
-    if (matchesWorkerAgent(agentType, workerAgent)) {
-      return provider;
-    }
-  }
-  return null;
-}
-
-function resolveActor(input) {
-  const agentType = String(input.agent_type ?? "");
-  if (input.agent_id && isKnownWorkerAgent(agentType)) {
-    return "worker";
-  }
-  return "main";
 }
 
 function isContextTool(toolName) {
@@ -132,7 +93,8 @@ function buildAdditionalContext(turn) {
     `Status: ${turn.status}`,
     `Review depth: ${turn.reviewDepth ?? "verify"}`,
     `Required framework packs: ${turn.requiredFrameworks.join(", ") || "(none)"}`,
-    `Do not implement directly in the main Claude thread. Delegate through the claudsterfuck orchestrator or the matching worker agent first.`
+    `Dispatch via Bash: node "\${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
+    `Do not implement directly in the main Claude thread. Delegate through the claudsterfuck orchestrator first.`
   ].join("\n");
 }
 
@@ -191,16 +153,11 @@ export function evaluatePreToolUse(input, turn) {
 
   const toolName = input.tool_name;
   const toolInput = input.tool_input ?? {};
-  const actor = resolveActor(input);
   const phase = turn.phase ?? TURN_PHASES.REFINING;
   const cwd = input.cwd || process.cwd();
   const openWolfTarget = resolveOpenWolfWritableTarget(toolName, toolInput, cwd);
   const isWriteTool = WRITE_TOOLS.has(toolName);
   const routedContext = buildAdditionalContext(turn);
-
-  if (actor === "worker") {
-    return null;
-  }
 
   if (phase === TURN_PHASES.AWAITING_USER) {
     if (CONFIRMATION_ALLOWLIST.has(toolName)) {
@@ -230,22 +187,8 @@ export function evaluatePreToolUse(input, turn) {
   }
 
   if (toolName === "Agent") {
-    const subagentType = String(toolInput.subagent_type ?? "");
-    const expectedAgent = WORKER_AGENT_TYPES[turn.provider] ?? "";
-    if (matchesWorkerAgent(subagentType, expectedAgent)) {
-      return allow(`Allowed worker delegation via ${subagentType}.`, routedContext);
-    }
-
-    const requestedProvider = resolveProviderForWorkerAgent(subagentType);
-    const providerHint =
-      requestedProvider === "gemini" && turn.provider === "codex"
-        ? "If you intended design exploration, switch routes first: use route:design (or route=design / route design / [route:design]) or /claudsterfuck:design."
-        : requestedProvider === "codex" && turn.provider === "gemini"
-          ? "If design/review is complete and you are moving to implementation, reroute first with /claudsterfuck:implement (no text keeps the same objective)."
-        : "If this route is wrong, switch routes with route:<name> (or route=<name> / route <name> / [route:<name>]) or /claudsterfuck:<name>.";
-
     return deny(
-      `This turn is routed to ${turn.provider}. Use the ${expectedAgent} subagent or the claudsterfuck orchestrator instead of a general-purpose Claude agent. ${providerHint}`,
+      `This turn is routed to ${turn.provider} (${turn.route}). Dispatch directly via Bash instead of spawning a subagent: node "\${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
       routedContext
     );
   }
@@ -268,7 +211,7 @@ export function evaluatePreToolUse(input, turn) {
     }
 
     return deny(
-      `This routed turn must go through the claudsterfuck worker runtime. Use claudsterfuck task/status/result/reset/cancel/reroute or the ${WORKER_AGENT_TYPES[turn.provider]} agent.`,
+      `This routed turn must go through the claudsterfuck orchestrator. Dispatch with: node "\${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
       routedContext
     );
   }
@@ -282,7 +225,7 @@ export function evaluatePreToolUse(input, turn) {
     }
     if (isWriteTool) {
       return deny(
-        "Main-thread file edits stay disabled on routed turns. Refine locally, then delegate implementation to the worker.",
+        "Main-thread file edits stay disabled on routed turns. Refine locally, then delegate implementation to the orchestrator.",
         routedContext
       );
     }
@@ -320,7 +263,7 @@ export function evaluatePreToolUse(input, turn) {
 
   if (isWriteTool) {
     return deny(
-      "Main-thread file edits stay disabled on routed turns. Delegate through the worker runtime instead of editing directly.",
+      "Main-thread file edits stay disabled on routed turns. Delegate through the orchestrator instead of editing directly.",
       routedContext
     );
   }
@@ -368,6 +311,6 @@ export function evaluateStop(turn, options = {}) {
 
   return {
     decision: "block",
-    reason: `This turn is routed to ${turn.provider} (${turn.route}) and still has no completed worker result. Delegate through the claudsterfuck orchestrator or matching worker agent before stopping.`
+    reason: `This turn is routed to ${turn.provider} (${turn.route}) and still has no completed worker result. Delegate through the claudsterfuck orchestrator before stopping.`
   };
 }

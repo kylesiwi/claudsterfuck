@@ -13,11 +13,10 @@ Architecture, internals, and contribution guide.
 5. [Orchestrator & State Machine](#orchestrator--state-machine)
 6. [State Management](#state-management)
 7. [Provider System](#provider-system)
-8. [Worker Agents](#worker-agents)
-9. [Policy Enforcement](#policy-enforcement)
-10. [Adding a New Route](#adding-a-new-route)
-11. [Adding a New Provider](#adding-a-new-provider)
-12. [Key Invariants & Gotchas](#key-invariants--gotchas)
+8. [Policy Enforcement](#policy-enforcement)
+9. [Adding a New Route](#adding-a-new-route)
+10. [Adding a New Provider](#adding-a-new-provider)
+11. [Key Invariants & Gotchas](#key-invariants--gotchas)
 
 ---
 
@@ -27,7 +26,7 @@ Architecture, internals, and contribution guide.
 User prompt
     │
     ▼
-UserPromptSubmit hook          ← classifies intent, builds turn, injects context
+UserPromptSubmit hook             ← classifies intent, builds turn, injects context
     │
     ├── chat route (low confidence / question)
     │       Claude answers directly, no worker
@@ -35,22 +34,26 @@ UserPromptSubmit hook          ← classifies intent, builds turn, injects conte
     └── delegate route (high confidence)
             │
             ▼
-        orchestrator dispatch  ← spawns provider process, writes run record
+        Claude main thread runs Bash:
+          orchestrator.mjs dispatch --watch --json
             │
             ▼
-        Codex / Gemini worker  ← executes task, writes output to run artifact
+        orchestrator spawns provider process, writes run record,
+        polls run file, returns result on completion
             │
             ▼
-        orchestrator poll      ← watches run file, returns result on completion
+        Codex / Gemini worker (detached)  ← executes task, writes output to run artifact
             │
             ▼
-        Claude reviews result  ← PreToolUse hook enforces review-only constraints
+        Claude reviews result             ← PreToolUse hook enforces review-only constraints
 ```
 
 **Control plane / execution plane split:**
 - Claude is the control plane — it routes, refines, reviews, synthesizes.
 - Codex and Gemini are the execution plane — they implement, debug, review, design.
 - Claude never directly writes files on a routed turn. The worker does.
+
+**v2.0 dispatch model:** The main Claude thread dispatches to the orchestrator directly via Bash. No subagent wrapper — earlier versions spawned `claudsterfuck-codex-worker` / `claudsterfuck-gemini-worker` subagents that just forwarded to the same Bash command. Subagents don't inherit runtime-granted Bash permissions, which caused frequent permission-prompt stalls. Collapsing dispatch into the main thread uses already-granted permissions and removes an entire failure mode.
 
 ---
 
@@ -60,10 +63,6 @@ UserPromptSubmit hook          ← classifies intent, builds turn, injects conte
 .claude-plugin/
   marketplace.json    ← marketplace registration (name, plugins[], source)
   plugin.json         ← plugin manifest (name, version, repository, keywords)
-
-agents/
-  claudsterfuck-codex-worker.md   ← Bash shape for Codex subagent
-  claudsterfuck-gemini-worker.md  ← Bash shape for Gemini subagent
 
 commands/
   *.md                ← slash command definitions (/claudsterfuck:<name>)
@@ -167,12 +166,13 @@ Fires before every tool call Claude makes. Delegates to `evaluatePreToolUse()` i
 
 **Enforcement rules (in priority order):**
 
-1. Worker agent tool calls are always allowed (they come from `claudsterfuck-codex-worker` / `claudsterfuck-gemini-worker`).
-2. Companion commands (`inspect --slim`, `dispatch --watch`, etc.) are allowed on routed turns.
-3. Turns in `worker-running` phase: block everything except companion commands.
-4. Read tools (`Read`, `Grep`, `Glob`, `WebFetch`, `WebSearch`) are blocked before worker handoff on delegation turns (to prevent main-thread pre-implementation).
+1. Companion commands (`inspect --slim`, `dispatch --watch`, `cancel`, etc.) are allowed on routed turns — this is how the main thread dispatches.
+2. `Agent` tool calls are blocked on routed turns (no subagent wrappers in v2.0 — dispatch is direct Bash).
+3. Turns in `worker-running` phase: block everything except status-inspection reads and companion commands.
+4. Read tools (`Read`, `Grep`, `Glob`, `WebFetch`, `WebSearch`) are blocked before dispatch on delegation turns (to prevent main-thread pre-implementation).
 5. Write tools (`Write`, `Edit`, `MultiEdit`) are blocked on `requiresDelegation=false && writeEnabled=false` turns (e.g. `chat` route).
 6. Write tools are blocked on reviewing/refining delegation turns.
+7. OpenWolf bookkeeping files (`.wolf/anatomy.md`, `memory.md`, `buglog.json`, `cerebrum.md`) are exempt from write blocks.
 
 ### Stop — `scripts/stop-enforcement-hook.mjs`
 
@@ -416,33 +416,20 @@ spawnProvider(provider, promptPath, options)
 
 ---
 
-## Worker Agents
-
-`agents/claudsterfuck-codex-worker.md` and `agents/claudsterfuck-gemini-worker.md` are Claude Code subagent definitions (Bash shapes). They are thin forwarders — their job is to compile the active route's framework packs and call the orchestrator.
-
-```bash
-# Inside the worker agent Bash shape:
-node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json
-```
-
-The worker agent runs in the same Claude Code session as the main thread, inheriting `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDSTERFUCK_SESSION_ID}`. It does not implement anything itself — it delegates to Codex or Gemini and returns the result.
-
----
-
 ## Policy Enforcement
 
 `scripts/lib/policy.mjs` — single source of truth for what Claude is allowed to do during a routed turn.
 
-### WORKER_AGENT_TYPES
+### Companion Commands
 
 ```js
-export const WORKER_AGENT_TYPES = new Set([
-  "claudsterfuck-codex-worker",
-  "claudsterfuck-gemini-worker"
-]);
+const COMPANION_ACTIONS = [
+  "setup", "dispatch", "watch", "status", "inspect",
+  "result", "reset", "cancel", "reroute", "recover"
+];
 ```
 
-Tool calls from these agents bypass all policy checks — they are the execution plane and have full permissions.
+Any Bash command that invokes `scripts/orchestrator.mjs` with one of these actions is recognized as a companion command and allowed on routed turns. This is the primary dispatch channel for the main thread.
 
 ### WRITE_TOOLS
 
@@ -453,20 +440,26 @@ const WRITE_TOOLS = new Set(["Write", "Edit", "MultiEdit"]);
 ### Evaluation Logic (simplified)
 
 ```
-evaluatePreToolUse(input):
-  actor = resolve actor from input (worker agent vs Claude)
-  if actor is worker agent → allow
-  if no current turn → allow (unrouted session)
-  if turn.status === "cancelled" → allow
+evaluatePreToolUse(input, turn):
+  if no current turn → allow companion Bash only, else pass through
+  if turn.status === "cancelled" → pass through (respect read-only flag)
+  if turn.phase === AWAITING_USER:
+    allow AskUserQuestion/Read/Glob/Grep, deny everything else
   if turn.requiresDelegation === false:
-    if !turn.writeEnabled && WRITE_TOOLS.has(toolName) → deny (read-only route)
-    else → allow
-  if turn.phase === WORKER_RUNNING:
-    if isAllowedCompanionCommand(toolName, input) → allow
+    deny WRITE_TOOLS if !writeEnabled, else pass through
+  if toolName === "AskUserQuestion" → allow (orchestration Q&A)
+  if toolName === "Agent" → deny (dispatch via Bash instead)
+  if toolName === "Bash":
+    if companion command → allow
+    if REVIEWING + verification command (git/npm test/etc.) → allow
     else → deny
-  if isWriteTool and phase is REFINING/REVIEWING → deny
-  if isReadTool and phase is pre-handoff → deny
-  else → allow
+  if phase REFINING/READY_TO_DELEGATE:
+    allow OpenWolf writes, allow context reads, deny writes
+  if phase WORKER_RUNNING:
+    allow Read/Glob/Grep (status), deny everything else
+  if phase REVIEWING:
+    allow OpenWolf writes, allow context reads, deny writes
+  else → pass through
 ```
 
 ### OpenWolf Write Target
@@ -562,31 +555,15 @@ Add a branch for the new provider name. Handle:
 - `windowsHide: true` on all spawned processes
 - Empty output policy (write-enabled vs read-only)
 
-### 3. Create `agents/<name>-worker.md`
-
-Follow the pattern of `claudsterfuck-codex-worker.md`. The Bash shape should call:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json
-```
-
-### 4. Add to `WORKER_AGENT_TYPES` in `scripts/lib/policy.mjs`
-
-```js
-export const WORKER_AGENT_TYPES = new Set([
-  "claudsterfuck-codex-worker",
-  "claudsterfuck-gemini-worker",
-  "claudsterfuck-yourprovider-worker"   // add here
-]);
-```
-
-### 5. Create `prompts/providers/<name>/worker-base.md`
+### 3. Create `prompts/providers/<name>/worker-base.md`
 
 Task preamble injected at the top of every prompt for this provider.
 
-### 6. Wire routes to the provider
+### 4. Wire routes to the provider
 
 Set `"defaultProvider": "yourprovider"` in any route JSON files that should use it.
+
+No subagent definition is needed — the main Claude thread dispatches directly via the orchestrator.
 
 ---
 

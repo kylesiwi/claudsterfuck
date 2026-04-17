@@ -1,6 +1,6 @@
 ---
 name: claudsterfuck-routing
-description: Control-plane skill for Claude Code when claudsterfuck is active. Use it to stay in planner/reviewer mode, delegate through the worker runtime, and synthesize results without implementing directly in the main thread.
+description: Control-plane skill for Claude Code when claudsterfuck is active. Use it to stay in planner/reviewer mode, delegate through the orchestrator, and synthesize results without implementing directly in the main thread.
 ---
 
 # Claudsterfuck Routing
@@ -21,46 +21,43 @@ Core stance:
 1. Read route, provider, phase, and status from the hook context injected by `UserPromptSubmit`. Do NOT call `inspect` unless hook context is missing or you are debugging state issues.
 2. Craft a concrete, unambiguous objective for the worker. If the user's message was conversational, a meta-instruction, or a route confirmation rather than a direct coding task, translate it into a precise task statement here.
 3. **State the objective in your response before delegating** — always write something like:
-   > "Delegating to Codex with objective: 'Create `scripts/lib/math-utils.mjs` exporting `multiply(a, b)` and `divide(a, b)` with a divide-by-zero guard.' Full assembled prompt will be at: `[run artifacts path]/prompt.md` (run ID in dispatch result)."
+   > "Delegating to Codex with objective: 'Create `scripts/lib/math-utils.mjs` exporting `multiply(a, b)` and `divide(a, b)` with a divide-by-zero guard.' The orchestrator assembles the full prompt at `[run artifacts path]/prompt.md`."
    This makes Claude's inference output auditable and ensures the token cost of step 2 actually reaches the worker.
-4. Delegate by passing the objective as the **agent prompt** to the worker. The worker will forward it via `--objective`. Example:
+4. Dispatch directly via the Bash tool:
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json --objective 'YOUR OBJECTIVE HERE'
    ```
-   Agent(claudsterfuck-codex-worker, prompt="Create `scripts/lib/math-utils.mjs` exporting...")
-   ```
-5. When the worker completes, the agent returns the final result JSON. Apply the review depth from the hook context to it (see Review Standard below).
-6. If the result is weak, delegate again with a tighter objective.
+   Use single quotes around the objective; escape any literal single quotes as `'\''`. If the turn already has a stored objective and you don't need to refine it, omit `--objective` to use the stored value.
+5. The `--watch` flag blocks until the worker completes and returns the final result as JSON. Apply the review depth from the hook context (see Review Standard below).
+6. If the result is weak, dispatch again with a tighter objective.
 7. Only stop once a completed worker result exists and the review is done.
 
-**Objective quality bar:** The objective passed to the worker must be self-contained — Codex or Gemini should be able to execute it with no further context from this conversation. If the objective requires background that only exists in this thread, include it inline.
+**Objective quality bar:** The objective passed to the orchestrator must be self-contained — Codex or Gemini should be able to execute it with no further context from this conversation. If the objective requires background that only exists in this thread, include it inline.
+
+**Why direct Bash dispatch (v2.0):** Previous versions spawned a subagent wrapper that called the orchestrator via Bash. Subagents do not inherit runtime-granted Bash permissions from the parent session, so the wrapper frequently stalled on permission prompts. Direct Bash from the main thread uses already-granted permissions and eliminates the stuck-forwarder failure mode.
 
 ## Route Reference
 
 - `chat` — non-delegated, read-only fallback. Write tools blocked. Default for low-confidence and question-like prompts. Stores the objective so a bare `route:implement` (no text) on the next message carries it forward automatically.
 - `claude` — non-delegated, full permissions. Explicit bypass only. Never auto-routed.
 
-## Worker Choice
+## Provider Choice
 
 - `design`, `plan`, `review`, and `adversarial-review` default to Gemini.
 - `implement`, `debug`, and `review-feedback` default to Codex.
-- `implement-artifact` defaults to Codex. Use it instead of `implement` when the task is likely to produce a large standalone output file — a full HTML page, a complete dashboard, a self-contained mockup, or any single generated file that would likely exceed ~30 KB. Codex returns the file as an artifact in its JSON response; the runner writes it to disk via Node.js, bypassing the Windows command-line length limit that breaks Codex's internal patch tools for large files.
+- `implement-artifact` defaults to Codex. Use it instead of `implement` when the task is likely to produce a large standalone output file — a full HTML page, a complete dashboard, a self-contained mockup, or any single generated file that would likely exceed ~30 KB. Codex returns the file as an artifact in its JSON response; the orchestrator writes it to disk via Node.js, bypassing the Windows command-line length limit that breaks Codex's internal patch tools for large files.
 - Follow the route default unless there is an explicit reason to override it.
 
-## Delegation Paths
+## Dispatch Commands
 
-Preferred:
-
-- `claudsterfuck-codex-worker`
-- `claudsterfuck-gemini-worker`
-
-Direct orchestrator (combined dispatch+watch):
+Primary (combined dispatch+poll in one call):
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json --objective 'refined objective text'
 ```
 
-This dispatches and immediately polls in one command, returning the final result. No separate `watch` call needed.
-
-Fallback (separate dispatch then watch):
+Fallback (separate dispatch then poll — rarely needed):
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --json
@@ -75,8 +72,9 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" inspect --slim --json
 
 ## Main-Thread Constraints
 
-- Do not use `Read`, `Grep`, `Glob`, `WebFetch`, or `WebSearch` before the worker handoff on a routed turn.
+- Do not use `Read`, `Grep`, `Glob`, `WebFetch`, or `WebSearch` before dispatch on a routed turn.
 - Do not use `Write`, `Edit`, or `MultiEdit` directly on a routed turn.
+- Do not spawn subagents via the `Agent` tool on a routed turn — dispatch directly via Bash.
 - After worker completion, review is allowed; implementation is still delegated.
 
 ## Recovery Procedures
