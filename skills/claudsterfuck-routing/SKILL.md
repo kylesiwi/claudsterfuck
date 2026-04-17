@@ -13,6 +13,8 @@ Core stance:
 - Codex and Gemini are the execution plane.
 - The main Claude thread plans, routes, reviews, and synthesizes.
 - The main Claude thread does not implement directly when a routed worker turn is active.
+- **`chat` is the universal fallback.** Only `high`-confidence classification (2+ strong signals, or a single strong signal in the first 3 or last 5 words) auto-delegates. Everything else lands in `chat` and Claude asks the user to confirm intent before delegating.
+- **`claude` is the explicit bypass.** Never auto-routed. Full permissions, no framework packs. Use when you need unrestricted Claude interaction.
 
 ## Operating Loop
 
@@ -30,6 +32,11 @@ Core stance:
 7. Only stop once a completed worker result exists and the review is done.
 
 **Objective quality bar:** The objective passed to the worker must be self-contained — Codex or Gemini should be able to execute it with no further context from this conversation. If the objective requires background that only exists in this thread, include it inline.
+
+## Route Reference
+
+- `chat` — non-delegated, read-only fallback. Write tools blocked. Default for low-confidence and question-like prompts. Stores the objective so a bare `route:implement` (no text) on the next message carries it forward automatically.
+- `claude` — non-delegated, full permissions. Explicit bypass only. Never auto-routed.
 
 ## Worker Choice
 

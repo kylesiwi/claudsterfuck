@@ -166,6 +166,27 @@ function buildNonDelegatedContext(turn, warning, extraLines = []) {
   ).join("\n");
 }
 
+function buildChatFallbackContext(turn, classification, warning) {
+  const lines = [
+    `[claudsterfuck] Routing to chat — confidence too low for automatic delegation (${classification.confidence}).`,
+    `Classified route: ${turn.route}`,
+    `This is a read-only turn. Answer the user's question or request, then suggest a route if it seems useful.`
+  ];
+
+  const delegationCandidates = (classification.candidates ?? [])
+    .filter((c) => c.route !== "chat")
+    .slice(0, 2);
+
+  if (delegationCandidates.length > 0) {
+    const names = delegationCandidates.map((c) => c.route).join(", ");
+    lines.push(`Likely delegation routes if user wants action: ${names}`);
+    lines.push(`User can confirm intent with: route:<name> or /claudsterfuck:<name>`);
+    lines.push(`The objective has been stored and will carry forward if the user provides a bare route override.`);
+  }
+
+  return withWarning(lines, warning).join("\n");
+}
+
 function trimConfirmationReply(prompt) {
   return String(prompt ?? "")
     .trim()
@@ -274,29 +295,6 @@ function fallbackPendingCandidates(classification) {
   ];
 }
 
-function suppressChatCandidate(classification) {
-  const candidates = Array.isArray(classification.candidates) ? classification.candidates : [];
-  if (classification.route !== "chat" || candidates.length === 0) {
-    return classification;
-  }
-
-  const delegatedCandidates = candidates.filter((candidate) => {
-    if (candidate.route === "chat") {
-      return false;
-    }
-
-    try {
-      return loadRouteProfile(candidate.route).requiresDelegation === true;
-    } catch {
-      return false;
-    }
-  });
-  if (delegatedCandidates.length === 0) {
-    return classification;
-  }
-
-  return classifyCandidates(delegatedCandidates);
-}
 
 function normalizeAdvisorCandidate(candidate) {
   if (typeof candidate === "string") {
@@ -652,7 +650,7 @@ export function buildUserPromptDecision(input, options = {}) {
     }
   }
 
-  const promptClassification = suppressChatCandidate(classifyTurn(cleanedPrompt));
+  const promptClassification = classifyTurn(cleanedPrompt);
   const overrideConflictWarning = override.valid ? buildOverrideConflictWarning(override.route, promptClassification) : null;
   const classification = override.valid ? buildOverrideClassification(override.route) : promptClassification;
   const warning = [override.warning, overrideConflictWarning].filter(Boolean).join(" ");
@@ -690,36 +688,72 @@ export function buildUserPromptDecision(input, options = {}) {
 
   const routeProfile = loadRouteProfile(classification.route);
 
-  if (["low", "ambiguous"].includes(classification.confidence)) {
+  // Bare route directive (no objective text): match slash-command behavior exactly.
+  if (override.valid && !cleanedPrompt) {
+    if (existingTurn) {
+      // Sub-case A: carry objective from prior turn (mirrors /claudsterfuck:X with active turn)
+      const rerouted = rerouteExistingTurn(existingTurn, routeProfile);
+      if (sessionId) {
+        setCurrentTurn(cwd, sessionId, rerouted);
+      }
+      return {
+        hookSpecificOutput: {
+          hookEventName: "UserPromptSubmit",
+          additionalContext: rerouted.requiresDelegation
+            ? buildDelegatedContext(rerouted, null, [
+                `Rerouted active turn via route directive to: ${rerouted.route}`,
+                `Preserved objective from the active turn.`
+              ])
+            : buildNonDelegatedContext(rerouted, null, [
+                `Rerouted active turn via route directive to: ${rerouted.route}`,
+                `Preserved objective from the active turn.`
+              ])
+        }
+      };
+    }
+    // Sub-case B: no active turn, no text — mirror slash command guidance
+    return {
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
+        additionalContext: buildSlashRouteGuidance(override.route)
+      }
+    };
+  }
+
+  // Only high confidence or explicit override auto-delegates.
+  // Everything else routes to chat so Claude can ask the user what they want.
+  if (classification.confidence !== "high" && classification.confidence !== "override") {
+    const chatProfile = loadRouteProfile("chat");
     const { pendingCandidates, advisorExplanation } = applyRouteAdvisor(cleanedPrompt, classification, options);
-    const tentativeTurn = buildTurnFromRoute({
+    const chatTurn = buildTurnFromRoute({
       prompt: cleanedPrompt,
       objective: cleanedPrompt,
-      routeProfile,
+      routeProfile: chatProfile,
       classification,
       extras: {
-        phase: TURN_PHASES.AWAITING_USER,
-        status: "needs-delegation",
-        confirmationRequired: true,
-        awaitingConfirmation: true,
+        phase: TURN_PHASES.NON_DELEGATED,
+        status: "non-delegated",
+        confirmationRequired: false,
+        awaitingConfirmation: false,
         pendingObjective: cleanedPrompt,
         pendingCandidates,
-        pendingProvider: routeProfile.defaultProvider ?? null
+        pendingProvider: null
       }
     });
 
     if (sessionId) {
-      setCurrentTurn(cwd, sessionId, tentativeTurn);
+      setCurrentTurn(cwd, sessionId, chatTurn);
     }
 
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: buildConfirmationContext(tentativeTurn, warning, advisorExplanation)
+        additionalContext: buildChatFallbackContext(chatTurn, classification, warning)
       }
     };
   }
 
+  // High confidence or explicit override: route to the classified/overridden destination.
   const currentTurn = buildTurnFromRoute({
     prompt: cleanedPrompt,
     objective: cleanedPrompt,

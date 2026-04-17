@@ -49,10 +49,97 @@
       "action": "create",
       "tokens": 5522,
       "at": "2026-04-17T00:39:48.806Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/scripts/routing/classify-turn.mjs",
+      "action": "create",
+      "tokens": 2916,
+      "at": "2026-04-17T00:42:01.708Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/scripts/user-prompt-submit-hook.mjs",
+      "action": "edit",
+      "tokens": 0,
+      "at": "2026-04-17T00:43:02.938Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/scripts/user-prompt-submit-hook.mjs",
+      "action": "edit",
+      "tokens": 360,
+      "at": "2026-04-17T00:43:11.000Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/scripts/user-prompt-submit-hook.mjs",
+      "action": "edit",
+      "tokens": 17,
+      "at": "2026-04-17T00:43:13.804Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/scripts/user-prompt-submit-hook.mjs",
+      "action": "edit",
+      "tokens": 1145,
+      "at": "2026-04-17T00:43:33.480Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/scripts/lib/policy.mjs",
+      "action": "edit",
+      "tokens": 225,
+      "at": "2026-04-17T00:43:49.894Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/routes/claude.json",
+      "action": "create",
+      "tokens": 100,
+      "at": "2026-04-17T00:43:54.466Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/commands/claude.md",
+      "action": "create",
+      "tokens": 109,
+      "at": "2026-04-17T00:43:59.081Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/commands/chat.md",
+      "action": "create",
+      "tokens": 116,
+      "at": "2026-04-17T00:44:03.296Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/skills/claudsterfuck-routing/SKILL.md",
+      "action": "edit",
+      "tokens": 188,
+      "at": "2026-04-17T00:44:10.868Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/skills/claudsterfuck-routing/SKILL.md",
+      "action": "edit",
+      "tokens": 142,
+      "at": "2026-04-17T00:44:16.416Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/.claude-plugin/plugin.json",
+      "action": "edit",
+      "tokens": 6,
+      "at": "2026-04-17T00:44:19.537Z"
+    },
+    {
+      "file": "C:/dev/claudsterfuck/.claude-plugin/marketplace.json",
+      "action": "edit",
+      "tokens": 6,
+      "at": "2026-04-17T00:44:22.190Z"
     }
   ],
   "edit_counts": {
-    "D:/Users/kylecito/.claude/plans/velvet-beaming-ocean.md": 1
+    "D:/Users/kylecito/.claude/plans/velvet-beaming-ocean.md": 1,
+    "scripts/routing/classify-turn.mjs": 1,
+    "scripts/user-prompt-submit-hook.mjs": 4,
+    "scripts/lib/policy.mjs": 1,
+    "routes/claude.json": 1,
+    "commands/claude.md": 1,
+    "commands/chat.md": 1,
+    "skills/claudsterfuck-routing/SKILL.md": 2,
+    ".claude-plugin/plugin.json": 1,
+    ".claude-plugin/marketplace.json": 1
   },
   "anatomy_hits": 7,
   "anatomy_misses": 1,

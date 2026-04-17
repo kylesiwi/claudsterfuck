@@ -1,0 +1,10 @@
+{
+  "route": "claude",
+  "description": "Explicit Claude bypass — no framework packs, no delegation, no write restrictions.",
+  "defaultProvider": null,
+  "writeEnabled": true,
+  "requiresDelegation": false,
+  "requiredFrameworks": [],
+  "routeBrief": "Free-form Claude turn. No worker delegation, no tool enforcement.",
+  "timeoutSeconds": 900
+}

@@ -461,3 +461,17 @@
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 20:39 | Created D:/Users/kylecito/.claude/plans/velvet-beaming-ocean.md | — | ~5154 |
+| 20:42 | Created scripts/routing/classify-turn.mjs | — | ~2722 |
+| 20:43 | Edited scripts/user-prompt-submit-hook.mjs | — | ~0 |
+| 20:43 | Edited scripts/user-prompt-submit-hook.mjs | added nullish coalescing | ~336 |
+| 20:43 | Edited scripts/user-prompt-submit-hook.mjs | inline fix | ~16 |
+| 20:43 | Edited scripts/user-prompt-submit-hook.mjs | added 3 condition(s) | ~1069 |
+| 20:43 | Edited scripts/lib/policy.mjs | added 1 condition(s) | ~210 |
+| 20:43 | Created routes/claude.json | — | ~100 |
+| 20:43 | Created commands/claude.md | — | ~102 |
+| 20:44 | Created commands/chat.md | — | ~108 |
+| 20:44 | Edited skills/claudsterfuck-routing/SKILL.md | 6→8 lines | ~176 |
+| 20:44 | Edited skills/claudsterfuck-routing/SKILL.md | 4→9 lines | ~133 |
+| 20:44 | Edited .claude-plugin/plugin.json | inline fix | ~6 |
+| 20:44 | Edited .claude-plugin/marketplace.json | inline fix | ~6 |
+| 20:45 | v1.9.0 routing redesign: chat fallback, question detection, positional weighting, high-only auto-delegate, suppressChatCandidate removed, route:claude added, bare route:X parity | classify-turn.mjs, user-prompt-submit-hook.mjs, policy.mjs, routes/claude.json | complete | ~400 |

@@ -1708,6 +1708,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-04-16T21:30:00.708Z"
+    },
+    {
+      "id": "bug-107",
+      "timestamp": "2026-04-17T00:43:11.002Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/user-prompt-submit-hook.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T00:43:11.002Z"
+    },
+    {
+      "id": "bug-108",
+      "timestamp": "2026-04-17T00:43:33.483Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/user-prompt-submit-hook.mjs",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 83→119 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T00:43:33.483Z"
+    },
+    {
+      "id": "bug-109",
+      "timestamp": "2026-04-17T00:44:19.539Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.8.5\"",
+      "fix": "Changed to \"1.9.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T00:44:19.539Z"
+    },
+    {
+      "id": "bug-110",
+      "timestamp": "2026-04-17T00:44:22.192Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.8.5\"",
+      "fix": "Changed to \"1.9.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-17T00:44:22.192Z"
     }
   ]
 }

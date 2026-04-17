@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T00:39:48.799Z
-> Files: 67 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-17T00:44:22.183Z
+> Files: 69 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -44,7 +44,8 @@
 
 - `adversarial-review.md` (~62 tok)
 - `cancel.md` (~178 tok)
-- `chat.md` (~52 tok)
+- `chat.md` (~102 tok)
+- `claude.md` (~96 tok)
 - `debug.md` (~52 tok)
 - `delegate.md` (~68 tok)
 - `design.md` (~53 tok)
@@ -79,6 +80,8 @@
 ## routes/
 
 - `adversarial-review.json` (~261 tok)
+- `chat.json` — read-only non-delegated fallback; Write/Edit/MultiEdit blocked by policy (~60 tok)
+- `claude.json` — explicit bypass; full permissions, never auto-routed, writeEnabled:true (~60 tok)
 - `debug.json` (~275 tok)
 - `design.json` (~251 tok)
 - `implement-artifact.json` (~370 tok)
@@ -93,16 +96,16 @@
 - `openwolf-compat.mjs` — OpenWolf compatibility CLI: compiles memory packets (~400 tok)
 - `orchestrator.mjs` — orchestrator.mjs - Dispatch+Poll execution model for claudsterfuck (~18923 tok)
 - `orchestrator.test.mjs` — Unit + integration tests for orchestrator.mjs hardening: (~5146 tok)
-- `pre-tool-use-hook.mjs` — PreToolUse hook: enforces delegation policy based on turn phase (~241 tok)
+- `pre-tool-use-hook.mjs` — PreToolUse hook: enforces delegation policy; also denies writes on read-only non-delegated turns (~241 tok)
 - `session-start-hook.mjs` — SessionStart hook: binds session ID, initializes session record (~200 tok)
 - `stop-enforcement-hook.mjs` — Stop hook: blocks premature stops on routed turns (~269 tok)
-- `user-prompt-submit-hook.mjs` — UserPromptSubmit hook: route classification, turn state, reviewDepth propagation, dispatch shortcut hint (~6600 tok)
+- `user-prompt-submit-hook.mjs` — UserPromptSubmit hook: high-only auto-delegate, chat fallback (buildChatFallbackContext), bare route:X parity via rerouteExistingTurn, suppressChatCandidate removed (~6400 tok)
 
 ## scripts/lib/
 
 - `entrypoint.mjs` — isDirectExecution helper for ESM main-module detection (~100 tok)
 - `hook-io.mjs` — Hook I/O helpers: readHookInput, emitHookJson, appendEnvVar, SESSION_ID_ENV (~175 tok)
-- `policy.mjs` — PreToolUse + Stop policy engine with tiered context injection (minimal for read-only, full for denials) (~3300 tok)
+- `policy.mjs` — Exports WORKER_AGENT_TYPES, isAllowedCompanionCommand, evaluatePreToolUseWithoutTurn, evaluatePreToo (~3310 tok)
 - `prompt-compiler.mjs` — Prompt Compiler - Always-on Lite compression for worker handoff (~1467 tok)
 - `providers.mjs` — Resolve the native codex.exe binary from the platform-specific optional package bundled (~5029 tok)
 - `providers.test.mjs` — createSpawnStub: testCodexEmptyOutputFails, testCodexWriteRouteEmptyOutputSucceeds, testGeminiEmptyO (~1278 tok)
@@ -117,7 +120,7 @@
 ## scripts/routing/
 
 - `assemble-worker-prompt.mjs` — Exports assembleWorkerPrompt (~1922 tok)
-- `classify-turn.mjs` — Exports ROUTE_RULES, scoreRoutes, classifyCandidates, classifyTurn (~2329 tok)
+- `classify-turn.mjs` — Exports ROUTE_RULES, scoreRoutes, classifyCandidates, classifyTurn (~2722 tok)
 
 ## scripts/routing/lib/
 
@@ -125,4 +128,4 @@
 
 ## skills/claudsterfuck-routing/
 
-- `SKILL.md` — Claudsterfuck Routing (~1436 tok)
+- `SKILL.md` — Claudsterfuck Routing (~1625 tok)

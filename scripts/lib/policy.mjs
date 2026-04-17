@@ -214,6 +214,12 @@ export function evaluatePreToolUse(input, turn) {
   }
 
   if (turn.requiresDelegation === false || turn.status === "cancelled") {
+    if (!turn.writeEnabled && WRITE_TOOLS.has(toolName)) {
+      return deny(
+        `The "${turn.route}" route is read-only. Use route:implement to write code, or route:claude for an unrestricted turn.`,
+        routedContext
+      );
+    }
     return null;
   }
 

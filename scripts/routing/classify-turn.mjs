@@ -27,11 +27,30 @@ function matchWeakSignals(text, signals) {
   );
 }
 
-function candidateShape(rule, matchedStrong, matchedWeak) {
+function extractPositionalZones(normalized) {
+  const words = normalized.split(" ");
+  if (words.length <= 5) {
+    return { head: normalized, tail: normalized };
+  }
+  return {
+    head: words.slice(0, 3).join(" "),
+    tail: words.slice(-5).join(" ")
+  };
+}
+
+function isPositional(signal, zones) {
+  const s = signal.toLowerCase();
+  return zones.head.includes(s) || zones.tail.includes(s);
+}
+
+function candidateShape(rule, matchedStrong, matchedWeak, zones) {
   const strongCount = matchedStrong.length;
   const weakCount = matchedWeak.length;
   const count = strongCount + weakCount;
-  const score = strongCount * 3 + weakCount;
+
+  const score =
+    matchedStrong.reduce((sum, s) => sum + (isPositional(s, zones) ? 6 : 3), 0) +
+    matchedWeak.reduce((sum, s) => sum + (isPositional(s, zones) ? 2 : 1), 0);
 
   return {
     route: rule.route,
@@ -203,8 +222,14 @@ export function scoreRoutes(prompt) {
     };
   }
 
+  const zones = extractPositionalZones(normalized);
   const candidates = ROUTE_RULES.map((rule) =>
-    candidateShape(rule, matchStrongSignals(normalized, rule.strongSignals), matchWeakSignals(normalized, rule.weakSignals))
+    candidateShape(
+      rule,
+      matchStrongSignals(normalized, rule.strongSignals),
+      matchWeakSignals(normalized, rule.weakSignals),
+      zones
+    )
   )
     .filter((candidate) => candidate.score > 0)
     .sort(compareCandidates);
@@ -256,8 +281,8 @@ export function classifyCandidates(candidates) {
   const summary = summarizeCandidates(candidates);
   if (summary.length === 0) {
     return {
-      route: "implement",
-      reason: "default implementation fallback",
+      route: "chat",
+      reason: "default chat fallback",
       confidence: "low",
       matchedSignals: [],
       candidates: []
@@ -277,9 +302,9 @@ export function classifyCandidates(candidates) {
   }
 
   const confidence =
-    top.strongCount >= 2 || top.score >= 5
+    top.strongCount >= 2 || top.score >= 6
       ? "high"
-      : summary.length === 1 || top.strongCount >= 1 || top.score >= 2
+      : top.strongCount >= 1 || top.score >= 3
         ? "medium"
         : "low";
 
@@ -292,10 +317,19 @@ export function classifyCandidates(candidates) {
   };
 }
 
+const QUESTION_STARTERS =
+  /^(what|how|why|where|when|who|which|can |could |should |would |is |are |does |do |did |tell me|explain|walk me|help me understand)/i;
+
+function hasQuestionMark(text) {
+  return text.includes("?");
+}
+
+function isQuestionLike(normalized) {
+  return QUESTION_STARTERS.test(normalized);
+}
+
 export function classifyTurn(prompt) {
   // Shell command prefix (! ...) should never be delegated to a worker.
-  // Claude Code's ! prefix runs commands directly in the terminal; treating them
-  // as implement/review tasks causes false-positive delegation.
   if (typeof prompt === "string" && prompt.trimStart().startsWith("!")) {
     return {
       route: "chat",
@@ -309,7 +343,7 @@ export function classifyTurn(prompt) {
   const normalized = normalizePrompt(prompt);
   if (!normalized) {
     return {
-      route: "implement",
+      route: "chat",
       reason: "empty prompt fallback",
       confidence: "low",
       matchedSignals: [],
@@ -317,7 +351,32 @@ export function classifyTurn(prompt) {
     };
   }
 
-  return classifyCandidates(scoreRoutes(prompt).candidates);
+  // Rule A: question mark anywhere in prompt → always chat, regardless of strong signals.
+  // A "?" signals the user wants dialogue, not delegation.
+  if (hasQuestionMark(normalized)) {
+    return {
+      route: "chat",
+      reason: "question-mark-detected",
+      confidence: "high",
+      matchedSignals: [],
+      candidates: []
+    };
+  }
+
+  const result = classifyCandidates(scoreRoutes(prompt).candidates);
+
+  // Rule B: question-starter phrasing with no strong delegation signal → chat.
+  if (isQuestionLike(normalized) && (result.candidates[0]?.strongCount ?? 0) === 0) {
+    return {
+      route: "chat",
+      reason: "question-starter-no-strong-signal",
+      confidence: "high",
+      matchedSignals: [],
+      candidates: result.candidates
+    };
+  }
+
+  return result;
 }
 
 function parseArgs(argv) {
