@@ -1,0 +1,30 @@
+{
+  "route": "adversarial-review",
+  "description": "Pressure-test a design or implementation with pre-mortem, inversion, and blind-spot analysis.",
+  "defaultProvider": "gemini",
+  "writeEnabled": false,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "review/pre-mortem.md",
+    "review/inversion.md",
+    "review/socratic-probing.md",
+    "review/blind-spots.md",
+    "review/ai-blind-spots.md",
+    "review/steelman-and-verdict.md"
+  ],
+  "reviewDepth": "verify",
+  "routeBrief": "Stress the chosen approach, look for embarrassing failure modes, and challenge optimistic assumptions before this ships.",
+  "timeoutSeconds": 900,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum", "buglog"],
+    "maxChars": 5000,
+    "maxChunks": 6,
+    "perSourceMaxChunks": {
+      "anatomy": 2,
+      "cerebrum": 3,
+      "buglog": 1,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

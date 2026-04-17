@@ -1,0 +1,31 @@
+{
+  "pid": 14720,
+  "stdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-2e6f15e9\\stdout.live.txt",
+  "stderrFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-2e6f15e9\\stderr.live.txt",
+  "startedAt": "2026-04-16T17:13:41.996Z",
+  "provider": "codex",
+  "providerCommand": "codex",
+  "providerArgs": [
+    "exec",
+    "-",
+    "-C",
+    "C:\\dev\\claudsterfuck",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "workspace-write",
+    "--output-last-message",
+    "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-2e6f15e9\\last-message.txt"
+  ],
+  "resolvedCommand": "D:\\Users\\kylecito\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\codex\\codex.exe",
+  "resolvedArgs": [
+    "exec",
+    "-",
+    "-C",
+    "C:\\dev\\claudsterfuck",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "workspace-write",
+    "--output-last-message",
+    "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-2e6f15e9\\last-message.txt"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "route": "review",
+  "description": "Review code, plans, or decisions for correctness, blind spots, and missing verification.",
+  "defaultProvider": "gemini",
+  "writeEnabled": false,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "review/blind-spots.md",
+    "review/ai-blind-spots.md",
+    "review/steelman-and-verdict.md",
+    "implementation/verification-before-completion.md"
+  ],
+  "reviewDepth": "verify",
+  "routeBrief": "Review with calibrated skepticism, surface the most important actionable issues first, and end with a clear verdict.",
+  "timeoutSeconds": 900,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum", "buglog"],
+    "maxChars": 5000,
+    "maxChunks": 6,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 2,
+      "buglog": 1,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

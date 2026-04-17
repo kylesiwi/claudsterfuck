@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claudsterfuck-marketplace",
+  "description": "Multi-agent work plugins",
+  "owner": { "name": "kylesiwi" },
+  "plugins": [
+    {
+      "name": "claudsterfuck",
+      "description": "Deterministic multi-provider orchestration with dispatch+poll execution model.",
+      "version": "1.8.5",
+      "author": { "name": "kylesiwi" },
+      "source": "./"
+    }
+  ]
+}

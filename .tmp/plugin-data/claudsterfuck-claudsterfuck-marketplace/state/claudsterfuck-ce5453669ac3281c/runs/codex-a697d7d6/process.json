@@ -1,0 +1,19 @@
+{
+  "pid": 9556,
+  "stdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\stdout.live.txt",
+  "stderrFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\stderr.live.txt",
+  "startedAt": "2026-04-16T14:37:30.913Z",
+  "provider": "codex",
+  "providerCommand": "codex",
+  "providerArgs": [
+    "exec",
+    "-",
+    "-C",
+    "C:\\dev\\claudsterfuck",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "workspace-write",
+    "--output-last-message",
+    "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\last-message.txt"
+  ]
+}

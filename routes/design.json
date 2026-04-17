@@ -1,0 +1,30 @@
+{
+  "route": "design",
+  "description": "Explore requirements, alternatives, and design boundaries before implementation.",
+  "defaultProvider": "gemini",
+  "writeEnabled": false,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "design/design-gates.md",
+    "design/alternatives-and-tradeoffs.md",
+    "design/system-boundaries.md",
+    "review/pre-mortem.md",
+    "review/blind-spots.md",
+    "review/ai-blind-spots.md"
+  ],
+  "reviewDepth": "trust",
+  "routeBrief": "Challenge the problem framing, generate alternatives, and recommend a scoped design that is safe to implement.",
+  "timeoutSeconds": 900,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum"],
+    "maxChars": 4500,
+    "maxChunks": 6,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 3,
+      "buglog": 1,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

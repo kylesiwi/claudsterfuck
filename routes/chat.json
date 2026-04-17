@@ -1,0 +1,10 @@
+{
+  "route": "chat",
+  "description": "Conservative discussion-only route for explanation and clarification turns.",
+  "defaultProvider": null,
+  "writeEnabled": false,
+  "requiresDelegation": false,
+  "requiredFrameworks": [],
+  "routeBrief": "Discuss, explain, and clarify without delegating work to a worker runtime.",
+  "timeoutSeconds": 900
+}

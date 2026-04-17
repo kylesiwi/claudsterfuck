@@ -1,0 +1,1 @@
+Error executing tool run_shell_command: Tool "run_shell_command" not found. Did you mean one of: "grep_search", "replace", "cli_help"?

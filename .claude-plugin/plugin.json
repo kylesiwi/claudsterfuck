@@ -1,0 +1,8 @@
+{
+  "name": "claudsterfuck",
+  "description": "Deterministic multi-provider orchestration with dispatch+poll execution model.",
+  "version": "1.8.5",
+  "author": { "name": "kylesiwi" },
+  "license": "MIT",
+  "keywords": ["codex", "gemini", "orchestration", "routing", "claude-code"]
+}

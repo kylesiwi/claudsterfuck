@@ -1,0 +1,19 @@
+{
+  "pid": 31396,
+  "stdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-004228ea\\stdout.live.txt",
+  "stderrFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-004228ea\\stderr.live.txt",
+  "startedAt": "2026-04-16T06:30:11.382Z",
+  "provider": "gemini",
+  "providerCommand": "gemini",
+  "providerArgs": [
+    "-p",
+    "Read the complete task instructions from stdin and follow them exactly. Treat stdin as the authoritative task.",
+    "--output-format",
+    "json",
+    "--approval-mode",
+    "plan"
+  ],
+  "injectedEnv": {
+    "GEMINI_CLI_NO_RELAUNCH": "true"
+  }
+}

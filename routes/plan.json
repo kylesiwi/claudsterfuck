@@ -1,0 +1,27 @@
+{
+  "route": "plan",
+  "description": "Turn an approved design or requirements set into an implementation plan.",
+  "defaultProvider": "gemini",
+  "writeEnabled": false,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "planning/plan-rigor.md",
+    "planning/task-granularity.md",
+    "planning/no-placeholders.md"
+  ],
+  "reviewDepth": "trust",
+  "routeBrief": "Produce a concrete, zero-context-friendly implementation plan with exact files, tests, verification, and no placeholder guidance.",
+  "timeoutSeconds": 900,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum"],
+    "maxChars": 4500,
+    "maxChunks": 6,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 3,
+      "buglog": 1,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

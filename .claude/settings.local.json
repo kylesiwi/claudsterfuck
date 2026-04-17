@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -r \"C:/dev/hybrid-companion/hybrid-tagteam/scripts\" \"C:/dev/claudsterfuck/scripts\")",
+      "Bash(cp -r \"C:/dev/hybrid-companion/hybrid-tagteam/routes\" \"C:/dev/claudsterfuck/routes\")",
+      "Bash(cp -r \"C:/dev/hybrid-companion/hybrid-tagteam/frameworks\" \"C:/dev/claudsterfuck/frameworks\")",
+      "Bash(cp -r \"C:/dev/hybrid-companion/hybrid-tagteam/prompts\" \"C:/dev/claudsterfuck/prompts\")",
+      "Bash(cp -r \"C:/dev/hybrid-companion/hybrid-tagteam/agents\" \"C:/dev/claudsterfuck/agents\")",
+      "Bash(node *)",
+      "Bash(echo*)",
+      "Bash(ls -la scripts/hybrid-companion.mjs)",
+      "Bash(grep -rl \"hybrid-companion\\\\|hybrid-tagteam\\\\|HYBRID_TAGTEAM\" --include=\"*.mjs\" --include=\"*.json\" --include=\"*.md\" --exclude-dir=.wolf --exclude-dir=.claude --exclude-dir=frameworks --exclude=\"REWRITE_*\")",
+      "Read(//d/Users/kylecito/.claude/plugins/**)",
+      "Read(//d/Users/kylecito/.claude/plugins/data/**)",
+      "WebSearch",
+      "Bash(git -C \"D:/Users/kylecito/.claude/plugins/marketplaces/claude-plugins-official\" config --get remote.origin.url)",
+      "Bash(git -C \"D:/Users/kylecito/.claude/plugins/marketplaces/claude-plugins-official\" remote -v)",
+      "Bash(gemini --version)",
+      "Read(//d/Users/kylecito/AppData/Roaming/npm/**)",
+      "Bash(xargs -I{} node -e \"const r=require\\('{}'\\);console.log\\(require\\('path'\\).basename\\('{}'\\),r.writeEnabled, JSON.stringify\\(r.requiredFrameworks\\)\\)\")"
+    ]
+  }
+}

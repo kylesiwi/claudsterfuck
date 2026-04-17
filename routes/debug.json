@@ -1,0 +1,30 @@
+{
+  "route": "debug",
+  "description": "Investigate a bug or failing test with root-cause-first discipline.",
+  "defaultProvider": "codex",
+  "writeEnabled": true,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "implementation/worker-contract.md",
+    "debugging/root-cause-debugging.md",
+    "debugging/root-cause-tracing.md",
+    "debugging/defense-in-depth.md",
+    "implementation/tdd.md",
+    "implementation/verification-before-completion.md"
+  ],
+  "reviewDepth": "test",
+  "routeBrief": "Investigate before fixing, form a single hypothesis at a time, prefer the smallest safe patch, and add layered validation where the failure path demands it.",
+  "timeoutSeconds": 900,
+  "defaultMemoryPlan": {
+    "sources": ["buglog", "anatomy", "cerebrum"],
+    "maxChars": 6000,
+    "maxChunks": 8,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 2,
+      "buglog": 3,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

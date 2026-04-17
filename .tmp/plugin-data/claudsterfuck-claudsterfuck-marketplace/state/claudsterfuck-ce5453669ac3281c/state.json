@@ -1,0 +1,89 @@
+{
+  "version": 4,
+  "sessions": {
+    "d0b22963-05cc-4f7a-a062-84a93c11f852": {
+      "sessionId": "d0b22963-05cc-4f7a-a062-84a93c11f852",
+      "createdAt": "2026-04-16T04:54:53.712Z",
+      "currentTurn": {
+        "prompt": "I forgot to reload plugins. Now run the full end-to-end run test.",
+        "objective": "I forgot to reload plugins. Now run the full end-to-end run test.",
+        "route": "implement",
+        "provider": "codex",
+        "writeEnabled": true,
+        "requiresDelegation": true,
+        "requiredFrameworks": [
+          "implementation/worker-contract.md",
+          "implementation/tdd.md",
+          "implementation/testing-anti-patterns.md",
+          "implementation/yagni-and-scope-control.md",
+          "implementation/verification-before-completion.md"
+        ],
+        "timeoutSeconds": 900,
+        "defaultMemoryPlan": {
+          "sources": [
+            "anatomy",
+            "cerebrum",
+            "buglog"
+          ],
+          "maxChars": 6000,
+          "maxChunks": 8,
+          "perSourceMaxChunks": {
+            "anatomy": 3,
+            "cerebrum": 3,
+            "buglog": 2,
+            "identity": 1
+          },
+          "includeIdentity": false
+        },
+        "matchedSignals": [
+          "explicit-override"
+        ],
+        "confidence": "override",
+        "phase": "worker-running",
+        "status": "worker-running",
+        "confirmationRequired": false,
+        "awaitingConfirmation": false,
+        "pendingObjective": null,
+        "pendingCandidates": [],
+        "pendingProvider": null,
+        "latestRunId": "codex-2e6f15e9",
+        "latestRunStatus": "running",
+        "latestRunErrorSummary": null,
+        "workerRuns": [
+          {
+            "id": "codex-2e6f15e9",
+            "provider": "codex",
+            "route": "implement",
+            "phase": "worker-running",
+            "status": "worker-running",
+            "latestRunStatus": "running",
+            "errorSummary": null,
+            "startedAt": "2026-04-16T17:13:41.996Z"
+          }
+        ],
+        "archivedRuns": [],
+        "reviewDepth": "test",
+        "updatedAt": "2026-04-16T17:13:41.999Z"
+      },
+      "updatedAt": "2026-04-16T17:13:41.999Z"
+    },
+    "ad946c55-5057-4732-89bf-02c234971c47": {
+      "sessionId": "ad946c55-5057-4732-89bf-02c234971c47",
+      "createdAt": "2026-04-16T06:39:13.967Z",
+      "currentTurn": null,
+      "updatedAt": "2026-04-16T17:10:06.758Z"
+    },
+    "7b3b896e-1e62-4b5c-9d8d-d62e5a8aa707": {
+      "sessionId": "7b3b896e-1e62-4b5c-9d8d-d62e5a8aa707",
+      "createdAt": "2026-04-16T05:40:54.930Z",
+      "currentTurn": null,
+      "updatedAt": "2026-04-16T17:10:06.757Z"
+    },
+    "519a78da-d899-43ea-ae3b-61cdfc338852": {
+      "sessionId": "519a78da-d899-43ea-ae3b-61cdfc338852",
+      "createdAt": "2026-04-16T04:20:14.105Z",
+      "currentTurn": null,
+      "updatedAt": "2026-04-16T17:10:06.756Z"
+    }
+  }
+}

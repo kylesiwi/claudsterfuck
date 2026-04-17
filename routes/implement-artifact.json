@@ -1,0 +1,31 @@
+{
+  "route": "implement-artifact",
+  "description": "Implementation route for tasks that generate large standalone output files. Codex returns file contents as artifacts in its final JSON response; the runner writes them to disk via Node.js, avoiding Windows command-line length limits that affect Codex's internal patch tools.",
+  "defaultProvider": "codex",
+  "writeEnabled": true,
+  "requiresDelegation": true,
+  "artifactMode": "return-artifacts",
+  "requiredFrameworks": [
+    "implementation/worker-contract.md",
+    "implementation/tdd.md",
+    "implementation/testing-anti-patterns.md",
+    "implementation/yagni-and-scope-control.md",
+    "implementation/verification-before-completion.md"
+  ],
+  "reviewDepth": "test",
+  "routeBrief": "Implement exactly the scoped task, avoid overbuilding, and verify before making completion claims. Return all generated output files as artifacts in the final JSON response — do not write them directly with file tools.",
+  "timeoutSeconds": 900,
+  "stalledThresholdSeconds": 240,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum", "buglog"],
+    "maxChars": 6000,
+    "maxChunks": 8,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 3,
+      "buglog": 2,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

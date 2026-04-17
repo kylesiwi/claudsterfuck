@@ -1,0 +1,27 @@
+{
+  "route": "review-feedback",
+  "description": "Evaluate incoming review feedback before implementing it.",
+  "defaultProvider": "codex",
+  "writeEnabled": false,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "review/review-feedback-reception.md",
+    "implementation/yagni-and-scope-control.md",
+    "implementation/verification-before-completion.md"
+  ],
+  "reviewDepth": "verify",
+  "routeBrief": "Verify feedback against codebase reality, avoid performative agreement, and only implement technically sound changes.",
+  "timeoutSeconds": 900,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum", "buglog"],
+    "maxChars": 5000,
+    "maxChunks": 6,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 2,
+      "buglog": 1,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}

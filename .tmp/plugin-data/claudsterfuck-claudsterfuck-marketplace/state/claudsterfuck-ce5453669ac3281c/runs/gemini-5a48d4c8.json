@@ -1,0 +1,20 @@
+{
+  "id": "gemini-5a48d4c8",
+  "sessionId": "d0b22963-05cc-4f7a-a062-84a93c11f852",
+  "route": "review",
+  "provider": "gemini",
+  "objective": "! plugin update claudsterfuck",
+  "status": "running",
+  "timeoutSeconds": 900,
+  "startedAt": "2026-04-16T15:42:13.876Z",
+  "artifactMode": null,
+  "artifacts": {
+    "promptFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-5a48d4c8\\prompt.md",
+    "lastMessageFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-5a48d4c8\\last-message.txt",
+    "stdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-5a48d4c8\\stdout.live.txt",
+    "stderrFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-5a48d4c8\\stderr.live.txt",
+    "normalizedResultFile": null,
+    "liveStdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-5a48d4c8\\stdout.live.txt",
+    "progressFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-5a48d4c8\\progress.json"
+  }
+}

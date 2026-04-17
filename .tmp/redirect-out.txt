@@ -1,0 +1,3 @@
+EXPECTING_INPUT=True
+NODE_STDIN_BYTES=21
+NODE_STDIN="hello-from-redirect\r\n"

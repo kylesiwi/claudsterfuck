@@ -1,0 +1,1959 @@
+OpenAI Codex v0.120.0 (research preview)
+--------
+workdir: C:\dev\claudsterfuck
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR, D:\Users\kylecito\.codex\memories]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019d96b9-c99d-70a2-9677-0d8e3b235496
+--------
+user
+# Codex Worker Task
+
+You are Codex, operating as an execution worker inside a Claude-controlled claudsterfuck workflow.
+
+Claude has already chosen the route and attached the framework packs that govern your behavior.
+Treat those framework packs as binding task discipline.
+
+## Worker Assignment
+
+<!-- IMMUTABLE -->
+- Route: implement
+- Provider: codex
+- Write mode: write-enabled
+<!-- /IMMUTABLE -->
+- Objective: implement the fix for finding 1
+
+## Route Brief
+
+Implement exactly the scoped task, use tests to drive behavior, avoid overbuilding, and verify before making completion claims.
+
+## Memory Packet
+
+Objective keywords: implement, fix, finding, 1
+
+### Source Notes
+- .wolf/anatomy.md: no-match
+- .wolf/cerebrum.md: no-match
+- .wolf/buglog.json: no-match
+
+## Operating Rules
+
+- Follow the attached framework packs strictly.
+- Do not expand scope beyond the objective.
+- Ask for clarification instead of guessing.
+- Prefer the smallest safe change that satisfies the route.
+- If the route is read-only, do not propose or apply edits.
+- When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.
+
+<!-- IMMUTABLE -->
+## Output Contract
+
+Return a concise structured report with:
+
+- Status
+- Summary
+- Files changed
+- Verification
+- Concerns
+
+
+<!-- /IMMUTABLE -->
+## Framework Packs
+
+<!-- IMMUTABLE -->
+### implementation/worker-contract.md
+# Worker Contract
+
+- Implement exactly the scoped task.
+- Ask for clarification instead of guessing when requirements are ambiguous.
+- Do not silently expand scope.
+- Follow the plan and existing codebase patterns unless the task explicitly authorizes change.
+- Surface uncertainty honestly.
+
+Escalate when:
+
+- the task requires an architectural choice not already settled
+- the codebase reality materially conflicts with the task
+- you are reading file after file without converging
+- you have completed the work but still have correctness concerns
+
+Final report must include:
+
+- status
+- summary of what was done
+- files changed
+- verification evidence
+- concerns or blockers
+
+### implementation/tdd.md
+# Test-Driven Development
+
+Core law:
+
+- No production code without a failing test first.
+
+Cycle:
+
+1. Write one small test for one behavior.
+2. Run it and confirm it fails for the expected reason.
+3. Write the smallest code that makes it pass.
+4. Run the test again and confirm it passes.
+5. Refactor only while staying green.
+
+Guardrails:
+
+- If you did not watch the test fail, you do not know whether it tests the right thing.
+- Do not change the test to match buggy behavior unless the requirement itself was wrong.
+- Prefer tests of real behavior over tests of mock choreography.
+- If the task explicitly exempts TDD, obey the task. Otherwise treat TDD as the default.
+
+### implementation/testing-anti-patterns.md
+# Testing Anti-Patterns
+
+- Do not test mocks when you should be testing behavior.
+- Do not add production-only seams or helper methods just to satisfy weak tests.
+- Do not treat integration tests as an afterthought if the bug lives at boundaries.
+- Do not rewrite assertions to match incorrect implementation without first verifying the requirement.
+- If a test passes immediately, check whether you are testing existing behavior or the wrong thing.
+
+### implementation/yagni-and-scope-control.md
+# YAGNI And Scope Control
+
+- Build only what the task actually needs.
+- Do not add generalized options, admin flows, schema expansions, or abstraction layers unless the task explicitly needs them.
+- Before adding a "proper" feature, check whether anything in the current codebase even uses it.
+- If a simpler solution satisfies the requirement, prefer it.
+- When in doubt, minimize surface area and leave extension points for future work instead of speculative complexity.
+
+### implementation/verification-before-completion.md
+# Verification Before Completion
+
+Core law:
+
+- No completion claim without fresh verification evidence.
+
+Before claiming success:
+
+1. Identify the command or evidence that proves the claim.
+2. Run it now, not from memory.
+3. Read the full result, including failures and exit status.
+4. Only then state what is actually true.
+
+Guardrails:
+
+- Agent reports are not proof.
+- Partial checks are not proof.
+- "Should work" is not proof.
+- If verification fails, report the real state with evidence instead of optimistic wording.
+
+<!-- /IMMUTABLE -->
+
+codex
+Implementing the fix for finding 1 now. I’ll first locate where “finding 1” is defined in this repo, then I’ll add a failing test for that behavior before touching production code.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'rg -n --hidden -S "finding 1|finding #1|Finding 1|FINDING 1|finding" .' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Force' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'rg -n --hidden -S "bug|issue|vulnerability|report|audit" .' in C:\dev\claudsterfuck
+ succeeded in 200ms:
+.\prompts\providers\gemini\worker-base.md:30:- For each finding, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence. Claude uses these snippets to verify your work without re-reading files.
+.\prompts\providers\codex\worker-base.md:29:- When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.
+
+ succeeded in 199ms:
+.\skills\claudsterfuck-routing\SKILL.md:19:1. Read route, provider, phase, and status from the hook context injected by `UserPromptSubmit`. Do NOT call `inspect` unless hook context is missing or you are debugging state issues.
+.\skills\claudsterfuck-routing\SKILL.md:29:- `implement`, `debug`, and `review-feedback` default to Codex.
+.\skills\claudsterfuck-routing\SKILL.md:55:Diagnostics (use only when debugging state):
+.\skills\claudsterfuck-routing\SKILL.md:77:### `test` (implement, debug, implement-artifact)
+.\REWRITE_SESSION_HANDOFF.md:11:1. Classifies turns into routes (`plan`, `design`, `implement`, `debug`, `review`, etc.).
+.\REWRITE_PROPOSAL.md:96:4. We should treat progress visibility as product surface, not debug artifact.
+.\REWRITE_PROPOSAL.md:239:1. `implement` / `debug`: max `900` chars memory packet.
+.\REWRITE_PROPOSAL.md:433:3. Turn is marked auditable with `mode=freechat`.
+.\REWRITE_PROPOSAL.md:547:7. Hook-unavailable state blocks delegated dispatch and reports `health=degraded`.
+.\REWRITE_PROPOSAL.md:548:8. `freechat` override turns are auditable and always reconcile session/runtime indicators after completion.
+.\REWRITE_PROPOSAL.md:550:10. Memory packet budgets are enforced by route and exclude control-plane/background noise by default for implementation/debug routes.
+.\REWRITE_PROPOSAL.md:576:Adopt the new orchestrator architecture with foreground-default dispatch and event-sourced state. This directly addresses the observed reliability issues while preserving the route intelligence and reasoning frameworks that are already working well.
+.\scripts\orchestrator.mjs:833:  // Write-enabled routes (implement/debug): Codex's output is file changes on disk, not stdout.
+.\scripts\orchestrator.mjs:835:  // Read-only routes (review-feedback/plan): Codex must produce a report; empty output = failure.
+.\scripts\orchestrator.mjs:837:  const WRITE_ROUTES = new Set(["implement", "debug", "implement-artifact"]);
+.\scripts\orchestrator.mjs:900:  // masked silent failures like PowerShell stdin forwarding bugs and EPERM relaunch crashes.
+.\routes\adversarial-review.json:19:    "sources": ["anatomy", "cerebrum", "buglog"],
+.\routes\adversarial-review.json:25:      "buglog": 1,
+.\routes\debug.json:2:  "route": "debug",
+.\routes\debug.json:3:  "description": "Investigate a bug or failing test with root-cause-first discipline.",
+.\routes\debug.json:9:    "debugging/root-cause-debugging.md",
+.\routes\debug.json:10:    "debugging/root-cause-tracing.md",
+.\routes\debug.json:11:    "debugging/defense-in-depth.md",
+.\routes\debug.json:19:    "sources": ["buglog", "anatomy", "cerebrum"],
+.\routes\debug.json:25:      "buglog": 3,
+.\scripts\lib\policy.mjs:13:const OPENWOLF_WRITABLE_FILES = new Set(["anatomy.md", "memory.md", "buglog.json", "cerebrum.md"]);
+.\prompts\providers\gemini\worker-base.md:35:Return a concise structured report with:
+.\scripts\lib\state.mjs:99:// JSONL audit trail
+.\scripts\lib\state.mjs:102:function appendAudit(cwd, event) {
+.\scripts\lib\state.mjs:103:  const auditPath = path.join(resolveStateDir(cwd), "audit.jsonl");
+.\scripts\lib\state.mjs:106:    fs.mkdirSync(path.dirname(auditPath), { recursive: true });
+.\scripts\lib\state.mjs:107:    fs.appendFileSync(auditPath, JSON.stringify(entry) + "\n", "utf8");
+.\scripts\lib\state.mjs:109:    // Audit writes are best-effort; never fail the caller.
+.\scripts\lib\state.mjs:307:  appendAudit(cwd, { event: "state-saved", sessionCount: Object.keys(nextState.sessions).length });
+.\scripts\lib\state.mjs:358:  appendAudit(cwd, { event: "turn-created", sessionId, route: turn?.route ?? null, provider: turn?.provider ?? null });
+.\scripts\lib\state.mjs:373:    // Audit the transition
+.\scripts\lib\state.mjs:375:      appendAudit(cwd, { event: "turn-cancelled", sessionId, route: currentTurn.route });
+.\scripts\lib\state.mjs:377:      appendAudit(cwd, { event: "turn-updated", sessionId, fromPhase: currentTurn.phase, toPhase: nextTurn.phase });
+.\scripts\lib\state.mjs:397:  appendAudit(cwd, { event: "run-started", sessionId, runId: runSummary.id, provider: runSummary.provider, route: runSummary.route });
+.\scripts\lib\state.mjs:427:    appendAudit(cwd, { event: "run-completed", runId, status: payload.status, exitCode: payload.exitCode ?? null });
+.\.wolf\cron-manifest.json:43:      "id": "token-audit",
+.\.wolf\cron-manifest.json:44:      "name": "Token audit report",
+.\.wolf\cron-manifest.json:47:      "action": { "type": "generate_token_report" },
+.\.wolf\token-ledger.json:1345:          "file": "C:/dev/claudsterfuck/commands/debug.md",
+.\.wolf\token-ledger.json:1721:          "file": "C:/dev/claudsterfuck/commands/debug.md",
+.\.wolf\token-ledger.json:1786:          "file": "C:/dev/claudsterfuck/commands/debug.md",
+.\.wolf\token-ledger.json:3205:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:3287:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:3430:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:3524:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:3677:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:3771:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:3924:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:4018:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:4171:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:4265:          "file": "C:/dev/claudsterfuck/routes/debug.json",
+.\.wolf\token-ledger.json:4574:  "optimization_report": {
+.\.wolf\config.json:32:    "token_audit": {
+.\.wolf\config.json:34:      "report_frequency": "weekly",
+.\routes\review.json:14:  "routeBrief": "Review with calibrated skepticism, surface the most important actionable issues first, and end with a clear verdict.",
+.\routes\review.json:17:    "sources": ["anatomy", "cerebrum", "buglog"],
+.\routes\review.json:23:      "buglog": 1,
+.\frameworks\debugging\root-cause-debugging.md:1:# Root Cause Debugging
+.\routes\review-feedback.json:16:    "sources": ["anatomy", "cerebrum", "buglog"],
+.\routes\review-feedback.json:22:      "buglog": 1,
+.\.wolf\cerebrum.md:20:- [2026-04-16] Never treat empty provider output as success. Gemini runs with 0 bytes stdout were reported exitCode 0 because the old logic was `hasOutput ? 0 : (stderrRaw ? 1 : 0)`. A provider that is expected to produce output must fail when output is empty.
+.\.wolf\cerebrum.md:21:- [2026-04-16] Codex empty-output check must distinguish write-mode vs read-only routes. Write-enabled routes (implement/debug/implement-artifact) produce file changes as output — empty stdout is valid if exit code 0. Read-only routes (review-feedback) must produce a report; empty output = failure. Use a `WRITE_ROUTES` set keyed on `run.route` since `writeEnabled` is not persisted in the run record.
+.\frameworks\debugging\defense-in-depth.md:3:When invalid data or unsafe behavior caused the bug:
+.\frameworks\debugging\defense-in-depth.md:8:- add enough debug instrumentation to make the next failure diagnosable
+.\frameworks\debugging\defense-in-depth.md:12:- not just "we handled this one bug"
+.\frameworks\debugging\defense-in-depth.md:13:- but "this class of bug is much harder to reintroduce"
+.\routes\plan.json:24:      "buglog": 1,
+.\.wolf\anatomy.md:47:- `debug.md` (~52 tok)
+.\.wolf\anatomy.md:81:- `debug.json` (~275 tok)
+.\.wolf\anatomy.md:105:- `state.mjs` — State management v4: atomic JSON writes, JSONL audit trail, session/turn/run CRUD, dispatch+poll helpers (~3800 tok)
+.\.wolf\OPENWOLF.md:53:## Bug Logging (MANDATORY)
+.\.wolf\OPENWOLF.md:55:**Log a bug to `.wolf/buglog.json` whenever ANY of these happen:**
+.\.wolf\OPENWOLF.md:56:- The user reports an error, bug, or problem
+.\.wolf\OPENWOLF.md:67:**Before fixing:** Read `.wolf/buglog.json` first — the fix may already be known.
+.\.wolf\OPENWOLF.md:69:**After fixing:** ALWAYS append to `.wolf/buglog.json` with this structure:
+.\.wolf\OPENWOLF.md:72:  "id": "bug-NNN",
+.\.wolf\OPENWOLF.md:79:  "related_bugs": [],
+.\.wolf\OPENWOLF.md:85:**The threshold is LOW.** When in doubt, log it. A false positive in the bug log costs nothing. A missed bug means repeating the same mistake later.
+.\.wolf\OPENWOLF.md:135:2. Review the session: did you learn anything? Did the user correct you? Did you fix a bug? If yes, update `.wolf/cerebrum.md` and/or `.wolf/buglog.json`.
+.\routes\implement.json:19:    "sources": ["anatomy", "cerebrum", "buglog"],
+.\routes\implement.json:25:      "buglog": 2,
+.\.wolf\buglog.json:3:  "bugs": [
+.\.wolf\buglog.json:5:      "id": "bug-001",
+.\.wolf\buglog.json:16:      "related_bugs": [],
+.\.wolf\buglog.json:21:      "id": "bug-002",
+.\.wolf\buglog.json:32:      "related_bugs": [],
+.\.wolf\buglog.json:37:      "id": "bug-003",
+.\.wolf\buglog.json:48:      "related_bugs": [],
+.\.wolf\buglog.json:53:      "id": "bug-004",
+.\.wolf\buglog.json:64:      "related_bugs": [],
+.\.wolf\buglog.json:69:      "id": "bug-005",
+.\.wolf\buglog.json:80:      "related_bugs": [],
+.\.wolf\buglog.json:85:      "id": "bug-006",
+.\.wolf\buglog.json:96:      "related_bugs": [],
+.\.wolf\buglog.json:101:      "id": "bug-007",
+.\.wolf\buglog.json:112:      "related_bugs": [],
+.\.wolf\buglog.json:117:      "id": "bug-008",
+.\.wolf\buglog.json:128:      "related_bugs": [],
+.\.wolf\buglog.json:133:      "id": "bug-009",
+.\.wolf\buglog.json:144:      "related_bugs": [],
+.\.wolf\buglog.json:149:      "id": "bug-010",
+.\.wolf\buglog.json:160:      "related_bugs": [],
+.\.wolf\buglog.json:165:      "id": "bug-011",
+.\.wolf\buglog.json:176:      "related_bugs": [],
+.\.wolf\buglog.json:181:      "id": "bug-012",
+.\.wolf\buglog.json:192:      "related_bugs": [],
+.\.wolf\buglog.json:197:      "id": "bug-013",
+.\.wolf\buglog.json:208:      "related_bugs": [],
+.\.wolf\buglog.json:213:      "id": "bug-014",
+.\.wolf\buglog.json:224:      "related_bugs": [],
+.\.wolf\buglog.json:229:      "id": "bug-015",
+.\.wolf\buglog.json:240:      "related_bugs": [],
+.\.wolf\buglog.json:245:      "id": "bug-016",
+.\.wolf\buglog.json:256:      "related_bugs": [],
+.\.wolf\buglog.json:261:      "id": "bug-017",
+.\.wolf\buglog.json:272:      "related_bugs": [],
+.\.wolf\buglog.json:277:      "id": "bug-018",
+.\.wolf\buglog.json:288:      "related_bugs": [],
+.\.wolf\buglog.json:293:      "id": "bug-019",
+.\.wolf\buglog.json:304:      "related_bugs": [],
+.\.wolf\buglog.json:309:      "id": "bug-020",
+.\.wolf\buglog.json:320:      "related_bugs": [],
+.\.wolf\buglog.json:325:      "id": "bug-021",
+.\.wolf\buglog.json:336:      "related_bugs": [],
+.\.wolf\buglog.json:341:      "id": "bug-022",
+.\.wolf\buglog.json:352:      "related_bugs": [],
+.\.wolf\buglog.json:357:      "id": "bug-023",
+.\.wolf\buglog.json:368:      "related_bugs": [],
+.\.wolf\buglog.json:373:      "id": "bug-024",
+.\.wolf\buglog.json:384:      "related_bugs": [],
+.\.wolf\buglog.json:389:      "id": "bug-025",
+.\.wolf\buglog.json:400:      "related_bugs": [],
+.\.wolf\buglog.json:405:      "id": "bug-026",
+.\.wolf\buglog.json:416:      "related_bugs": [],
+.\.wolf\buglog.json:421:      "id": "bug-027",
+.\.wolf\buglog.json:432:      "related_bugs": [],
+.\.wolf\buglog.json:437:      "id": "bug-028",
+.\.wolf\buglog.json:448:      "related_bugs": [],
+.\.wolf\buglog.json:453:      "id": "bug-029",
+.\.wolf\buglog.json:464:      "related_bugs": [],
+.\.wolf\buglog.json:469:      "id": "bug-030",
+.\.wolf\buglog.json:480:      "related_bugs": [],
+.\.wolf\buglog.json:485:      "id": "bug-031",
+.\.wolf\buglog.json:488:      "file": "commands/debug.md",
+.\.wolf\buglog.json:489:      "root_cause": "Had `/hybrid-companion:debug`",
+.\.wolf\buglog.json:490:      "fix": "Changed to `/claudsterfuck:debug`",
+.\.wolf\buglog.json:496:      "related_bugs": [],
+.\.wolf\buglog.json:501:      "id": "bug-032",
+.\.wolf\buglog.json:512:      "related_bugs": [],
+.\.wolf\buglog.json:517:      "id": "bug-033",
+.\.wolf\buglog.json:528:      "related_bugs": [],
+.\.wolf\buglog.json:533:      "id": "bug-034",
+.\.wolf\buglog.json:544:      "related_bugs": [],
+.\.wolf\buglog.json:549:      "id": "bug-035",
+.\.wolf\buglog.json:560:      "related_bugs": [],
+.\.wolf\buglog.json:565:      "id": "bug-036",
+.\.wolf\buglog.json:576:      "related_bugs": [],
+.\.wolf\buglog.json:581:      "id": "bug-037",
+.\.wolf\buglog.json:592:      "related_bugs": [],
+.\.wolf\buglog.json:597:      "id": "bug-038",
+.\.wolf\buglog.json:608:      "related_bugs": [],
+.\.wolf\buglog.json:613:      "id": "bug-039",
+.\.wolf\buglog.json:624:      "related_bugs": [],
+.\.wolf\buglog.json:629:      "id": "bug-040",
+.\.wolf\buglog.json:632:      "file": "commands/debug.md",
+.\.wolf\buglog.json:640:      "related_bugs": [],
+.\.wolf\buglog.json:645:      "id": "bug-041",
+.\.wolf\buglog.json:656:      "related_bugs": [],
+.\.wolf\buglog.json:661:      "id": "bug-042",
+.\.wolf\buglog.json:672:      "related_bugs": [],
+.\.wolf\buglog.json:677:      "id": "bug-043",
+.\.wolf\buglog.json:688:      "related_bugs": [],
+.\.wolf\buglog.json:693:      "id": "bug-044",
+.\.wolf\buglog.json:704:      "related_bugs": [],
+.\.wolf\buglog.json:709:      "id": "bug-045",
+.\.wolf\buglog.json:720:      "related_bugs": [],
+.\.wolf\buglog.json:725:      "id": "bug-046",
+.\.wolf\buglog.json:736:      "related_bugs": [],
+.\.wolf\buglog.json:741:      "id": "bug-047",
+.\.wolf\buglog.json:752:      "related_bugs": [],
+.\.wolf\buglog.json:757:      "id": "bug-048",
+.\.wolf\buglog.json:768:      "related_bugs": [],
+.\.wolf\buglog.json:773:      "id": "bug-049",
+.\.wolf\buglog.json:784:      "related_bugs": [],
+.\.wolf\buglog.json:789:      "id": "bug-050",
+.\.wolf\buglog.json:800:      "related_bugs": [],
+.\.wolf\buglog.json:805:      "id": "bug-051",
+.\.wolf\buglog.json:816:      "related_bugs": [],
+.\.wolf\buglog.json:821:      "id": "bug-052",
+.\.wolf\buglog.json:823:      "error_message": "Gemini worker runs complete with empty output (0 bytes stdout/stderr) but reported as exitCode 0 success",
+.\.wolf\buglog.json:835:      "related_bugs": [],
+.\.wolf\buglog.json:840:      "id": "bug-053",
+.\.wolf\buglog.json:851:      "related_bugs": [],
+.\.wolf\buglog.json:856:      "id": "bug-054",
+.\.wolf\buglog.json:867:      "related_bugs": [],
+.\.wolf\buglog.json:872:      "id": "bug-055",
+.\.wolf\buglog.json:883:      "related_bugs": [],
+.\.wolf\buglog.json:888:      "id": "bug-056",
+.\.wolf\buglog.json:899:      "related_bugs": [],
+.\.wolf\buglog.json:904:      "id": "bug-057",
+.\.wolf\buglog.json:915:      "related_bugs": [],
+.\.wolf\buglog.json:920:      "id": "bug-058",
+.\.wolf\buglog.json:923:      "file": "routes/debug.json",
+.\.wolf\buglog.json:931:      "related_bugs": [],
+.\.wolf\buglog.json:936:      "id": "bug-059",
+.\.wolf\buglog.json:947:      "related_bugs": [],
+.\.wolf\buglog.json:952:      "id": "bug-060",
+.\.wolf\buglog.json:963:      "related_bugs": [],
+.\.wolf\buglog.json:968:      "id": "bug-061",
+.\.wolf\buglog.json:979:      "related_bugs": [],
+.\.wolf\buglog.json:984:      "id": "bug-062",
+.\.wolf\buglog.json:995:      "related_bugs": [],
+.\.wolf\buglog.json:1000:      "id": "bug-063",
+.\.wolf\buglog.json:1011:      "related_bugs": [],
+.\.wolf\buglog.json:1016:      "id": "bug-064",
+.\.wolf\buglog.json:1027:      "related_bugs": [],
+.\.wolf\buglog.json:1032:      "id": "bug-065",
+.\.wolf\buglog.json:1043:      "related_bugs": [],
+.\.wolf\buglog.json:1048:      "id": "bug-066",
+.\.wolf\buglog.json:1059:      "related_bugs": [],
+.\.wolf\buglog.json:1064:      "id": "bug-067",
+.\.wolf\buglog.json:1075:      "related_bugs": [],
+.\.wolf\buglog.json:1080:      "id": "bug-068",
+.\.wolf\buglog.json:1091:      "related_bugs": [],
+.\.wolf\buglog.json:1096:      "id": "bug-069",
+.\.wolf\buglog.json:1107:      "related_bugs": [],
+.\.wolf\buglog.json:1112:      "id": "bug-070",
+.\.wolf\buglog.json:1123:      "related_bugs": [],
+.\routes\implement-artifact.json:20:    "sources": ["anatomy", "cerebrum", "buglog"],
+.\routes\implement-artifact.json:26:      "buglog": 2,
+.\prompts\providers\codex\worker-base.md:29:- When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.
+.\.wolf\memory.md:73:| 20:06 | Rewrote scripts/lib/state.mjs | STATE_VERSION 3->4, atomic writes, JSONL audit trail, dispatch+poll helpers | All existing exports preserved, 3 new exports added | ~3800 |
+.\.wolf\memory.md:104:| 16:10 | Edited commands/debug.md | "/hybrid-companion:debug" → "/claudsterfuck:debug" | ~6 |
+.\.wolf\memory.md:117:| 16:10 | Edited commands/debug.md | inline fix | ~4 |
+.\.wolf\memory.md:195:| 02:21 | Edited routes/debug.json | 1→2 lines | ~58 |
+.\scripts\routing\assemble-worker-prompt.mjs:53:Return a concise structured report with:
+.\scripts\routing\classify-turn.mjs:92:      "look for issues",
+.\scripts\routing\classify-turn.mjs:95:      "audit this"
+.\scripts\routing\classify-turn.mjs:97:    weakSignals: ["review", "audit"]
+.\scripts\routing\classify-turn.mjs:128:    route: "debug",
+.\scripts\routing\classify-turn.mjs:129:    reason: "bug or failure language",
+.\scripts\routing\classify-turn.mjs:137:      "reproduce the bug"
+.\scripts\routing\classify-turn.mjs:139:    weakSignals: ["bug", "error", "broken", "regression", "debug", "failure", "failing"]
+.\routes\design.json:25:      "buglog": 1,
+.\.claude\rules\openwolf.md:11:- BEFORE fixing any bug or error: read .wolf/buglog.json for known fixes
+.\.claude\rules\openwolf.md:12:- AFTER fixing any bug, error, failed test, failed build, or user-reported problem: ALWAYS log to .wolf/buglog.json with error_message, root_cause, fix, and tags
+.\.claude\rules\openwolf.md:13:- If you edit a file more than twice in a session, that likely indicates a bug — log it to .wolf/buglog.json
+.\frameworks\implementation\worker-contract.md:16:Final report must include:
+.\frameworks\implementation\verification-before-completion.md:16:- Agent reports are not proof.
+.\frameworks\implementation\verification-before-completion.md:19:- If verification fails, report the real state with evidence instead of optimistic wording.
+.\frameworks\implementation\tdd.md:18:- Do not change the test to match buggy behavior unless the requirement itself was wrong.
+.\frameworks\implementation\testing-anti-patterns.md:5:- Do not treat integration tests as an afterthought if the bug lives at boundaries.
+.\frameworks\review\ai-blind-spots.md:8:- rewriting tests to satisfy buggy behavior
+.\scripts\lib\openwolf\score.mjs:4:  implement: { anatomy: 1, cerebrum: 1, buglog: 1 },
+.\scripts\lib\openwolf\score.mjs:5:  debug: { buglog: 1, anatomy: 1 },
+.\commands\debug.md:2:description: Force the current or next turn onto the debug route
+.\commands\debug.md:9:- `/claudsterfuck:debug <objective>` to start immediately
+.\commands\debug.md:10:- `/claudsterfuck:debug` to reroute the active turn
+.\scripts\lib\openwolf\load-raw-sources.mjs:7:  buglog: ".wolf/buglog.json",
+.\frameworks\review\steelman-and-verdict.md:18:- what the issue is
+.\scripts\lib\openwolf\compile-packet.mjs:4:import { chunkAnatomy, chunkBuglog, chunkCerebrum, chunkIdentity } from "./chunk.mjs";
+.\scripts\lib\openwolf\compile-packet.mjs:13:  buglog: "known-failure-pattern",
+.\scripts\lib\openwolf\compile-packet.mjs:22:  debug:              { maxChars: 900,  maxFacts: 6, perSourceMax: 2 },
+.\scripts\lib\openwolf\compile-packet.mjs:33:  debug:     new Set(["project-background", "control-plane-meta"]),
+.\scripts\lib\openwolf\compile-packet.mjs:45:  if (["implement", "implement-artifact", "debug"].includes(route)) return EXCLUDED_CLASSES.implement;
+.\scripts\lib\openwolf\compile-packet.mjs:74:  if (rawSource.sourceName === "buglog") {
+.\scripts\lib\openwolf\compile-packet.mjs:75:    return chunkBuglog(rawSource.content, rawSource.sourcePath);
+.\scripts\lib\openwolf\compile-packet.mjs:157:  const bugChunks = selectedChunks.filter((chunk) => chunk.sourceName === "buglog");
+.\scripts\lib\openwolf\compile-packet.mjs:168:  if (bugChunks.length > 0) {
+.\scripts\lib\openwolf\compile-packet.mjs:169:    lines.push("", "### Known Failure Patterns", ...bugChunks.map(renderChunk));
+.\scripts\lib\openwolf\compile-packet.mjs:194:      omittedSources: requestedSources.map((sourceName) => `.wolf/${sourceName === "buglog" ? "buglog.json" : `${sourceName}.md`}`),
+.\scripts\lib\openwolf\chunk.mjs:88:export function chunkBuglog(content, sourcePath) {
+.\scripts\lib\openwolf\chunk.mjs:99:  const records = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.bugs) ? parsed.bugs : [];
+.\scripts\lib\openwolf\chunk.mjs:102:      id: String(record?.id ?? `bug-${index + 1}`),
+.\scripts\lib\openwolf\chunk.mjs:110:      sourceName: "buglog",
+.\commands\result.md:13:Return only the normalized worker result envelope concisely. Do not expand raw provider stats or stderr unless the user explicitly asks for debugging details.
+.\.wolf\hooks\post-write.js:142:            process.stderr.write(`⚠️ OpenWolf: ${baseName} has been edited ${session.edit_counts[editKey]} times this session. If you're fixing a bug, remember to log it to .wolf/buglog.json.\n`);
+.\.wolf\hooks\post-write.js:146:    // 4. Auto-detect bug-fix patterns and log them
+.\.wolf\hooks\post-write.js:149:            autoDetectBugFix(wolfDir, absolutePath, projectRoot, oldStr, newStr);
+.\.wolf\hooks\post-write.js:180:    // --- Value/string replacement (common bug fix: wrong value) ---
+.\.wolf\hooks\post-write.js:243:// ─── Auto Bug Detection ──────────────────────────────────────────
+.\.wolf\hooks\post-write.js:244:function autoDetectBugFix(wolfDir, absolutePath, projectRoot, oldStr, newStr) {
+.\.wolf\hooks\post-write.js:245:    const bugLogPath = path.join(wolfDir, "buglog.json");
+.\.wolf\hooks\post-write.js:246:    const bugLog = readJSON(bugLogPath, { version: 1, bugs: [] });
+.\.wolf\hooks\post-write.js:255:    const recentDupe = bugLog.bugs.find(b => {
+.\.wolf\hooks\post-write.js:262:        const bugTime = new Date(b.last_seen).getTime();
+.\.wolf\hooks\post-write.js:263:        return (Date.now() - bugTime) < 5 * 60 * 1000;
+.\.wolf\hooks\post-write.js:272:        writeJSON(bugLogPath, bugLog);
+.\.wolf\hooks\post-write.js:275:    const nextId = `bug-${String(bugLog.bugs.length + 1).padStart(3, "0")}`;
+.\.wolf\hooks\post-write.js:276:    bugLog.bugs.push({
+.\.wolf\hooks\post-write.js:284:        related_bugs: [],
+.\.wolf\hooks\post-write.js:288:    writeJSON(bugLogPath, bugLog);
+.\.wolf\hooks\post-write.js:327:    // --- Wrong value / string fix (very common bug) ---
+.\.wolf\hooks\pre-write.js:28:    // 2. Bug log: search for similar past bugs when editing code
+.\.wolf\hooks\pre-write.js:30:    // (changing error handling, modifying catch blocks, etc.), check the bug log
+.\.wolf\hooks\pre-write.js:32:        checkBugLog(wolfDir, filePath, oldStr, newStr, content);
+.\.wolf\hooks\pre-write.js:77:function checkBugLog(wolfDir, filePath, oldStr, newStr, content) {
+.\.wolf\hooks\pre-write.js:78:    const bugLogPath = path.join(wolfDir, "buglog.json");
+.\.wolf\hooks\pre-write.js:79:    if (!fs.existsSync(bugLogPath))
+.\.wolf\hooks\pre-write.js:81:    const bugLog = readJSON(bugLogPath, { version: 1, bugs: [] });
+.\.wolf\hooks\pre-write.js:82:    if (bugLog.bugs.length === 0)
+.\.wolf\hooks\pre-write.js:85:    // ONLY surface bugs that match the SAME file being edited.
+.\.wolf\hooks\pre-write.js:87:    const fileMatches = bugLog.bugs.filter(b => {
+.\.wolf\hooks\pre-write.js:88:        const bugBasename = path.basename(b.file);
+.\.wolf\hooks\pre-write.js:89:        return bugBasename === basename;
+.\.wolf\hooks\pre-write.js:96:    const relevant = fileMatches.filter(bug => {
+.\.wolf\hooks\pre-write.js:97:        // Check if any bug tag appears in the edit content
+.\.wolf\hooks\pre-write.js:98:        const tagHit = bug.tags.some(t => editText.includes(t.toLowerCase()));
+.\.wolf\hooks\pre-write.js:102:        const bugTokens = tokenize(bug.error_message + " " + bug.root_cause);
+.\.wolf\hooks\pre-write.js:103:        const overlap = [...editTokens].filter(t => bugTokens.has(t));
+.\.wolf\hooks\pre-write.js:110:    process.stderr.write(`📋 OpenWolf buglog: ${relevant.length} past bug(s) found for ${basename} — review for context, do NOT apply blindly:\n`);
+.\.wolf\hooks\pre-write.js:111:    for (const bug of relevant.slice(0, 2)) {
+.\.wolf\hooks\pre-write.js:112:        process.stderr.write(`   [${bug.id}] "${bug.error_message.slice(0, 70)}"\n   Cause: ${bug.root_cause.slice(0, 80)}\n   Fix: ${bug.fix.slice(0, 80)}\n`);
+.\.wolf\hooks\session-start.js:60:    // Check buglog — remind if empty
+.\.wolf\hooks\session-start.js:62:        const buglogPath = path.join(wolfDir, "buglog.json");
+.\.wolf\hooks\session-start.js:63:        const buglog = readJSON(buglogPath, { bugs: [] });
+.\.wolf\hooks\session-start.js:64:        if (buglog.bugs.length === 0) {
+.\.wolf\hooks\session-start.js:65:            process.stderr.write(`📋 OpenWolf: buglog.json is empty. If you encounter or fix any bugs, errors, or failed tests this session, log them to .wolf/buglog.json.\n`);
+.\.wolf\hooks\stop.js:30:    // Check for files edited many times without a buglog entry
+.\.wolf\hooks\stop.js:31:    checkForMissingBugLogs(wolfDir, session);
+.\.wolf\hooks\stop.js:81:        optimization_report: { last_generated: null, patterns: [] },
+.\.wolf\hooks\stop.js:111: * Check if files were edited multiple times but buglog.json wasn't updated.
+.\.wolf\hooks\stop.js:114:function checkForMissingBugLogs(wolfDir, session) {
+.\.wolf\hooks\stop.js:122:    // Check if buglog was written to this session
+.\.wolf\hooks\stop.js:123:    const buglogWritten = session.files_written.some(w => w.file.includes("buglog.json"));
+.\.wolf\hooks\stop.js:124:    if (!buglogWritten) {
+.\.wolf\hooks\stop.js:125:        process.stderr.write(`⚠️ OpenWolf: Files edited 3+ times this session (${multiEditFiles.join(", ")}) but buglog.json was not updated. If you fixed bugs, please log them.\n`);
+
+ succeeded in 205ms:
+
+    Directory: C:\dev\claudsterfuck
+
+[32;1mMode   [0m[32;1m              LastWriteTime[0m [32;1;3m        Length[0m[32;1m Name[0m
+[32;1m----   [0m [32;1m             -------------[0m [32;1m        ------[0m [32;1m----[0m
+d----           4/16/2026  1:14 AM                [44;1m.claude[0m
+d----           4/16/2026  2:56 AM                [44;1m.claude-plugin[0m
+d----           4/16/2026  1:17 AM                [44;1m.tmp[0m
+d----           4/16/2026 10:36 AM                [44;1m.wolf[0m
+d----           4/15/2026  4:01 PM                [44;1magents[0m
+d----           4/15/2026  4:11 PM                [44;1mcommands[0m
+d----           4/15/2026  3:44 PM                [44;1mframeworks[0m
+d----           4/15/2026  3:45 PM                [44;1mhooks[0m
+d----           4/15/2026  3:44 PM                [44;1mprompts[0m
+d----           4/16/2026  2:21 AM                [44;1mroutes[0m
+d----           4/16/2026  2:55 AM                [44;1mscripts[0m
+d----           4/15/2026  4:10 PM                [44;1mskills[0m
+-a---           4/15/2026  2:31 PM            225 CLAUDE.md
+-a---           4/15/2026  1:14 PM          24984 REWRITE_PROPOSAL.md
+-a---           4/15/2026  1:33 PM           4664 REWRITE_SESSION_HANDOFF.md
+
+
+codex
+I found no explicit “finding 1” reference in tracked source files yet, so I’m checking workflow state/artifacts (`.wolf`, `.tmp`, `.claude`) for the associated review output to identify the exact bug to fix.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -Force .tmp | Select-Object FullName,Length,LastWriteTime' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -Force .claude | Select-Object FullName,Length,LastWriteTime' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -Force .wolf | Select-Object FullName,Length,LastWriteTime' in C:\dev\claudsterfuck
+ succeeded in 184ms:
+
+[32;1mFullName                                            [0m[32;1m Length[0m[32;1m LastWriteTime[0m
+[32;1m--------                                            [0m [32;1m------[0m [32;1m-------------[0m
+C:\dev\claudsterfuck\.tmp\gemini-detached-stderr.txt      0 4/16/2026 1:13:43 AM
+C:\dev\claudsterfuck\.tmp\gemini-detached-stdout.txt      0 4/16/2026 1:13:43 AM
+C:\dev\claudsterfuck\.tmp\readstdin.js                  167 4/16/2026 1:17:10 AM
+C:\dev\claudsterfuck\.tmp\redirect-out.txt               79 4/16/2026 1:17:28 AM
+C:\dev\claudsterfuck\.tmp\stdin.txt                      21 4/16/2026 1:17:28 AM
+C:\dev\claudsterfuck\.tmp\testshim.ps1                  214 4/16/2026 1:17:11 AM
+
+
+ succeeded in 184ms:
+
+[32;1mFullName                                        [0m[32;1m Length[0m[32;1m LastWriteTime[0m
+[32;1m--------                                        [0m [32;1m------[0m [32;1m-------------[0m
+C:\dev\claudsterfuck\.claude\rules                      4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.claude\settings.json       1543   4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.claude\settings.local.json 1356   4/16/2026 1:14:04 AM
+C:\dev\claudsterfuck\.claude\rules\openwolf.md   1256   4/15/2026 2:31:36 PM
+
+
+ succeeded in 185ms:
+
+[32;1mFullName                                         [0m[32;1m Length[0m[32;1m LastWriteTime[0m
+[32;1m--------                                         [0m [32;1m------[0m [32;1m-------------[0m
+C:\dev\claudsterfuck\.wolf\hooks                         4/16/2026 10:36:11 AM
+C:\dev\claudsterfuck\.wolf\anatomy.md             3974   4/16/2026 2:56:17 AM
+C:\dev\claudsterfuck\.wolf\buglog.json            34846  4/16/2026 2:56:17 AM
+C:\dev\claudsterfuck\.wolf\cerebrum.md            2851   4/16/2026 2:56:29 AM
+C:\dev\claudsterfuck\.wolf\config.json            1587   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\cron-manifest.json     3246   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\cron-state.json        131    3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\designqc-report.json   90     4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.wolf\identity.md            351    4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.wolf\memory.md              18142  4/16/2026 10:36:11 AM
+C:\dev\claudsterfuck\.wolf\OPENWOLF.md            6549   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\reframe-frameworks.md  26494  3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\suggestions.json       47     4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.wolf\token-ledger.json      143835 4/16/2026 10:36:11 AM
+C:\dev\claudsterfuck\.wolf\hooks\_session.json    2326   4/16/2026 10:36:11 AM
+C:\dev\claudsterfuck\.wolf\hooks\package.json     23     4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.wolf\hooks\post-read.js     2797   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\hooks\post-write.js    22629  3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\hooks\pre-read.js      3206   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\hooks\pre-write.js     5494   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\hooks\session-start.js 3530   3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\hooks\shared.js        30797  3/20/2026 5:12:41 PM
+C:\dev\claudsterfuck\.wolf\hooks\stop.js          6223   3/20/2026 5:12:41 PM
+
+
+codex
+I still don’t have the actual finding text, so I’m now inspecting orchestration/state files where prior review findings are usually stored.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -Force .claude-plugin | Select-Object FullName,Length,LastWriteTime' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'rg -n --hidden -S "finding|Finding|F1|#1|severity|issue" .claude-plugin .wolf scripts routes prompts frameworks commands' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -Force agents | Select-Object FullName,Length,LastWriteTime' in C:\dev\claudsterfuck
+ succeeded in 190ms:
+prompts\providers\gemini\worker-base.md:30:- For each finding, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence. Claude uses these snippets to verify your work without re-reading files.
+routes\review.json:14:  "routeBrief": "Review with calibrated skepticism, surface the most important actionable issues first, and end with a clear verdict.",
+prompts\providers\codex\worker-base.md:29:- When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.
+frameworks\review\steelman-and-verdict.md:18:- what the issue is
+scripts\routing\classify-turn.mjs:92:      "look for issues",
+
+ succeeded in 198ms:
+
+[32;1mFullName                                            [0m[32;1m Length[0m[32;1m LastWriteTime[0m
+[32;1m--------                                            [0m [32;1m------[0m [32;1m-------------[0m
+C:\dev\claudsterfuck\.claude-plugin\marketplace.json    449 4/16/2026 2:56:17 AM
+C:\dev\claudsterfuck\.claude-plugin\plugin.json         285 4/16/2026 2:56:14 AM
+
+
+ succeeded in 198ms:
+
+[32;1mFullName                                                  [0m[32;1m Length[0m[32;1m LastWriteTime[0m
+[32;1m--------                                                  [0m [32;1m------[0m [32;1m-------------[0m
+C:\dev\claudsterfuck\agents\claudsterfuck-codex-worker.md     850 4/15/2026 4:01:13 PM
+C:\dev\claudsterfuck\agents\claudsterfuck-gemini-worker.md    853 4/15/2026 4:01:22 PM
+
+
+codex
+No direct reference turned up in repo text, so I’m tracing where the orchestrator persists turn/run metadata and checking that location for the “finding 1” payload.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'rg -n --hidden -S "resolveStateDir|state.json|turn|finding|objective|memory packet|route" scripts/lib/state.mjs scripts/orchestrator.mjs scripts/routing/assemble-worker-prompt.mjs' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content scripts/lib/state.mjs -TotalCount 220' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -Force .cl* | Select-Object FullName,Length,LastWriteTime' in C:\dev\claudsterfuck
+ succeeded in 162ms:
+scripts/lib/state.mjs:9:const STATE_FILE_NAME = "state.json";
+scripts/lib/state.mjs:15:  objective: "",
+scripts/lib/state.mjs:16:  route: "",
+scripts/lib/state.mjs:50:  return new Date().toISOString();
+scripts/lib/state.mjs:54:  return {
+scripts/lib/state.mjs:61:  return {
+scripts/lib/state.mjs:78:  return `${slug}-${hash}`;
+scripts/lib/state.mjs:82:  return Array.isArray(value) ? value : [];
+scripts/lib/state.mjs:103:  const auditPath = path.join(resolveStateDir(cwd), "audit.jsonl");
+scripts/lib/state.mjs:117:function resolveTurnPhase(turn) {
+scripts/lib/state.mjs:118:  if (!turn) {
+scripts/lib/state.mjs:119:    return TURN_DEFAULTS.phase;
+scripts/lib/state.mjs:122:  if (turn.requiresDelegation === false || turn.status === "non-delegated") {
+scripts/lib/state.mjs:123:    return TURN_PHASES.NON_DELEGATED;
+scripts/lib/state.mjs:125:  if (turn.status === "cancelled") {
+scripts/lib/state.mjs:126:    return TURN_PHASES.CANCELLED;
+scripts/lib/state.mjs:128:  if (turn.awaitingConfirmation === true || turn.confirmationRequired === true) {
+scripts/lib/state.mjs:129:    return TURN_PHASES.AWAITING_USER;
+scripts/lib/state.mjs:131:  if (turn.latestRunStatus === "running" || turn.status === "worker-running" || turn.phase === TURN_PHASES.WORKER_RUNNING) {
+scripts/lib/state.mjs:132:    return TURN_PHASES.WORKER_RUNNING;
+scripts/lib/state.mjs:134:  if (turn.phase && typeof turn.phase === "string") {
+scripts/lib/state.mjs:135:    return turn.phase;
+scripts/lib/state.mjs:137:  if (turn.latestRunStatus === "completed" || turn.status === "worker-complete") {
+scripts/lib/state.mjs:138:    return TURN_PHASES.REVIEWING;
+scripts/lib/state.mjs:140:  if (turn.latestRunStatus === "failed" || turn.status === "worker-failed") {
+scripts/lib/state.mjs:141:    return TURN_PHASES.READY_TO_DELEGATE;
+scripts/lib/state.mjs:144:  return turn.requiresDelegation === false ? TURN_PHASES.NON_DELEGATED : TURN_PHASES.REFINING;
+scripts/lib/state.mjs:147:function resolveTurnStatus(turn, phase) {
+scripts/lib/state.mjs:148:  if (!turn) {
+scripts/lib/state.mjs:149:    return TURN_DEFAULTS.status;
+scripts/lib/state.mjs:152:  if (turn.requiresDelegation === false || phase === TURN_PHASES.NON_DELEGATED) {
+scripts/lib/state.mjs:153:    return "non-delegated";
+scripts/lib/state.mjs:156:    return "cancelled";
+scripts/lib/state.mjs:159:    return "worker-running";
+scripts/lib/state.mjs:161:  if (turn.latestRunStatus === "failed" || turn.status === "worker-failed") {
+scripts/lib/state.mjs:162:    return "worker-failed";
+scripts/lib/state.mjs:165:    return "needs-delegation";
+scripts/lib/state.mjs:168:    return "worker-complete";
+scripts/lib/state.mjs:170:  if (turn.latestRunStatus === "completed" || turn.status === "worker-complete") {
+scripts/lib/state.mjs:171:    return "worker-complete";
+scripts/lib/state.mjs:174:  return "needs-delegation";
+scripts/lib/state.mjs:177:function normalizeTurn(turn) {
+scripts/lib/state.mjs:178:  if (!turn) {
+scripts/lib/state.mjs:179:    return null;
+scripts/lib/state.mjs:182:  const phase = resolveTurnPhase(turn);
+scripts/lib/state.mjs:184:  return {
+scripts/lib/state.mjs:186:    ...turn,
+scripts/lib/state.mjs:187:    provider: turn.provider ?? null,
+scripts/lib/state.mjs:188:    requiredFrameworks: ensureArray(turn.requiredFrameworks),
+scripts/lib/state.mjs:189:    matchedSignals: ensureArray(turn.matchedSignals),
+scripts/lib/state.mjs:190:    pendingCandidates: ensureArray(turn.pendingCandidates),
+scripts/lib/state.mjs:191:    workerRuns: ensureArray(turn.workerRuns),
+scripts/lib/state.mjs:192:    archivedRuns: ensureArray(turn.archivedRuns),
+scripts/lib/state.mjs:193:    pendingObjective: turn.pendingObjective ?? null,
+scripts/lib/state.mjs:194:    pendingProvider: turn.pendingProvider ?? null,
+scripts/lib/state.mjs:195:    latestRunId: turn.latestRunId ?? null,
+scripts/lib/state.mjs:196:    latestRunStatus: turn.latestRunStatus ?? null,
+scripts/lib/state.mjs:197:    latestRunErrorSummary: turn.latestRunErrorSummary ?? null,
+scripts/lib/state.mjs:199:    status: resolveTurnStatus(turn, phase),
+scripts/lib/state.mjs:201:      Number.isFinite(turn.timeoutSeconds) && turn.timeoutSeconds > 0
+scripts/lib/state.mjs:202:        ? Math.floor(turn.timeoutSeconds)
+scripts/lib/state.mjs:205:      turn.defaultMemoryPlan && typeof turn.defaultMemoryPlan === "object" ? turn.defaultMemoryPlan : null
+scripts/lib/state.mjs:211:    return null;
+scripts/lib/state.mjs:214:  return {
+scripts/lib/state.mjs:225:export function resolveStateDir(cwd) {
+scripts/lib/state.mjs:228:  return path.join(stateRoot, workspaceHash(cwd));
+scripts/lib/state.mjs:232:  return path.join(resolveStateDir(cwd), STATE_FILE_NAME);
+scripts/lib/state.mjs:236:  return path.join(resolveStateDir(cwd), RUNS_DIR_NAME);
+scripts/lib/state.mjs:240:  return path.join(resolveRunsDir(cwd), runId);
+scripts/lib/state.mjs:244:  return path.join(resolveRunsDir(cwd), `${runId}.json`);
+scripts/lib/state.mjs:256:  return Object.fromEntries(entries.slice(0, MAX_SESSIONS));
+scripts/lib/state.mjs:264:  return loadStateWithReadHealth(cwd).state;
+scripts/lib/state.mjs:270:    return {
+scripts/lib/state.mjs:279:    return {
+scripts/lib/state.mjs:292:    return {
+scripts/lib/state.mjs:308:  return nextState;
+scripts/lib/state.mjs:314:  return saveState(cwd, state);
+scripts/lib/state.mjs:323:    return null;
+scripts/lib/state.mjs:327:  return normalizeSessionRecord(sessionId, record);
+scripts/lib/state.mjs:332:    return loadState(cwd);
+scripts/lib/state.mjs:335:  return updateState(cwd, (state) => {
+scripts/lib/state.mjs:357:export function setCurrentTurn(cwd, sessionId, turn) {
+scripts/lib/state.mjs:358:  appendAudit(cwd, { event: "turn-created", sessionId, route: turn?.route ?? null, provider: turn?.provider ?? null });
+scripts/lib/state.mjs:359:  return setSessionRecord(cwd, sessionId, (previous) => ({
+scripts/lib/state.mjs:362:      ...normalizeTurn(turn),
+scripts/lib/state.mjs:369:  return setSessionRecord(cwd, sessionId, (previous) => {
+scripts/lib/state.mjs:375:      appendAudit(cwd, { event: "turn-cancelled", sessionId, route: currentTurn.route });
+scripts/lib/state.mjs:377:      appendAudit(cwd, { event: "turn-updated", sessionId, fromPhase: currentTurn.phase, toPhase: nextTurn.phase });
+scripts/lib/state.mjs:380:    return {
+scripts/lib/state.mjs:397:  appendAudit(cwd, { event: "run-started", sessionId, runId: runSummary.id, provider: runSummary.provider, route: runSummary.route });
+scripts/lib/state.mjs:398:  return updateCurrentTurn(cwd, sessionId, (currentTurn) => {
+scripts/lib/state.mjs:400:      return currentTurn;
+scripts/lib/state.mjs:404:    return {
+scripts/lib/state.mjs:417:  return `${provider}-${randomUUID().slice(0, 8)}`;
+scripts/lib/state.mjs:430:  return filePath;
+scripts/lib/state.mjs:434:  return JSON.parse(fs.readFileSync(resolveRunFile(cwd, runId), "utf8"));
+scripts/lib/state.mjs:448:  if (!fs.existsSync(processFile)) return null;
+scripts/lib/state.mjs:449:  return JSON.parse(fs.readFileSync(processFile, "utf8"));
+scripts/lib/state.mjs:455:    return true;
+scripts/lib/state.mjs:457:    return false;
+scripts/routing/assemble-worker-prompt.mjs:19:  if (artifactMode === "return-artifacts") {
+scripts/routing/assemble-worker-prompt.mjs:20:    return `## Output Contract
+scripts/routing/assemble-worker-prompt.mjs:23:output files. Instead, generate the complete content for each output file and return it in the
+scripts/routing/assemble-worker-prompt.mjs:46:Only the final file output must be returned as artifacts rather than written directly.
+scripts/routing/assemble-worker-prompt.mjs:51:  return `## Output Contract
+scripts/routing/assemble-worker-prompt.mjs:53:Return a concise structured report with:
+scripts/routing/assemble-worker-prompt.mjs:65:  return frameworks
+scripts/routing/assemble-worker-prompt.mjs:78:  return Object.entries(replacements).reduce(
+scripts/routing/assemble-worker-prompt.mjs:85:  return frameworkPaths.map((relativePath) => {
+scripts/routing/assemble-worker-prompt.mjs:87:    return {
+scripts/routing/assemble-worker-prompt.mjs:94:function buildMemoryPacket(route, options) {
+scripts/routing/assemble-worker-prompt.mjs:95:  if (!route.requiresDelegation || !route.defaultMemoryPlan || !options.workspaceRoot) {
+scripts/routing/assemble-worker-prompt.mjs:96:    return "";
+scripts/routing/assemble-worker-prompt.mjs:100:    return (
+scripts/routing/assemble-worker-prompt.mjs:103:        objective: options.objective,
+scripts/routing/assemble-worker-prompt.mjs:104:        route: route.route,
+scripts/routing/assemble-worker-prompt.mjs:105:        memoryPlan: route.defaultMemoryPlan
+scripts/routing/assemble-worker-prompt.mjs:109:    return "";
+scripts/routing/assemble-worker-prompt.mjs:114:  const route = loadRouteProfile(options.route);
+scripts/routing/assemble-worker-prompt.mjs:115:  const provider = options.provider ?? route.defaultProvider ?? null;
+scripts/routing/assemble-worker-prompt.mjs:116:  const artifactMode = route.artifactMode ?? null;
+scripts/routing/assemble-worker-prompt.mjs:118:    Number.isFinite(route.timeoutSeconds) && route.timeoutSeconds > 0 ? Math.floor(route.timeoutSeconds) : 900;
+scripts/routing/assemble-worker-prompt.mjs:120:  if (route.requiresDelegation === false) {
+scripts/routing/assemble-worker-prompt.mjs:121:    return {
+scripts/routing/assemble-worker-prompt.mjs:122:      route: route.route,
+scripts/routing/assemble-worker-prompt.mjs:124:      writeEnabled: Boolean(route.writeEnabled),
+scripts/routing/assemble-worker-prompt.mjs:126:      requiredFrameworks: Array.isArray(route.requiredFrameworks) ? route.requiredFrameworks : [],
+scripts/routing/assemble-worker-prompt.mjs:127:      frameworks: Array.isArray(route.requiredFrameworks) ? route.requiredFrameworks : [],
+scripts/routing/assemble-worker-prompt.mjs:129:      defaultMemoryPlan: route.defaultMemoryPlan ?? null,
+scripts/routing/assemble-worker-prompt.mjs:131:      prompt: String(options.objective ?? "").trim()
+scripts/routing/assemble-worker-prompt.mjs:139:  const frameworks = loadFrameworks(route.requiredFrameworks);
+scripts/routing/assemble-worker-prompt.mjs:141:  const memoryPacket = buildMemoryPacket(route, {
+scripts/routing/assemble-worker-prompt.mjs:143:    objective: options.objective
+scripts/routing/assemble-worker-prompt.mjs:147:    ROUTE_NAME: route.route,
+scripts/routing/assemble-worker-prompt.mjs:148:    WRITE_MODE: route.writeEnabled ? "write-enabled" : "read-only",
+scripts/routing/assemble-worker-prompt.mjs:149:    OBJECTIVE: String(options.objective ?? "").trim() || "No objective provided.",
+scripts/routing/assemble-worker-prompt.mjs:150:    ROUTE_BRIEF: route.routeBrief,
+scripts/routing/assemble-worker-prompt.mjs:162:  return {
+scripts/routing/assemble-worker-prompt.mjs:163:    route: route.route,
+scripts/routing/assemble-worker-prompt.mjs:165:    writeEnabled: Boolean(route.writeEnabled),
+scripts/routing/assemble-worker-prompt.mjs:166:    requiresDelegation: Boolean(route.requiresDelegation),
+scripts/routing/assemble-worker-prompt.mjs:170:    defaultMemoryPlan: route.defaultMemoryPlan ?? null,
+scripts/routing/assemble-worker-prompt.mjs:172:    description: route.description,
+scripts/routing/assemble-worker-prompt.mjs:186:    route: "",
+scripts/routing/assemble-worker-prompt.mjs:188:    objective: "",
+scripts/routing/assemble-worker-prompt.mjs:195:    if (value === "--route") {
+scripts/routing/assemble-worker-prompt.mjs:196:      args.route = argv[i + 1] ?? "";
+scripts/routing/assemble-worker-prompt.mjs:201:    } else if (value === "--objective") {
+scripts/routing/assemble-worker-prompt.mjs:202:      args.objective = argv[i + 1] ?? "";
+scripts/routing/assemble-worker-prompt.mjs:210:      args.objective = args.objective ? `${args.objective} ${value}` : value;
+scripts/routing/assemble-worker-prompt.mjs:214:  return args;
+scripts/routing/assemble-worker-prompt.mjs:219:  if (!args.route) {
+scripts/routing/assemble-worker-prompt.mjs:220:    throw new Error("Missing required --route.");
+scripts/routing/assemble-worker-prompt.mjs:224:    route: args.route,
+scripts/routing/assemble-worker-prompt.mjs:226:    objective: args.objective
+scripts/routing/assemble-worker-prompt.mjs:231:    return;
+scripts/orchestrator.mjs:8: * (Codex, Gemini) are spawned detached; the orchestrator returns immediately
+scripts/orchestrator.mjs:12: *   dispatch  - Assemble prompt, spawn provider detached, return immediately
+scripts/orchestrator.mjs:14: *   status    - Session/turn state snapshot
+scripts/orchestrator.mjs:20: *   reroute   - Change route on current turn
+scripts/orchestrator.mjs:21: *   reset     - Clear current turn
+scripts/orchestrator.mjs:75:    route: "",
+scripts/orchestrator.mjs:76:    objective: "",
+scripts/orchestrator.mjs:93:    } else if (value === "--route") {
+scripts/orchestrator.mjs:94:      args.route = values[index + 1] ?? "";
+scripts/orchestrator.mjs:96:    } else if (value === "--objective") {
+scripts/orchestrator.mjs:97:      args.objective = values[index + 1] ?? "";
+scripts/orchestrator.mjs:116:      args.objective = args.objective ? `${args.objective} ${value}` : value;
+scripts/orchestrator.mjs:120:  return args;
+scripts/orchestrator.mjs:130:    return;
+scripts/orchestrator.mjs:154:  return new Promise((resolve) => setTimeout(resolve, ms));
+scripts/orchestrator.mjs:160:      return null;
+scripts/orchestrator.mjs:164:    return contents.trim() ? JSON.parse(contents) : null;
+scripts/orchestrator.mjs:166:    return null;
+scripts/orchestrator.mjs:173:      return null;
+scripts/orchestrator.mjs:176:    return fs.readFileSync(filePath, "utf8").slice(0, maxChars);
+scripts/orchestrator.mjs:178:    return null;
+scripts/orchestrator.mjs:185:      return null;
+scripts/orchestrator.mjs:190:      return content;
+scripts/orchestrator.mjs:193:    return content.slice(-maxChars);
+scripts/orchestrator.mjs:195:    return null;
+scripts/orchestrator.mjs:201:  return session?.currentTurn ?? null;
+scripts/orchestrator.mjs:206:  return Number.isFinite(parsed) ? parsed : 0;
+scripts/orchestrator.mjs:212:    return fallback;
+scripts/orchestrator.mjs:215:  return Math.floor(numeric);
+scripts/orchestrator.mjs:231:    return callback();
+scripts/orchestrator.mjs:244:    return [explicit];
+scripts/orchestrator.mjs:250:    return [];
+scripts/orchestrator.mjs:253:  return fs
+scripts/orchestrator.mjs:261:  return Object.entries(sessions)
+scripts/orchestrator.mjs:285:  return {
+scripts/orchestrator.mjs:300:    return buildStateCandidate(cwd, process.env[CLAUDE_PLUGIN_DATA_ENV]);
+scripts/orchestrator.mjs:309:    return pluginCandidate ?? candidates[0];
+scripts/orchestrator.mjs:314:      return Number(right.hasCurrentTurn) - Number(left.hasCurrentTurn);
+scripts/orchestrator.mjs:317:      return right.latestUpdatedMs - left.latestUpdatedMs;
+scripts/orchestrator.mjs:319:    return right.sessionCount - left.sessionCount;
+scripts/orchestrator.mjs:322:  return withSessions[0];
+scripts/orchestrator.mjs:327:    return;
+scripts/orchestrator.mjs:342:    return null;
+scripts/orchestrator.mjs:345:  return "Using fallback temp state source. This is expected pre-session-binding; for bound sessions prefer plugin-data state to guarantee cross-terminal consistency.";
+scripts/orchestrator.mjs:348:function resolveStalledThresholdSeconds(route) {
+scripts/orchestrator.mjs:350:  if (!route) {
+scripts/orchestrator.mjs:351:    return defaultThreshold;
+scripts/orchestrator.mjs:355:    const profile = loadRouteProfile(route);
+scripts/orchestrator.mjs:356:    return resolvePositiveInteger(
+scripts/orchestrator.mjs:361:    return defaultThreshold;
+scripts/orchestrator.mjs:367:    return null;
+scripts/orchestrator.mjs:370:  return Math.max(0, Math.floor((nowMs - timestampMs) / 1000));
+scripts/orchestrator.mjs:377:    return {
+scripts/orchestrator.mjs:391:    return {
+scripts/orchestrator.mjs:401:  const thresholdSeconds = resolveStalledThresholdSeconds(run?.route);
+scripts/orchestrator.mjs:425:  return {
+scripts/orchestrator.mjs:438:    return {
+scripts/orchestrator.mjs:447:    return {
+scripts/orchestrator.mjs:453:  return {
+scripts/orchestrator.mjs:461:    return [];
+scripts/orchestrator.mjs:464:  return fs
+scripts/orchestrator.mjs:487:          route: run.route ?? null,
+scripts/orchestrator.mjs:500:        return {
+scripts/orchestrator.mjs:505:        return {
+scripts/orchestrator.mjs:520:  return directory;
+scripts/orchestrator.mjs:525:    return null;
+scripts/orchestrator.mjs:529:  return filePath;
+scripts/orchestrator.mjs:534:  return filePath;
+scripts/orchestrator.mjs:539:  return {
+scripts/orchestrator.mjs:555:    return;
+scripts/orchestrator.mjs:558:  updateCurrentTurn(cwd, sessionId, (turn) => {
+scripts/orchestrator.mjs:559:    if (!turn) {
+scripts/orchestrator.mjs:560:      return turn;
+scripts/orchestrator.mjs:563:    const workerRuns = Array.isArray(turn.workerRuns) ? turn.workerRuns : [];
+scripts/orchestrator.mjs:577:    return {
+scripts/orchestrator.mjs:578:      ...turn,
+scripts/orchestrator.mjs:599:    return false;
+scripts/orchestrator.mjs:604:    return true;
+scripts/orchestrator.mjs:608:      return true;
+scripts/orchestrator.mjs:610:    return false;
+scripts/orchestrator.mjs:620:    return false;
+scripts/orchestrator.mjs:640:    return true;
+scripts/orchestrator.mjs:642:    return false;
+scripts/orchestrator.mjs:651: * Returns { pid, stdoutFile, stderrFile }.
+scripts/orchestrator.mjs:690:  return {
+scripts/orchestrator.mjs:699: * Returns { pid, stdoutFile, stderrFile, startedAt } or null.
+scripts/orchestrator.mjs:704:  return readJsonFileSafe(processInfoPath);
+scripts/orchestrator.mjs:733:  return args;
+scripts/orchestrator.mjs:747:  return args;
+scripts/orchestrator.mjs:761:    return null;
+scripts/orchestrator.mjs:764:  return lines.slice(-6).join(" | ");
+scripts/orchestrator.mjs:769: * Returns an array of per-artifact status records, or null if no artifacts.
+scripts/orchestrator.mjs:775:    return null;
+scripts/orchestrator.mjs:816:  return results;
+scripts/orchestrator.mjs:833:  // Write-enabled routes (implement/debug): Codex's output is file changes on disk, not stdout.
+scripts/orchestrator.mjs:835:  // Read-only routes (review-feedback/plan): Codex must produce a report; empty output = failure.
+scripts/orchestrator.mjs:838:  const writeEnabled = WRITE_ROUTES.has(run.route ?? "");
+scripts/orchestrator.mjs:847:  // Artifact handoff for return-artifacts mode
+scripts/orchestrator.mjs:850:    artifactMode === "return-artifacts" && finalOutput
+scripts/orchestrator.mjs:857:    route: run.route,
+scripts/orchestrator.mjs:867:  return {
+scripts/orchestrator.mjs:913:    route: run.route,
+scripts/orchestrator.mjs:922:  return {
+scripts/orchestrator.mjs:985:  // Update turn state
+scripts/orchestrator.mjs:991:  return {
+scripts/orchestrator.mjs:994:    route: run.route,
+scripts/orchestrator.mjs:1020:      "Missing session binding for dispatch. Resolve routed state first with status/inspect, then dispatch in the same session or pass --session-id."
+scripts/orchestrator.mjs:1024:  // Resolve current turn
+scripts/orchestrator.mjs:1028:      `No active routed turn found for session "${sessionId}". Create or reroute a turn first, then dispatch.`
+scripts/orchestrator.mjs:1032:  if (args.route || args.provider || args.objective) {
+scripts/orchestrator.mjs:1034:      "Bound-session dispatch rejects CLI overrides (--provider/--route/--objective). Route and provider come from the active turn. Use reroute to change route/provider."
+scripts/orchestrator.mjs:1038:  const route = currentTurn?.route || "";
+scripts/orchestrator.mjs:1040:  const objective = currentTurn?.objective || currentTurn?.prompt || "";
+scripts/orchestrator.mjs:1042:  if (!route) {
+scripts/orchestrator.mjs:1043:    throw new Error("Missing route. Provide --route or start from a routed Claude turn.");
+scripts/orchestrator.mjs:1045:  if (!objective.trim()) {
+scripts/orchestrator.mjs:1046:    throw new Error("Missing objective text for dispatch.");
+scripts/orchestrator.mjs:1052:    route,
+scripts/orchestrator.mjs:1054:    objective
+scripts/orchestrator.mjs:1058:    throw new Error(`Route "${assembled.route}" does not require delegation.`);
+scripts/orchestrator.mjs:1061:    throw new Error(`Route "${assembled.route}" does not declare a worker provider.`);
+scripts/orchestrator.mjs:1103:    route: assembled.route,
+scripts/orchestrator.mjs:1105:    objective,
+scripts/orchestrator.mjs:1123:  // Register in turn state
+scripts/orchestrator.mjs:1128:      route: assembled.route,
+scripts/orchestrator.mjs:1196:    route: assembled.route,
+scripts/orchestrator.mjs:1204:    return;
+scripts/orchestrator.mjs:1207:  // Return immediately
+scripts/orchestrator.mjs:1215:      route: assembled.route,
+scripts/orchestrator.mjs:1251:        route: run.route,
+scripts/orchestrator.mjs:1262:    return;
+scripts/orchestrator.mjs:1281:      // Process finished - finalize and return full result
+scripts/orchestrator.mjs:1302:      return;
+scripts/orchestrator.mjs:1309:  // Timeout reached - process still running, return progress snapshot
+scripts/orchestrator.mjs:1327:      route: run.route,
+scripts/orchestrator.mjs:1355:        ? `Current turn phase: ${session.currentTurn.phase} (status: ${session.currentTurn.status})`
+scripts/orchestrator.mjs:1356:        : "No routed turn is stored for this session.",
+scripts/orchestrator.mjs:1385:  // Slim mode: return only essential fields for low-token orchestration
+scripts/orchestrator.mjs:1389:        route: currentTurn?.route ?? null,
+scripts/orchestrator.mjs:1400:    return;
+scripts/orchestrator.mjs:1411:        route: run.route,
+scripts/orchestrator.mjs:1440:    const turn = record?.currentTurn ?? null;
+scripts/orchestrator.mjs:1441:    return {
+scripts/orchestrator.mjs:1445:      hasCurrentTurn: Boolean(turn),
+scripts/orchestrator.mjs:1446:      route: turn?.route ?? null,
+scripts/orchestrator.mjs:1447:      provider: turn?.provider ?? null,
+scripts/orchestrator.mjs:1448:      phase: turn?.phase ?? null,
+scripts/orchestrator.mjs:1449:      status: turn?.status ?? null,
+scripts/orchestrator.mjs:1450:      latestRunId: turn?.latestRunId ?? null,
+scripts/orchestrator.mjs:1451:      latestRunStatus: turn?.latestRunStatus ?? null,
+scripts/orchestrator.mjs:1452:      workerRuns: Array.isArray(turn?.workerRuns) ? turn.workerRuns.length : 0,
+scripts/orchestrator.mjs:1453:      archivedRuns: Array.isArray(turn?.archivedRuns) ? turn.archivedRuns.length : 0
+scripts/orchestrator.mjs:1516:      route: run.route,
+scripts/orchestrator.mjs:1539:        reason: "No current routed turn is stored."
+scripts/orchestrator.mjs:1543:    return;
+scripts/orchestrator.mjs:1550:        reason: "Current turn does not require delegation."
+scripts/orchestrator.mjs:1554:    return;
+scripts/orchestrator.mjs:1565:    return;
+scripts/orchestrator.mjs:1594:    // Update turn state to cancelled
+scripts/orchestrator.mjs:1595:    updateCurrentTurn(cwd, sessionId, (turn) => {
+scripts/orchestrator.mjs:1596:      if (!turn) {
+scripts/orchestrator.mjs:1597:        return turn;
+scripts/orchestrator.mjs:1600:      return {
+scripts/orchestrator.mjs:1601:        ...turn,
+scripts/orchestrator.mjs:1623:    return;
+scripts/orchestrator.mjs:1631:    updateCurrentTurn(cwd, sessionId, (turn) => {
+scripts/orchestrator.mjs:1632:      if (!turn) {
+scripts/orchestrator.mjs:1633:        return turn;
+scripts/orchestrator.mjs:1636:      return {
+scripts/orchestrator.mjs:1637:        ...turn,
+scripts/orchestrator.mjs:1655:    return;
+scripts/orchestrator.mjs:1684:    return;
+scripts/orchestrator.mjs:1790:    // Explicit session: clear only that session's turn
+scripts/orchestrator.mjs:1794:    // No explicit session: clear all sessions' turns so state is fully clean
+scripts/orchestrator.mjs:1805:// Command: reroute (preserved from old code)
+scripts/orchestrator.mjs:1808:export async function handleReroute(cwd, args) {
+scripts/orchestrator.mjs:1813:    throw new Error("No current routed turn is stored for reroute.");
+scripts/orchestrator.mjs:1815:  if (!args.route) {
+scripts/orchestrator.mjs:1816:    throw new Error("Missing required --route for reroute.");
+scripts/orchestrator.mjs:1819:  const routeProfile = loadRouteProfile(args.route);
+scripts/orchestrator.mjs:1820:  updateCurrentTurn(cwd, sessionId, (turn) => {
+scripts/orchestrator.mjs:1821:    if (!turn) {
+scripts/orchestrator.mjs:1822:      return turn;
+scripts/orchestrator.mjs:1825:    const archivedRuns = Array.isArray(turn.archivedRuns) ? [...turn.archivedRuns] : [];
+scripts/orchestrator.mjs:1826:    const workerRuns = Array.isArray(turn.workerRuns) ? turn.workerRuns : [];
+scripts/orchestrator.mjs:1827:    const requiresDelegation = Boolean(routeProfile.requiresDelegation);
+scripts/orchestrator.mjs:1829:    return {
+scripts/orchestrator.mjs:1830:      ...turn,
+scripts/orchestrator.mjs:1831:      route: routeProfile.route,
+scripts/orchestrator.mjs:1832:      provider: routeProfile.defaultProvider ?? null,
+scripts/orchestrator.mjs:1833:      writeEnabled: Boolean(routeProfile.writeEnabled),
+scripts/orchestrator.mjs:1835:      requiredFrameworks: Array.isArray(routeProfile.requiredFrameworks) ? routeProfile.requiredFrameworks : [],
+scripts/orchestrator.mjs:1837:        Number.isFinite(routeProfile.timeoutSeconds) && routeProfile.timeoutSeconds > 0
+scripts/orchestrator.mjs:1838:          ? Math.floor(routeProfile.timeoutSeconds)
+scripts/orchestrator.mjs:1841:        routeProfile.defaultMemoryPlan && typeof routeProfile.defaultMemoryPlan === "object"
+scripts/orchestrator.mjs:1842:          ? routeProfile.defaultMemoryPlan
+scripts/orchestrator.mjs:1845:      matchedSignals: ["explicit-reroute"],
+scripts/orchestrator.mjs:1863:      rerouted: true,
+scripts/orchestrator.mjs:1864:      route: routeProfile.route,
+scripts/orchestrator.mjs:1865:      status: routeProfile.requiresDelegation ? "needs-delegation" : "non-delegated"
+scripts/orchestrator.mjs:1884:  reroute: handleReroute,
+scripts/orchestrator.mjs:1901:      "Missing command. Use: dispatch, watch, status, inspect, result, cancel, recover, setup, reroute, or reset."
+
+ succeeded in 180ms:
+import { createHash, randomUUID } from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+const STATE_VERSION = 4;
+const PLUGIN_DATA_ENV = "CLAUDE_PLUGIN_DATA";
+const FALLBACK_STATE_ROOT_DIR = path.join(os.tmpdir(), "claudsterfuck");
+const STATE_FILE_NAME = "state.json";
+const RUNS_DIR_NAME = "runs";
+const MAX_SESSIONS = 25;
+
+export const TURN_DEFAULTS = Object.freeze({
+  prompt: "",
+  objective: "",
+  route: "",
+  provider: null,
+  writeEnabled: false,
+  requiresDelegation: true,
+  requiredFrameworks: [],
+  timeoutSeconds: 900,
+  defaultMemoryPlan: null,
+  matchedSignals: [],
+  confidence: "low",
+  phase: "refining",
+  status: "needs-delegation",
+  confirmationRequired: false,
+  awaitingConfirmation: false,
+  pendingObjective: null,
+  pendingCandidates: [],
+  pendingProvider: null,
+  latestRunId: null,
+  latestRunStatus: null,
+  latestRunErrorSummary: null,
+  workerRuns: [],
+  archivedRuns: []
+});
+
+export const TURN_PHASES = Object.freeze({
+  NON_DELEGATED: "non-delegated",
+  REFINING: "refining",
+  READY_TO_DELEGATE: "ready-to-delegate",
+  AWAITING_USER: "awaiting-user",
+  WORKER_RUNNING: "worker-running",
+  REVIEWING: "reviewing",
+  CANCELLED: "cancelled"
+});
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function defaultState() {
+  return {
+    version: STATE_VERSION,
+    sessions: {}
+  };
+}
+
+function buildReadHealth(status = "ok", warning = null) {
+  return {
+    status,
+    warning: warning || null
+  };
+}
+
+function workspaceHash(cwd) {
+  let canonicalCwd = cwd;
+  try {
+    canonicalCwd = fs.realpathSync.native(cwd);
+  } catch {
+    canonicalCwd = cwd;
+  }
+
+  const slugSource = path.basename(cwd) || "workspace";
+  const slug = slugSource.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "workspace";
+  const hash = createHash("sha256").update(canonicalCwd).digest("hex").slice(0, 16);
+  return `${slug}-${hash}`;
+}
+
+function ensureArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+// ---------------------------------------------------------------------------
+// Atomic JSON writes (write-temp -> fsync -> rename)
+// ---------------------------------------------------------------------------
+
+function atomicWriteJson(filePath, data) {
+  const dir = path.dirname(filePath);
+  fs.mkdirSync(dir, { recursive: true });
+  const tempPath = path.join(dir, `.${path.basename(filePath)}.${Date.now()}.tmp`);
+  const content = JSON.stringify(data, null, 2) + "\n";
+  fs.writeFileSync(tempPath, content, "utf8");
+  fs.renameSync(tempPath, filePath);
+}
+
+// ---------------------------------------------------------------------------
+// JSONL audit trail
+// ---------------------------------------------------------------------------
+
+function appendAudit(cwd, event) {
+  const auditPath = path.join(resolveStateDir(cwd), "audit.jsonl");
+  const entry = { ts: new Date().toISOString(), ...event };
+  try {
+    fs.mkdirSync(path.dirname(auditPath), { recursive: true });
+    fs.appendFileSync(auditPath, JSON.stringify(entry) + "\n", "utf8");
+  } catch {
+    // Audit writes are best-effort; never fail the caller.
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Turn normalization
+// ---------------------------------------------------------------------------
+
+function resolveTurnPhase(turn) {
+  if (!turn) {
+    return TURN_DEFAULTS.phase;
+  }
+
+  if (turn.requiresDelegation === false || turn.status === "non-delegated") {
+    return TURN_PHASES.NON_DELEGATED;
+  }
+  if (turn.status === "cancelled") {
+    return TURN_PHASES.CANCELLED;
+  }
+  if (turn.awaitingConfirmation === true || turn.confirmationRequired === true) {
+    return TURN_PHASES.AWAITING_USER;
+  }
+  if (turn.latestRunStatus === "running" || turn.status === "worker-running" || turn.phase === TURN_PHASES.WORKER_RUNNING) {
+    return TURN_PHASES.WORKER_RUNNING;
+  }
+  if (turn.phase && typeof turn.phase === "string") {
+    return turn.phase;
+  }
+  if (turn.latestRunStatus === "completed" || turn.status === "worker-complete") {
+    return TURN_PHASES.REVIEWING;
+  }
+  if (turn.latestRunStatus === "failed" || turn.status === "worker-failed") {
+    return TURN_PHASES.READY_TO_DELEGATE;
+  }
+
+  return turn.requiresDelegation === false ? TURN_PHASES.NON_DELEGATED : TURN_PHASES.REFINING;
+}
+
+function resolveTurnStatus(turn, phase) {
+  if (!turn) {
+    return TURN_DEFAULTS.status;
+  }
+
+  if (turn.requiresDelegation === false || phase === TURN_PHASES.NON_DELEGATED) {
+    return "non-delegated";
+  }
+  if (phase === TURN_PHASES.CANCELLED) {
+    return "cancelled";
+  }
+  if (phase === TURN_PHASES.WORKER_RUNNING) {
+    return "worker-running";
+  }
+  if (turn.latestRunStatus === "failed" || turn.status === "worker-failed") {
+    return "worker-failed";
+  }
+  if ([TURN_PHASES.REFINING, TURN_PHASES.READY_TO_DELEGATE, TURN_PHASES.AWAITING_USER].includes(phase)) {
+    return "needs-delegation";
+  }
+  if (phase === TURN_PHASES.REVIEWING) {
+    return "worker-complete";
+  }
+  if (turn.latestRunStatus === "completed" || turn.status === "worker-complete") {
+    return "worker-complete";
+  }
+
+  return "needs-delegation";
+}
+
+function normalizeTurn(turn) {
+  if (!turn) {
+    return null;
+  }
+
+  const phase = resolveTurnPhase(turn);
+
+  return {
+    ...TURN_DEFAULTS,
+    ...turn,
+    provider: turn.provider ?? null,
+    requiredFrameworks: ensureArray(turn.requiredFrameworks),
+    matchedSignals: ensureArray(turn.matchedSignals),
+    pendingCandidates: ensureArray(turn.pendingCandidates),
+    workerRuns: ensureArray(turn.workerRuns),
+    archivedRuns: ensureArray(turn.archivedRuns),
+    pendingObjective: turn.pendingObjective ?? null,
+    pendingProvider: turn.pendingProvider ?? null,
+    latestRunId: turn.latestRunId ?? null,
+    latestRunStatus: turn.latestRunStatus ?? null,
+    latestRunErrorSummary: turn.latestRunErrorSummary ?? null,
+    phase,
+    status: resolveTurnStatus(turn, phase),
+    timeoutSeconds:
+      Number.isFinite(turn.timeoutSeconds) && turn.timeoutSeconds > 0
+        ? Math.floor(turn.timeoutSeconds)
+        : TURN_DEFAULTS.timeoutSeconds,
+    defaultMemoryPlan:
+      turn.defaultMemoryPlan && typeof turn.defaultMemoryPlan === "object" ? turn.defaultMemoryPlan : null
+  };
+}
+
+function normalizeSessionRecord(sessionId, record) {
+  if (!record) {
+    return null;
+  }
+
+  return {
+    ...record,
+    sessionId,
+    currentTurn: normalizeTurn(record.currentTurn ?? null)
+  };
+}
+
+
+ succeeded in 194ms:
+
+[32;1mFullName                                            [0m[32;1m Length[0m[32;1m LastWriteTime[0m
+[32;1m--------                                            [0m [32;1m------[0m [32;1m-------------[0m
+C:\dev\claudsterfuck\.claude\rules                          4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.claude\rules\openwolf.md       1256   4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.claude\settings.json           1543   4/15/2026 2:31:36 PM
+C:\dev\claudsterfuck\.claude\settings.local.json     1356   4/16/2026 1:14:04 AM
+C:\dev\claudsterfuck\.claude-plugin\marketplace.json 449    4/16/2026 2:56:17 AM
+C:\dev\claudsterfuck\.claude-plugin\plugin.json      285    4/16/2026 2:56:14 AM
+
+
+codex
+I’m now querying the orchestrator state directly; if the turn objective includes the detailed finding text, that will let me implement the right fix without guessing.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs status --slim' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs inspect' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs result' in C:\dev\claudsterfuck
+ succeeded in 203ms:
+Current turn phase: worker-running (status: worker-running)
+
+ succeeded in 205ms:
+Orchestrator inspector snapshot (read-only).
+
+2026-04-16T14:38:15.875283Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 0.2 seconds
+Output:
+No run ID available. Dispatch a worker first or provide --run-id.
+
+ exited 1 in 188ms:
+No run ID available. Dispatch a worker first or provide --run-id.
+
+codex
+The basic status output confirms a worker-running turn but not the objective details. I’m reading the orchestrator command handlers to extract the right flags for a full state dump.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'rg -n "function handleStatus|function handleInspect|--slim|inspect" scripts/orchestrator.mjs' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content scripts/orchestrator.mjs | Select-Object -Skip 1320 -First 220' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content scripts/orchestrator.mjs | Select-Object -Skip 1480 -First 220' in C:\dev\claudsterfuck
+ succeeded in 202ms:
+15: *   inspect   - Deep diagnostic snapshot (read-only)
+113:    } else if (value === "--slim") {
+1020:      "Missing session binding for dispatch. Resolve routed state first with status/inspect, then dispatch in the same session or pass --session-id."
+1345:export async function handleStatus(cwd, args) {
+1372:// Command: inspect (preserved from old code, enhanced with process info)
+1375:export async function handleInspect(cwd, args) {
+1460:      message: "Orchestrator inspector snapshot (read-only).",
+1879:  inspect: handleInspect,
+1901:      "Missing command. Use: dispatch, watch, status, inspect, result, cancel, recover, setup, reroute, or reset."
+
+ succeeded in 207ms:
+      pid,
+      status: "running",
+      elapsed: elapsedSeconds,
+      watchTimeoutReached: true,
+      watchTimeoutSeconds: timeoutSeconds,
+      provider: run.provider,
+      route: run.route,
+      progress: progress ?? null,
+      latestStdout: latestStdout ?? null,
+      latestStderr: latestStderr ?? null,
+      liveness: computeRunLiveness({
+        ...run,
+        startedAt: processInfo.startedAt
+      }),
+      message: `Still running after ${timeoutSeconds}s watch. PID ${pid} alive. Call watch again to keep polling.`
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: status (preserved from old code)
+// ---------------------------------------------------------------------------
+
+export async function handleStatus(cwd, args) {
+  const requestedSessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const stateCandidate = resolveStateCandidate(cwd);
+  const resolved = resolveSessionForStatus(stateCandidate.sessions, requestedSessionId);
+  const sessionId = resolved.sessionId || "";
+  const session = resolved.session;
+  const resolvedFromLatest = !requestedSessionId && Boolean(sessionId);
+  emit(
+    {
+      message: session?.currentTurn
+        ? `Current turn phase: ${session.currentTurn.phase} (status: ${session.currentTurn.status})`
+        : "No routed turn is stored for this session.",
+      requestedSessionId: requestedSessionId || null,
+      sessionId: sessionId || null,
+      resolvedFromLatest,
+      stateSource: stateCandidate.source,
+      stateSourceWarning: buildStateSourceWarning(stateCandidate),
+      stateFile: stateCandidate.paths.stateFile,
+      stateReadHealth: stateCandidate.readHealth?.status ?? "ok",
+      stateReadWarning: stateCandidate.readHealth?.warning ?? null,
+      currentTurn: session?.currentTurn ?? null
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: inspect (preserved from old code, enhanced with process info)
+// ---------------------------------------------------------------------------
+
+export async function handleInspect(cwd, args) {
+  const requestedSessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const stateCandidate = resolveStateCandidate(cwd);
+  const orderedSessions = stateCandidate.sessions;
+  const resolved = resolveSessionForStatus(orderedSessions, requestedSessionId);
+  const session = resolved.session;
+  const sessionId = resolved.sessionId || "";
+  const currentTurn = session?.currentTurn ?? null;
+  const latestRunId = currentTurn?.latestRunId ?? "";
+
+  // Slim mode: return only essential fields for low-token orchestration
+  if (args.slim) {
+    emit(
+      {
+        route: currentTurn?.route ?? null,
+        provider: currentTurn?.provider ?? null,
+        phase: currentTurn?.phase ?? null,
+        status: currentTurn?.status ?? null,
+        runId: latestRunId || null,
+        runStatus: currentTurn?.latestRunStatus ?? null,
+        sessionId: sessionId || null,
+        reviewDepth: currentTurn?.reviewDepth ?? null
+      },
+      args.json
+    );
+    return;
+  }
+  let latestRun = null;
+
+  if (latestRunId) {
+    try {
+      const run = readRun(cwd, latestRunId);
+      const processInfo = readRunProcess(cwd, latestRunId);
+      const latestRunSummary = {
+        runId: latestRunId,
+        provider: run.provider,
+        route: run.route,
+        status: run.status,
+        startedAt: run.startedAt ?? null,
+        completedAt: run.completedAt ?? null,
+        providerSessionId: run.providerSessionId ?? null,
+        errorSummary: run.errorSummary ?? null,
+        artifacts: run.artifacts ?? null,
+        pid: processInfo?.pid ?? null,
+        processAlive: processInfo?.pid ? isProcessAlive(processInfo.pid) : null,
+        transcriptPreview: {
+          prompt: safeReadText(run.artifacts?.promptFile ?? null, 2500),
+          lastMessage: safeReadText(run.artifacts?.lastMessageFile ?? null, 4000),
+          stdout: safeReadText(run.artifacts?.stdoutFile ?? null, 1800),
+          stderr: safeReadText(run.artifacts?.stderrFile ?? null, 1800)
+        }
+      };
+      latestRun = {
+        ...latestRunSummary,
+        liveness: computeRunLiveness(latestRunSummary)
+      };
+    } catch {
+      latestRun = {
+        runId: latestRunId,
+        missing: true
+      };
+    }
+  }
+
+  const sessionSummaries = orderedSessions.map(({ sessionId: id, record }) => {
+    const turn = record?.currentTurn ?? null;
+    return {
+      sessionId: id,
+      createdAt: record?.createdAt ?? null,
+      updatedAt: record?.updatedAt ?? null,
+      hasCurrentTurn: Boolean(turn),
+      route: turn?.route ?? null,
+      provider: turn?.provider ?? null,
+      phase: turn?.phase ?? null,
+      status: turn?.status ?? null,
+      latestRunId: turn?.latestRunId ?? null,
+      latestRunStatus: turn?.latestRunStatus ?? null,
+      workerRuns: Array.isArray(turn?.workerRuns) ? turn.workerRuns.length : 0,
+      archivedRuns: Array.isArray(turn?.archivedRuns) ? turn.archivedRuns.length : 0
+    };
+  });
+  const recentRuns = loadRecentRuns(stateCandidate.paths.runsDir, 12);
+
+  emit(
+    {
+      message: "Orchestrator inspector snapshot (read-only).",
+      readOnlyContract: {
+        readOnly: true,
+        forbidsFileWrites: true,
+        forbidsOpenWolfWrites: true
+      },
+      workspace: {
+        cwd,
+        stateSource: stateCandidate.source,
+        stateSourceWarning: buildStateSourceWarning(stateCandidate),
+        pluginDataDir: stateCandidate.pluginDataDir,
+        stateFile: stateCandidate.paths.stateFile,
+        runsDir: stateCandidate.paths.runsDir,
+        stateReadHealth: stateCandidate.readHealth?.status ?? "ok",
+        stateReadWarning: stateCandidate.readHealth?.warning ?? null
+      },
+      requestedSessionId: requestedSessionId || null,
+      resolvedSessionId: sessionId || null,
+      stateMachine: {
+        phases: Object.values(TURN_PHASES),
+        statuses: [
+          "needs-delegation",
+          "worker-running",
+          "worker-complete",
+          "worker-failed",
+          "cancelled",
+          "non-delegated"
+        ]
+      },
+      sessions: sessionSummaries,
+      currentTurn,
+      latestRun,
+      recentRuns
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: result (preserved from old code)
+// ---------------------------------------------------------------------------
+
+export async function handleResult(cwd, args) {
+  ensureResolvedPluginDataEnv(cwd);
+  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const currentTurn = resolveCurrentTurn(cwd, sessionId);
+  const runId = args.runId || currentTurn?.latestRunId || "";
+  if (!runId) {
+    throw new Error("No run ID available. Dispatch a worker first or provide --run-id.");
+  }
+
+  const run = readRun(cwd, runId);
+  emit(
+    {
+      runId,
+      provider: run.provider,
+      route: run.route,
+      status: run.status,
+      finalOutput: run.finalOutput,
+      providerSessionId: run.providerSessionId ?? null,
+      errorSummary: run.errorSummary ?? null
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: cancel (UPDATED: now kills the running process)
+// ---------------------------------------------------------------------------
+
+export async function handleCancel(cwd, args) {
+  ensureResolvedPluginDataEnv(cwd);
+  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const currentTurn = resolveCurrentTurn(cwd, sessionId);
+
+  if (!currentTurn) {
+    emit(
+      {
+        cancelled: false,
+        reason: "No current routed turn is stored."
+      },
+
+ succeeded in 210ms:
+          "needs-delegation",
+          "worker-running",
+          "worker-complete",
+          "worker-failed",
+          "cancelled",
+          "non-delegated"
+        ]
+      },
+      sessions: sessionSummaries,
+      currentTurn,
+      latestRun,
+      recentRuns
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: result (preserved from old code)
+// ---------------------------------------------------------------------------
+
+export async function handleResult(cwd, args) {
+  ensureResolvedPluginDataEnv(cwd);
+  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const currentTurn = resolveCurrentTurn(cwd, sessionId);
+  const runId = args.runId || currentTurn?.latestRunId || "";
+  if (!runId) {
+    throw new Error("No run ID available. Dispatch a worker first or provide --run-id.");
+  }
+
+  const run = readRun(cwd, runId);
+  emit(
+    {
+      runId,
+      provider: run.provider,
+      route: run.route,
+      status: run.status,
+      finalOutput: run.finalOutput,
+      providerSessionId: run.providerSessionId ?? null,
+      errorSummary: run.errorSummary ?? null
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: cancel (UPDATED: now kills the running process)
+// ---------------------------------------------------------------------------
+
+export async function handleCancel(cwd, args) {
+  ensureResolvedPluginDataEnv(cwd);
+  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const currentTurn = resolveCurrentTurn(cwd, sessionId);
+
+  if (!currentTurn) {
+    emit(
+      {
+        cancelled: false,
+        reason: "No current routed turn is stored."
+      },
+      args.json
+    );
+    return;
+  }
+
+  if (currentTurn.status === "non-delegated") {
+    emit(
+      {
+        cancelled: false,
+        reason: "Current turn does not require delegation."
+      },
+      args.json
+    );
+    return;
+  }
+
+  if (currentTurn.status === "cancelled") {
+    emit(
+      {
+        cancelled: false,
+        reason: "Turn is already cancelled."
+      },
+      args.json
+    );
+    return;
+  }
+
+  // If worker is running, kill it
+  if (currentTurn.phase === TURN_PHASES.WORKER_RUNNING || currentTurn.status === "worker-running") {
+    const runId = currentTurn.latestRunId;
+    let killed = false;
+
+    if (runId) {
+      const processInfo = readRunProcess(cwd, runId);
+      if (processInfo?.pid && isProcessAlive(processInfo.pid)) {
+        killed = killProcess(processInfo.pid);
+        emitLog("cancel-kill", { runId, pid: processInfo.pid, killed });
+      }
+
+      // Mark run as failed
+      try {
+        const run = readRun(cwd, runId);
+        const cancelledRun = {
+          ...run,
+          status: "failed",
+          completedAt: new Date().toISOString(),
+          exitCode: -1,
+          errorSummary: "Cancelled by user"
+        };
+        writeRun(cwd, runId, cancelledRun);
+      } catch {}
+    }
+
+    // Update turn state to cancelled
+    updateCurrentTurn(cwd, sessionId, (turn) => {
+      if (!turn) {
+        return turn;
+      }
+
+      return {
+        ...turn,
+        phase: TURN_PHASES.CANCELLED,
+        status: "cancelled",
+        latestRunStatus: "failed",
+        latestRunErrorSummary: "Cancelled by user",
+        confirmationRequired: false,
+        awaitingConfirmation: false,
+        pendingObjective: null,
+        pendingCandidates: [],
+        pendingProvider: null
+      };
+    });
+
+    emit(
+      {
+        cancelled: true,
+        status: "cancelled",
+        killed,
+        runId: runId ?? null
+      },
+      args.json
+    );
+    return;
+  }
+
+  // Non-running states that can be cancelled
+  if (
+    ["needs-delegation", "worker-failed", "worker-complete"].includes(currentTurn.status) ||
+    [TURN_PHASES.REFINING, TURN_PHASES.READY_TO_DELEGATE, TURN_PHASES.REVIEWING].includes(currentTurn.phase)
+  ) {
+    updateCurrentTurn(cwd, sessionId, (turn) => {
+      if (!turn) {
+        return turn;
+      }
+
+      return {
+        ...turn,
+        phase: TURN_PHASES.CANCELLED,
+        status: "cancelled",
+        confirmationRequired: false,
+        awaitingConfirmation: false,
+        pendingObjective: null,
+        pendingCandidates: [],
+        pendingProvider: null
+      };
+    });
+
+    emit(
+      {
+        cancelled: true,
+        status: "cancelled"
+      },
+      args.json
+    );
+    return;
+  }
+
+  emit(
+    {
+      cancelled: false,
+      reason: `Turn cannot be cancelled from status "${currentTurn.status}".`
+    },
+    args.json
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Command: recover
+// ---------------------------------------------------------------------------
+
+export async function handleRecover(cwd, args) {
+  ensureResolvedPluginDataEnv(cwd);
+  const stateCandidate = resolveStateCandidate(cwd);
+  const runsDir = stateCandidate.paths.runsDir;
+
+  if (!runsDir || !fs.existsSync(runsDir)) {
+    emit(
+      {
+        recovered: 0,
+        message: "No runs directory found."
+      },
+      args.json
+    );
+    return;
+  }
+
+  const recovered = [];
+
+  // Scan all run JSON files
+  const runFiles = fs.readdirSync(runsDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .map((entry) => path.join(runsDir, entry.name));
+
+  for (const filePath of runFiles) {
+    let run;
+    try {
+      run = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    } catch {
+      continue;
+    }
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs status --json' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs inspect --json' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs inspect --json --slim' in C:\dev\claudsterfuck
+ succeeded in 206ms:
+{
+  "message": "Current turn phase: worker-running (status: worker-running)",
+  "requestedSessionId": null,
+  "sessionId": "d0b22963-05cc-4f7a-a062-84a93c11f852",
+  "resolvedFromLatest": true,
+  "stateSource": "plugin-data",
+  "stateSourceWarning": null,
+  "stateFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\state.json",
+  "stateReadHealth": "ok",
+  "stateReadWarning": null,
+  "currentTurn": {
+    "prompt": "implement the fix for finding 1",
+    "objective": "implement the fix for finding 1",
+    "route": "implement",
+    "provider": "codex",
+    "writeEnabled": true,
+    "requiresDelegation": true,
+    "requiredFrameworks": [
+      "implementation/worker-contract.md",
+      "implementation/tdd.md",
+      "implementation/testing-anti-patterns.md",
+      "implementation/yagni-and-scope-control.md",
+      "implementation/verification-before-completion.md"
+    ],
+    "timeoutSeconds": 900,
+    "defaultMemoryPlan": {
+      "sources": [
+        "anatomy",
+        "cerebrum",
+        "buglog"
+      ],
+      "maxChars": 6000,
+      "maxChunks": 8,
+      "perSourceMaxChunks": {
+        "anatomy": 3,
+        "cerebrum": 3,
+        "buglog": 2,
+        "identity": 1
+      },
+      "includeIdentity": false
+    },
+    "matchedSignals": [
+      "explicit-override"
+    ],
+    "confidence": "override",
+    "phase": "worker-running",
+    "status": "worker-running",
+    "confirmationRequired": false,
+    "awaitingConfirmation": false,
+    "pendingObjective": null,
+    "pendingCandidates": [],
+    "pendingProvider": null,
+    "latestRunId": "codex-a697d7d6",
+    "latestRunStatus": "running",
+    "latestRunErrorSummary": null,
+    "workerRuns": [
+      {
+        "id": "codex-a697d7d6",
+        "provider": "codex",
+        "route": "implement",
+        "phase": "worker-running",
+        "status": "worker-running",
+        "latestRunStatus": "running",
+        "errorSummary": null,
+        "startedAt": "2026-04-16T14:37:30.913Z"
+      }
+    ],
+    "archivedRuns": [],
+    "reviewDepth": "test",
+    "updatedAt": "2026-04-16T14:37:30.916Z"
+  }
+}
+
+ succeeded in 205ms:
+{
+  "message": "Orchestrator inspector snapshot (read-only).",
+  "readOnlyContract": {
+    "readOnly": true,
+    "forbidsFileWrites": true,
+    "forbidsOpenWolfWrites": true
+  },
+  "workspace": {
+    "cwd": "C:\\dev\\claudsterfuck",
+    "stateSource": "plugin-data",
+    "stateSourceWarning": null,
+    "pluginDataDir": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace",
+    "stateFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\state.json",
+    "runsDir": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs",
+    "stateReadHealth": "ok",
+    "stateReadWarning": null
+  },
+  "requestedSessionId": null,
+  "resolvedSessionId": "d0b22963-05cc-4f7a-a062-84a93c11f852",
+  "stateMachine": {
+    "phases": [
+      "non-delegated",
+      "refining",
+      "ready-to-delegate",
+      "awaiting-user",
+      "worker-running",
+      "reviewing",
+      "cancelled"
+    ],
+    "statuses": [
+      "needs-delegation",
+      "worker-running",
+      "worker-complete",
+      "worker-failed",
+      "cancelled",
+      "non-delegated"
+    ]
+  },
+  "sessions": [
+    {
+      "sessionId": "d0b22963-05cc-4f7a-a062-84a93c11f852",
+      "createdAt": "2026-04-16T04:54:53.712Z",
+      "updatedAt": "2026-04-16T14:37:30.916Z",
+      "hasCurrentTurn": true,
+      "route": "implement",
+      "provider": "codex",
+      "phase": "worker-running",
+      "status": "worker-running",
+      "latestRunId": "codex-a697d7d6",
+      "latestRunStatus": "running",
+      "workerRuns": 1,
+      "archivedRuns": 0
+    },
+    {
+      "sessionId": "519a78da-d899-43ea-ae3b-61cdfc338852",
+      "createdAt": "2026-04-16T04:20:14.105Z",
+      "updatedAt": "2026-04-16T06:55:04.107Z",
+      "hasCurrentTurn": false,
+      "route": null,
+      "provider": null,
+      "phase": null,
+      "status": null,
+      "latestRunId": null,
+      "latestRunStatus": null,
+      "workerRuns": 0,
+      "archivedRuns": 0
+    },
+    {
+      "sessionId": "7b3b896e-1e62-4b5c-9d8d-d62e5a8aa707",
+      "createdAt": "2026-04-16T05:40:54.930Z",
+      "updatedAt": "2026-04-16T06:55:04.105Z",
+      "hasCurrentTurn": false,
+      "route": null,
+      "provider": null,
+      "phase": null,
+      "status": null,
+      "latestRunId": null,
+      "latestRunStatus": null,
+      "workerRuns": 0,
+      "archivedRuns": 0
+    },
+    {
+      "sessionId": "ad946c55-5057-4732-89bf-02c234971c47",
+      "createdAt": "2026-04-16T06:39:13.967Z",
+      "updatedAt": "2026-04-16T06:55:04.104Z",
+      "hasCurrentTurn": false,
+      "route": null,
+      "provider": null,
+      "phase": null,
+      "status": null,
+      "latestRunId": null,
+      "latestRunStatus": null,
+      "workerRuns": 0,
+      "archivedRuns": 0
+    }
+  ],
+  "currentTurn": {
+    "prompt": "implement the fix for finding 1",
+    "objective": "implement the fix for finding 1",
+    "route": "implement",
+    "provider": "codex",
+    "writeEnabled": true,
+    "requiresDelegation": true,
+    "requiredFrameworks": [
+      "implementation/worker-contract.md",
+      "implementation/tdd.md",
+      "implementation/testing-anti-patterns.md",
+      "implementation/yagni-and-scope-control.md",
+      "implementation/verification-before-completion.md"
+    ],
+    "timeoutSeconds": 900,
+    "defaultMemoryPlan": {
+      "sources": [
+        "anatomy",
+        "cerebrum",
+        "buglog"
+      ],
+      "maxChars": 6000,
+      "maxChunks": 8,
+      "perSourceMaxChunks": {
+        "anatomy": 3,
+        "cerebrum": 3,
+        "buglog": 2,
+        "identity": 1
+      },
+      "includeIdentity": false
+    },
+    "matchedSignals": [
+      "explicit-override"
+    ],
+    "confidence": "override",
+    "phase": "worker-running",
+    "status": "worker-running",
+    "confirmationRequired": false,
+    "awaitingConfirmation": false,
+    "pendingObjective": null,
+    "pendingCandidates": [],
+    "pendingProvider": null,
+    "latestRunId": "codex-a697d7d6",
+    "latestRunStatus": "running",
+    "latestRunErrorSummary": null,
+    "workerRuns": [
+      {
+        "id": "codex-a697d7d6",
+        "provider": "codex",
+        "route": "implement",
+        "phase": "worker-running",
+        "status": "worker-running",
+        "latestRunStatus": "running",
+        "errorSummary": null,
+        "startedAt": "2026-04-16T14:37:30.913Z"
+      }
+    ],
+    "archivedRuns": [],
+    "reviewDepth": "test",
+    "updatedAt": "2026-04-16T14:37:30.916Z"
+  },
+  "latestRun": {
+    "runId": "codex-a697d7d6",
+    "provider": "codex",
+    "route": "implement",
+    "status": "running",
+    "startedAt": "2026-04-16T14:37:30.913Z",
+    "completedAt": null,
+    "providerSessionId": null,
+    "errorSummary": null,
+    "artifacts": {
+      "promptFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\prompt.md",
+      "lastMessageFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\last-message.txt",
+      "stdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\stdout.live.txt",
+      "stderrFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\stderr.live.txt",
+      "normalizedResultFile": null,
+      "liveStdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\stdout.live.txt",
+      "progressFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\codex-a697d7d6\\progress.json"
+    },
+    "pid": 9556,
+    "processAlive": true,
+    "transcriptPreview": {
+      "prompt": "# Codex Worker Task\n\nYou are Codex, operating as an execution worker inside a Claude-controlled claudsterfuck workflow.\n\nClaude has already chosen the route and attached the framework packs that govern your behavior.\nTreat those framework packs as binding task discipline.\n\n## Worker Assignment\n\n<!-- IMMUTABLE -->\n- Route: implement\n- Provider: codex\n- Write mode: write-enabled\n<!-- /IMMUTABLE -->\n- Objective: implement the fix for finding 1\n\n## Route Brief\n\nImplement exactly the scoped task, use tests to drive behavior, avoid overbuilding, and verify before making completion claims.\n\n## Memory Packet\n\nObjective keywords: implement, fix, finding, 1\n\n### Source Notes\n- .wolf/anatomy.md: no-match\n- .wolf/cerebrum.md: no-match\n- .wolf/buglog.json: no-match\n\n## Operating Rules\n\n- Follow the attached framework packs strictly.\n- Do not expand scope beyond the objective.\n- Ask for clarification instead of guessing.\n- Prefer the smallest safe change that satisfies the route.\n- If the route is read-only, do not propose or apply edits.\n- When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.\n\n<!-- IMMUTABLE -->\n## Output Contract\n\nReturn a concise structured report with:\n\n- Status\n- Summary\n- Files changed\n- Verification\n- Concerns\n\n\n<!-- /IMMUTABLE -->\n## Framework Packs\n\n<!-- IMMUTABLE -->\n### implementation/worker-contract.md\n# Worker Contract\n\n- Implement exactly the scoped task.\n- Ask for clarification instead of guessing when requirements are ambiguous.\n- Do not silently expand scope.\n- Follow the plan and existing codebase patterns unless 

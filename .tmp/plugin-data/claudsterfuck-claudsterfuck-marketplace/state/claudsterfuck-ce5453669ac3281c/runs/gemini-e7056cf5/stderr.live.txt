@@ -1,0 +1,5 @@
+Error during GrepLogic execution: Error: Process exited with code 2: regex parse error:
+    if \(isProcessAlive\(processInfo.pid\)\) {
+                                             ^
+error: unclosed counted repetition
+

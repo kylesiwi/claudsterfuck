@@ -1,0 +1,62 @@
+{
+  "session_id": "session-2026-04-16-1800",
+  "started": "2026-04-16T22:00:41.143Z",
+  "files_read": {
+    "C:/dev/claudsterfuck/scripts/routing/classify-turn.mjs": {
+      "count": 1,
+      "tokens": 2329,
+      "first_read": "2026-04-16T22:00:53.856Z"
+    },
+    "C:/dev/claudsterfuck/scripts/user-prompt-submit-hook.mjs": {
+      "count": 1,
+      "tokens": 6600,
+      "first_read": "2026-04-16T22:00:54.175Z"
+    },
+    "C:/dev/claudsterfuck/scripts/lib/policy.mjs": {
+      "count": 1,
+      "tokens": 3300,
+      "first_read": "2026-04-16T22:00:57.251Z"
+    },
+    "C:/dev/claudsterfuck/routes/chat.json": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-16T22:01:00.501Z"
+    },
+    "C:/dev/claudsterfuck/scripts/lib/state.mjs": {
+      "count": 1,
+      "tokens": 3800,
+      "first_read": "2026-04-16T22:01:00.670Z"
+    },
+    "C:/dev/claudsterfuck/commands/chat.md": {
+      "count": 1,
+      "tokens": 52,
+      "first_read": "2026-04-16T22:03:31.768Z"
+    },
+    "C:/dev/claudsterfuck/skills/claudsterfuck-routing/SKILL.md": {
+      "count": 1,
+      "tokens": 1436,
+      "first_read": "2026-04-16T22:03:31.991Z"
+    },
+    "C:/dev/claudsterfuck/scripts/routing/lib/config.mjs": {
+      "count": 1,
+      "tokens": 400,
+      "first_read": "2026-04-17T00:33:12.083Z"
+    }
+  },
+  "files_written": [
+    {
+      "file": "D:/Users/kylecito/.claude/plans/velvet-beaming-ocean.md",
+      "action": "create",
+      "tokens": 5522,
+      "at": "2026-04-17T00:39:48.806Z"
+    }
+  ],
+  "edit_counts": {
+    "D:/Users/kylecito/.claude/plans/velvet-beaming-ocean.md": 1
+  },
+  "anatomy_hits": 7,
+  "anatomy_misses": 1,
+  "repeated_reads_warned": 0,
+  "cerebrum_warnings": 0,
+  "stop_count": 2
+}

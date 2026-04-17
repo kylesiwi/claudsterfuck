@@ -1,0 +1,65 @@
+**Status**
+Completed (implemented against the “empty provider output must not be success” interpretation of finding 1).
+
+**Summary**
+- Enforced failure when `exitCode === 0` but `finalOutput` is empty in foreground provider tasks (`runCodexTask`, `runGeminiTask`).
+- Enforced the same rule in detached Codex finalization path (`orchestrator`), and added explicit helper `computeCodexDetachedExitCode`.
+- Added regression tests covering all three paths.
+
+**Files changed**
+1. [scripts/lib/providers.mjs](/C:/dev/claudsterfuck/scripts/lib/providers.mjs)
+```js
+// C:\dev\claudsterfuck\scripts\lib\providers.mjs:521
+const effectiveExitCode =
+  finalOutput.length === 0 && result.exitCode === 0
+    ? 1
+    : result.exitCode;
+```
+
+```js
+// C:\dev\claudsterfuck\scripts\lib\providers.mjs:586
+const effectiveExitCode =
+  finalOutput.length === 0 && result.exitCode === 0
+    ? 1
+    : result.exitCode;
+```
+
+2. [scripts/orchestrator.mjs](/C:/dev/claudsterfuck/scripts/orchestrator.mjs)
+```js
+// C:\dev\claudsterfuck\scripts\orchestrator.mjs:819
+export function computeCodexDetachedExitCode({ finalOutput }) {
+  const hasOutput = String(finalOutput ?? "").trim().length > 0;
+  return hasOutput ? 0 : 1;
+}
+```
+
+```js
+// C:\dev\claudsterfuck\scripts\orchestrator.mjs:837
+const exitCode = computeCodexDetachedExitCode({ finalOutput, route: run.route, stderrRaw });
+const errorSummary = exitCode === 0
+  ? null
+  : summarizeError(stderrRaw || stdoutRaw) || (finalOutput.length === 0 ? "Codex produced no output" : null);
+```
+
+3. [scripts/lib/providers.test.mjs](/C:/dev/claudsterfuck/scripts/lib/providers.test.mjs)
+```js
+// C:\dev\claudsterfuck\scripts\lib\providers.test.mjs:88
+await run("computeCodexDetachedExitCode fails empty output regardless of write route", async () => {
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "report", route: "implement", stderrRaw: "" }), 0);
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "implement", stderrRaw: "" }), 1);
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "review-feedback", stderrRaw: "" }), 1);
+});
+```
+
+**Verification**
+- Ran: `node scripts/lib/providers.test.mjs`
+- Result:
+  - `PASS computeCodexDetachedExitCode fails empty output regardless of write route`
+  - `PASS runCodexTask marks empty output as failure even when process exits 0`
+  - `PASS runGeminiTask marks empty output as failure even when process exits 0`
+- Ran syntax checks:
+  - `node --check scripts/orchestrator.mjs` (exit 0)
+  - `node --check scripts/lib/providers.mjs` (exit 0)
+
+**Concerns**
+- Assumed “finding 1” refers to the empty-output success bug path from prior Gemini findings. If you meant a different finding set, I can retarget quickly.

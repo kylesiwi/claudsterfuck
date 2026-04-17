@@ -1,0 +1,2263 @@
+OpenAI Codex v0.120.0 (research preview)
+--------
+workdir: C:\dev\claudsterfuck
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR, D:\Users\kylecito\.codex\memories]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019d9748-c72c-7481-859d-2b1b9b345356
+--------
+user
+# Codex Worker Task
+
+You are Codex, operating as an execution worker inside a Claude-controlled claudsterfuck workflow.
+
+Claude has already chosen the route and attached the framework packs that govern your behavior.
+Treat those framework packs as binding task discipline.
+
+## Worker Assignment
+
+<!-- IMMUTABLE -->
+- Route: implement
+- Provider: codex
+- Write mode: write-enabled
+<!-- /IMMUTABLE -->
+- Objective: I forgot to reload plugins. Now run the full end-to-end run test.
+
+## Route Brief
+
+Implement exactly the scoped task, use tests to drive behavior, avoid overbuilding, and verify before making completion claims.
+
+## Memory Packet
+
+Objective keywords: i, forgot, reload, plugins, now, run, full, end
+
+### Prior Decisions / Learnings
+- `Decision Log > [2026-04-16] Token economics optimization: Added tiered PreToolUse co...`: Decision Log - [2026-04-16] Token economics optimization: Added tiered PreToolUse context injection (minimal `[cf]` marker for read-only tools in reviewing/worker-running phases, full context only for denials and first calls), `dispatch --watch` combined command, `inspect --slim` flag, `reviewDepth` field on route profiles (verify/test/trust), and worker evidence requirement in prompts. Rationale: reduces orchestration overhead from ~11K tokens to ~2-3K tokens per routed turn, making the cost case for delegation clearer vs. Claude-only. (source: .wolf/cerebrum.md, score: 4)
+
+### Source Notes
+- .wolf/anatomy.md: no-match
+- .wolf/cerebrum.md: used
+- .wolf/buglog.json: no-match
+
+## Operating Rules
+
+- Follow the attached framework packs strictly.
+- Do not expand scope beyond the objective.
+- Ask for clarification instead of guessing.
+- Prefer the smallest safe change that satisfies the route.
+- If the route is read-only, do not propose or apply edits.
+- When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.
+
+<!-- IMMUTABLE -->
+## Output Contract
+
+Return a concise structured report with:
+
+- Status
+- Summary
+- Files changed
+- Verification
+- Concerns
+
+
+<!-- /IMMUTABLE -->
+## Framework Packs
+
+<!-- IMMUTABLE -->
+### implementation/worker-contract.md
+# Worker Contract
+
+- Implement exactly the scoped task.
+- Ask for clarification instead of guessing when requirements are ambiguous.
+- Do not silently expand scope.
+- Follow the plan and existing codebase patterns unless the task explicitly authorizes change.
+- Surface uncertainty honestly.
+
+Escalate when:
+
+- the task requires an architectural choice not already settled
+- the codebase reality materially conflicts with the task
+- you are reading file after file without converging
+- you have completed the work but still have correctness concerns
+
+Final report must include:
+
+- status
+- summary of what was done
+- files changed
+- verification evidence
+- concerns or blockers
+
+### implementation/tdd.md
+# Test-Driven Development
+
+Core law:
+
+- No production code without a failing test first.
+
+Cycle:
+
+1. Write one small test for one behavior.
+2. Run it and confirm it fails for the expected reason.
+3. Write the smallest code that makes it pass.
+4. Run the test again and confirm it passes.
+5. Refactor only while staying green.
+
+Guardrails:
+
+- If you did not watch the test fail, you do not know whether it tests the right thing.
+- Do not change the test to match buggy behavior unless the requirement itself was wrong.
+- Prefer tests of real behavior over tests of mock choreography.
+- If the task explicitly exempts TDD, obey the task. Otherwise treat TDD as the default.
+
+### implementation/testing-anti-patterns.md
+# Testing Anti-Patterns
+
+- Do not test mocks when you should be testing behavior.
+- Do not add production-only seams or helper methods just to satisfy weak tests.
+- Do not treat integration tests as an afterthought if the bug lives at boundaries.
+- Do not rewrite assertions to match incorrect implementation without first verifying the requirement.
+- If a test passes immediately, check whether you are testing existing behavior or the wrong thing.
+
+### implementation/yagni-and-scope-control.md
+# YAGNI And Scope Control
+
+- Build only what the task actually needs.
+- Do not add generalized options, admin flows, schema expansions, or abstraction layers unless the task explicitly needs them.
+- Before adding a "proper" feature, check whether anything in the current codebase even uses it.
+- If a simpler solution satisfies the requirement, prefer it.
+- When in doubt, minimize surface area and leave extension points for future work instead of speculative complexity.
+
+### implementation/verification-before-completion.md
+# Verification Before Completion
+
+Core law:
+
+- No completion claim without fresh verification evidence.
+
+Before claiming success:
+
+1. Identify the command or evidence that proves the claim.
+2. Run it now, not from memory.
+3. Read the full result, including failures and exit status.
+4. Only then state what is actually true.
+
+Guardrails:
+
+- Agent reports are not proof.
+- Partial checks are not proof.
+- "Should work" is not proof.
+- If verification fails, report the real state with evidence instead of optimistic wording.
+
+<!-- /IMMUTABLE -->
+
+codex
+I’m going to locate the project’s canonical “full end-to-end run test” command and then execute it directly so we have fresh verification evidence. I’ll first scan scripts/docs for the exact command name.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Force' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'rg -n "end-to-end|e2e|full run|run test|reload plugin|plugins" -S .' in C:\dev\claudsterfuck
+ succeeded in 276ms:
+
+    Directory: C:\dev\claudsterfuck
+
+[32;1mMode   [0m[32;1m              LastWriteTime[0m [32;1;3m        Length[0m[32;1m Name[0m
+[32;1m----   [0m [32;1m             -------------[0m [32;1m        ------[0m [32;1m----[0m
+d----           4/16/2026  1:14 AM                [44;1m.claude[0m
+d----           4/16/2026 12:46 PM                [44;1m.claude-plugin[0m
+d----           4/16/2026  1:17 AM                [44;1m.tmp[0m
+d----           4/16/2026  1:12 PM                [44;1m.wolf[0m
+d----           4/16/2026 12:54 PM                [44;1magents[0m
+d----           4/16/2026 12:55 PM                [44;1mcommands[0m
+d----           4/15/2026  3:44 PM                [44;1mframeworks[0m
+d----           4/15/2026  3:45 PM                [44;1mhooks[0m
+d----           4/15/2026  3:44 PM                [44;1mprompts[0m
+d----           4/16/2026  2:21 AM                [44;1mroutes[0m
+d----           4/16/2026 12:40 PM                [44;1mscripts[0m
+d----           4/15/2026  4:10 PM                [44;1mskills[0m
+-a---           4/15/2026  2:31 PM            225 CLAUDE.md
+-a---           4/16/2026 12:16 PM           9606 CODEX_FIXES_V2.md
+-a---           4/15/2026  1:14 PM          24984 REWRITE_PROPOSAL.md
+-a---           4/15/2026  1:33 PM           4664 REWRITE_SESSION_HANDOFF.md
+
+
+2026-04-16T17:13:55.061322Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 0.3 seconds
+Output:
+[31;1mrg: [0m
+[31;1m[36;1mLine |[0m
+[31;1m[36;1m[36;1m   2 | [0m [36;1mrg[0m -n "end-to-end|e2e|full run|run test|reload plugin|plugins" -S .[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m ~~[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mThe term 'rg' is not recognized as a name of a cmdlet, function, script file, or executable program.[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1mCheck the spelling of the name, or if a path was included, verify that the path is correct and try again.[0m
+
+ exited 1 in 282ms:
+[31;1mrg: [0m
+[31;1m[36;1mLine |[0m
+[31;1m[36;1m[36;1m   2 | [0m [36;1mrg[0m -n "end-to-end|e2e|full run|run test|reload plugin|plugins" -S .[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m ~~[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mThe term 'rg' is not recognized as a name of a cmdlet, function, script file, or executable program.[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1mCheck the spelling of the name, or if a path was included, verify that the path is correct and try again.[0m
+
+codex
+`rg` isn’t available in this shell, so I’m switching to PowerShell search to find the exact e2e command and any plugin-reload step in repo docs/scripts.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-ChildItem -Recurse -File | Select-String -Pattern 'end-to-end|e2e|full run|run test|reload plugin|plugins' -CaseSensitive:"'$false' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Name' in C:\dev\claudsterfuck\scripts
+ succeeded in 261ms:
+
+CODEX_FIXES_V2.md:12:- `D:\Users\kylecito\.claude\[7mplugins[0m\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterf[0m
+[7m[0muck-ce5453669ac3281c\state.json`[0m
+CODEX_FIXES_V2.md:13:- `D:\Users\kylecito\.claude\[7mplugins[0m\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterf[0m
+[7m[0muck-ce5453669ac3281c\audit.jsonl`[0m
+CODEX_FIXES_V2.md:14:- `D:\Users\kylecito\.claude\[7mplugins[0m\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterf[0m
+[7m[0muck-ce5453669ac3281c\runs\*.json`[0m
+REWRITE_PROPOSAL.md:55:From `D:\Users\kylecito\.claude\[7mplugins[0m\data\hybrid-companion-hybrid-companion-marketplace\state[0m
+[7m[0m\PaginaAF-2696cd91b54cb638\runs`:[0m
+REWRITE_SESSION_HANDOFF.md:79:4. Implement rewrite guided by `REWRITE_PROPOSAL.md` [7mend-to-end[0m.
+.claude\settings.local.json:13:      "Read(//d/Users/kylecito/.claude/[7mplugins[0m/**)",
+.claude\settings.local.json:14:      "Read(//d/Users/kylecito/.claude/[7mplugins[0m/data/**)",
+.claude\settings.local.json:16:      "Bash(git -C 
+\"D:/Users/kylecito/.claude/[7mplugins[0m/marketplaces/claude-plugins-official\" [0m[7m[0mconfig [0m[7m[0m--get [0m[7m[0mremote.origin.url)",[0m
+.claude\settings.local.json:17:      "Bash(git -C 
+\"D:/Users/kylecito/.claude/[7mplugins[0m/marketplaces/claude-plugins-official\" [0m[7m[0mremote [0m[7m[0m-v)",[0m
+.claude-plugin\marketplace.json:4:  "description": "Multi-agent work [7mplugins[0m",
+.claude-plugin\marketplace.json:6:  "[7mplugins[0m": [
+.wolf\anatomy.md:28:## D:/Users/kylecito/.claude/[7mplugins[0m/
+.wolf\buglog.json:1185:      "fix": "Added resolveCodexNativeBinary() which locates codex.exe inside 
+@openai/codex/node_modules/@openai/codex-win32-x64/. resolveWindowsCommandWithArgs now tries native binary first; our 
+spawn of codex.exe directly has windowsHide:true [7mend-to-end[0m. [0m[7m[0mJS [0m[7m[0mwrapper [0m[7m[0mfallback [0m[7m[0mretained [0m[7m[0mfor [0m[7m[0mnon-Windows [0m[7m[0mor [0m[7m[0mif [0m[7m[0mbinary [0m
+[7m[0mnot [0m[7m[0mfound.",[0m
+.wolf\memory.md:134:| 23:53 | Created D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json | — | ~1 |
+.wolf\memory.md:147:| 00:18 | Created D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json | — | ~1 |
+.wolf\memory.md:149:| 00:23 | Created D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json | — | ~312 |
+.wolf\memory.md:153:| 00:24 | Created D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json | — | ~458 |
+.wolf\reframe-frameworks.md:386:**Stack:** Tailwind CSS (HTML-first, React/Vue [7mplugins[0m)
+.wolf\token-ledger.json:1255:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/installed_plugins.json",
+.wolf\token-ledger.json:1261:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:1853:          "file": 
+"D:/Users/kylecito/.claude/[7mplugins[0m/marketplaces/claude-plugins-official/.claude-plugin/marketplace.json",[0m
+.wolf\token-ledger.json:1859:          "file": 
+"D:/Users/kylecito/.claude/[7mplugins[0m/marketplaces/tag-team-marketplace/.claude-plugin/marketplace.json",[0m
+.wolf\token-ledger.json:1867:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:1982:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2005:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2037:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2066:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2098:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2133:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2138:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2180:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2215:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2220:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2235:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2267:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2308:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2313:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2328:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2360:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2407:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2412:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:2427:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/known_marketplaces.json",
+.wolf\token-ledger.json:5302:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\token-ledger.json:5410:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\token-ledger.json:5590:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\token-ledger.json:5770:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\token-ledger.json:5950:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\token-ledger.json:6130:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\token-ledger.json:6310:          "file": "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-mark[0m
+[7m[0metplace/state/claudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json",[0m
+.wolf\hooks\_session.json:20:    "D:/Users/kylecito/.claude/[7mplugins[0m/data/claudsterfuck-claudsterfuck-marketplace/state/[0m
+[7m[0mclaudsterfuck-ce5453669ac3281c/runs/gemini-e7056cf5/process.json": [0m[7m[0m{[0m
+frameworks\planning\plan-rigor.md:5:- Exact verification commands beat "[7mrun test[0ms."
+scripts\orchestrator.mjs:252:    process.env[PLUGIN_DATA_SCAN_ROOT_ENV] || path.join(os.homedir(), ".claude", 
+"[7mplugins[0m", [0m[7m[0m"data");[0m
+scripts\orchestrator.mjs:657: *   1. Native codex.exe (our primary; windowsHide applies [7mend-to-end[0m)
+scripts\user-prompt-submit-hook.mjs:17:function parse[7mPluginS[0mlashCommand(prompt) {
+scripts\user-prompt-submit-hook.mjs:38:  return parse[7mPluginS[0mlashCommand(prompt).action;
+scripts\user-prompt-submit-hook.mjs:132:  if (depth === "test") return "test ([7mrun [0m[7mtest[0ms/build [0m[7m[0mto [0m[7m[0mverify, [0m[7m[0mskip [0m
+[7m[0mline-by-line [0m[7m[0mcode [0m[7m[0mreview)";[0m
+scripts\user-prompt-submit-hook.mjs:526:    const slash = parse[7mPluginS[0mlashCommand(rawPrompt);
+scripts\lib\providers.mjs:280:    // [7mend-to-end[0m. The JS wrapper (bin/codex.js) re-spawns codex.exe without windowsHide,
+
+
+ succeeded in 202ms:
+lib
+routing
+openwolf-compat.mjs
+orchestrator.mjs
+orchestrator.test.mjs
+pre-tool-use-hook.mjs
+session-start-hook.mjs
+stop-enforcement-hook.mjs
+user-prompt-submit-hook.mjs
+
+codex
+I found references to plugin data and tests but not yet the exact “full e2e run” command. Next I’ll inspect the project’s command docs and test entrypoints (`CLAUDE.md`, route/command files, and script headers) to identify the canonical command before running it.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -File -Include package.json,README.md,CLAUDE.md,*.md | Select-Object -ExpandProperty FullName' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path CLAUDE.md' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -File commands | Select-Object -ExpandProperty FullName' in C:\dev\claudsterfuck
+ succeeded in 255ms:
+# OpenWolf
+
+@.wolf/OPENWOLF.md
+
+This project uses OpenWolf for context management. Read and follow .wolf/OPENWOLF.md every session. Check .wolf/cerebrum.md before generating code. Check .wolf/anatomy.md before reading files.
+
+ succeeded in 260ms:
+C:\dev\claudsterfuck\.claude\rules\openwolf.md
+C:\dev\claudsterfuck\.wolf\hooks\package.json
+C:\dev\claudsterfuck\.wolf\anatomy.md
+C:\dev\claudsterfuck\.wolf\cerebrum.md
+C:\dev\claudsterfuck\.wolf\identity.md
+C:\dev\claudsterfuck\.wolf\memory.md
+C:\dev\claudsterfuck\.wolf\OPENWOLF.md
+C:\dev\claudsterfuck\.wolf\reframe-frameworks.md
+C:\dev\claudsterfuck\agents\claudsterfuck-codex-worker.md
+C:\dev\claudsterfuck\agents\claudsterfuck-gemini-worker.md
+C:\dev\claudsterfuck\commands\adversarial-review.md
+C:\dev\claudsterfuck\commands\cancel.md
+C:\dev\claudsterfuck\commands\chat.md
+C:\dev\claudsterfuck\commands\debug.md
+C:\dev\claudsterfuck\commands\delegate.md
+C:\dev\claudsterfuck\commands\design.md
+C:\dev\claudsterfuck\commands\dispatch.md
+C:\dev\claudsterfuck\commands\implement-artifact.md
+C:\dev\claudsterfuck\commands\implement.md
+C:\dev\claudsterfuck\commands\inspect.md
+C:\dev\claudsterfuck\commands\plan.md
+C:\dev\claudsterfuck\commands\recover.md
+C:\dev\claudsterfuck\commands\reroute.md
+C:\dev\claudsterfuck\commands\reset.md
+C:\dev\claudsterfuck\commands\result.md
+C:\dev\claudsterfuck\commands\review-feedback.md
+C:\dev\claudsterfuck\commands\review.md
+C:\dev\claudsterfuck\commands\setup.md
+C:\dev\claudsterfuck\commands\status.md
+C:\dev\claudsterfuck\commands\task.md
+C:\dev\claudsterfuck\commands\watch.md
+C:\dev\claudsterfuck\frameworks\debugging\defense-in-depth.md
+C:\dev\claudsterfuck\frameworks\debugging\root-cause-debugging.md
+C:\dev\claudsterfuck\frameworks\debugging\root-cause-tracing.md
+C:\dev\claudsterfuck\frameworks\design\alternatives-and-tradeoffs.md
+C:\dev\claudsterfuck\frameworks\design\design-gates.md
+C:\dev\claudsterfuck\frameworks\design\system-boundaries.md
+C:\dev\claudsterfuck\frameworks\implementation\tdd.md
+C:\dev\claudsterfuck\frameworks\implementation\testing-anti-patterns.md
+C:\dev\claudsterfuck\frameworks\implementation\verification-before-completion.md
+C:\dev\claudsterfuck\frameworks\implementation\worker-contract.md
+C:\dev\claudsterfuck\frameworks\implementation\yagni-and-scope-control.md
+C:\dev\claudsterfuck\frameworks\planning\no-placeholders.md
+C:\dev\claudsterfuck\frameworks\planning\plan-rigor.md
+C:\dev\claudsterfuck\frameworks\planning\task-granularity.md
+C:\dev\claudsterfuck\frameworks\review\ai-blind-spots.md
+C:\dev\claudsterfuck\frameworks\review\blind-spots.md
+C:\dev\claudsterfuck\frameworks\review\inversion.md
+C:\dev\claudsterfuck\frameworks\review\pre-mortem.md
+C:\dev\claudsterfuck\frameworks\review\review-feedback-reception.md
+C:\dev\claudsterfuck\frameworks\review\socratic-probing.md
+C:\dev\claudsterfuck\frameworks\review\steelman-and-verdict.md
+C:\dev\claudsterfuck\prompts\providers\codex\worker-base.md
+C:\dev\claudsterfuck\prompts\providers\gemini\worker-base.md
+C:\dev\claudsterfuck\skills\claudsterfuck-routing\SKILL.md
+C:\dev\claudsterfuck\CLAUDE.md
+C:\dev\claudsterfuck\CODEX_FIXES_V2.md
+C:\dev\claudsterfuck\REWRITE_PROPOSAL.md
+C:\dev\claudsterfuck\REWRITE_SESSION_HANDOFF.md
+
+ succeeded in 224ms:
+C:\dev\claudsterfuck\commands\adversarial-review.md
+C:\dev\claudsterfuck\commands\cancel.md
+C:\dev\claudsterfuck\commands\chat.md
+C:\dev\claudsterfuck\commands\debug.md
+C:\dev\claudsterfuck\commands\delegate.md
+C:\dev\claudsterfuck\commands\design.md
+C:\dev\claudsterfuck\commands\dispatch.md
+C:\dev\claudsterfuck\commands\implement-artifact.md
+C:\dev\claudsterfuck\commands\implement.md
+C:\dev\claudsterfuck\commands\inspect.md
+C:\dev\claudsterfuck\commands\plan.md
+C:\dev\claudsterfuck\commands\recover.md
+C:\dev\claudsterfuck\commands\reroute.md
+C:\dev\claudsterfuck\commands\reset.md
+C:\dev\claudsterfuck\commands\result.md
+C:\dev\claudsterfuck\commands\review-feedback.md
+C:\dev\claudsterfuck\commands\review.md
+C:\dev\claudsterfuck\commands\setup.md
+C:\dev\claudsterfuck\commands\status.md
+C:\dev\claudsterfuck\commands\task.md
+C:\dev\claudsterfuck\commands\watch.md
+
+codex
+I’m now checking command docs and local `package.json` files to avoid guessing the wrong test entrypoint. Once I confirm the exact full-run test command, I’ll execute it immediately.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path .wolf\\OPENWOLF.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path commands\\dispatch.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path commands\\watch.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path .wolf\\hooks\\package.json" in C:\dev\claudsterfuck
+ succeeded in 226ms:
+# OpenWolf Operating Protocol
+
+You are working in an OpenWolf-managed project. These rules apply every turn.
+
+## File Navigation
+
+1. Check `.wolf/anatomy.md` BEFORE reading any file. It has a 2-3 line description and token estimate for every file in the project.
+2. If the description in anatomy.md is sufficient for your task, do NOT read the full file.
+3. If a file is not in anatomy.md, search with Grep/Glob, then update anatomy.md with the new entry.
+
+## Code Generation
+
+1. Before generating code, read `.wolf/cerebrum.md` and respect every entry.
+2. Check the `## Do-Not-Repeat` section — these are past mistakes that must not recur.
+3. Follow all conventions in `## Key Learnings` and `## User Preferences`.
+
+## After Actions
+
+1. After every significant action, append a one-line entry to `.wolf/memory.md`:
+   `| HH:MM | description | file(s) | outcome | ~tokens |`
+2. After creating, deleting, or renaming files: update `.wolf/anatomy.md`.
+
+## Cerebrum Learning (MANDATORY — every session)
+
+OpenWolf's value comes from learning across sessions. You MUST update `.wolf/cerebrum.md` whenever you learn something useful. This is not optional.
+
+**Update `## User Preferences` when the user:**
+- Corrects your approach ("no, do it this way instead")
+- Expresses a style preference (naming, structure, formatting)
+- Shows a preferred workflow or tool choice
+- Rejects a suggestion — record what they preferred instead
+- Asks for more/less detail, verbosity, explanation
+
+**Update `## Key Learnings` when you discover:**
+- A project convention not obvious from the code (e.g., "tests go in __tests__/ not test/")
+- A framework-specific pattern this project uses
+- An API behavior that surprised you
+- A dependency quirk or version constraint
+- How modules connect or data flows through the system
+
+**Update `## Do-Not-Repeat` (with date) when:**
+- The user corrects a mistake you made
+- You try something that fails and find the right approach
+- You discover a gotcha that would trip up a fresh session
+
+**Update `## Decision Log` when:**
+- A significant architectural or technical choice is made
+- The user explains why they chose approach A over B
+- A trade-off is explicitly discussed
+
+**The bar is LOW.** If in doubt, add it. A cerebrum entry that's slightly redundant costs nothing. A missing entry means the next session repeats the same discovery process.
+
+## Bug Logging (MANDATORY)
+
+**Log a bug to `.wolf/buglog.json` whenever ANY of these happen:**
+- The user reports an error, bug, or problem
+- A test fails or a command produces an error
+- You fix something that was broken
+- You edit a file more than twice to get it right
+- An import, module, or dependency is missing or wrong
+- A runtime error, type error, or syntax error occurs
+- A build or lint command fails
+- A feature doesn't work as expected
+- You change error handling, try/catch blocks, or validation logic
+- The user says something "doesn't work", "is broken", or "shows wrong X"
+
+**Before fixing:** Read `.wolf/buglog.json` first — the fix may already be known.
+
+**After fixing:** ALWAYS append to `.wolf/buglog.json` with this structure:
+```json
+{
+  "id": "bug-NNN",
+  "timestamp": "ISO date",
+  "error_message": "exact error or user complaint",
+  "file": "file that was fixed",
+  "root_cause": "why it broke",
+  "fix": "what you changed to fix it",
+  "tags": ["relevant", "keywords"],
+  "related_bugs": [],
+  "occurrences": 1,
+  "last_seen": "ISO date"
+}
+```
+
+**The threshold is LOW.** When in doubt, log it. A false positive in the bug log costs nothing. A missed bug means repeating the same mistake later.
+
+## Token Discipline
+
+- Never re-read a file already read this session unless it was modified since.
+- Prefer anatomy.md descriptions over full file reads when possible.
+- Prefer targeted Grep over full file reads when searching for specific code.
+- If appending to a file, do not read the entire file first.
+
+## Design QC
+
+When the user asks you to check, evaluate, or improve the design/UI of their app:
+
+1. Run `openwolf designqc` via Bash to capture screenshots.
+   - The command auto-detects a running dev server, or starts one from package.json if needed
+   - Use `--url <url>` only if auto-detection fails
+   - The command saves compressed JPEG screenshots to `.wolf/designqc-captures/`
+   - Full pages are captured as sectioned viewport-height images (top, section2, ..., bottom)
+2. Read the captured screenshot images from `.wolf/designqc-captures/` using the Read tool.
+3. Evaluate the design against modern standards (Shadcn UI, Tailwind, clean React patterns):
+   - Spacing and whitespace consistency
+   - Typography hierarchy and readability
+   - Color contrast and accessibility (WCAG)
+   - Visual hierarchy and focal points
+   - Component consistency
+   - Whether the design looks "dull" or "white-coded" (generic, no personality)
+4. Provide specific, actionable feedback with fix suggestions.
+5. If the user approves, implement the fixes directly in their code.
+6. After fixes, re-run `openwolf designqc` to capture new screenshots and verify improvement.
+
+**Token awareness:** Each screenshot costs ~2500 tokens. The command compresses images (JPEG quality 70, max width 1200px) to minimize cost. For large apps, use `--routes / /specific-page` to limit captures.
+
+## Reframe — UI Framework Selection
+
+When the user asks to change, pick, migrate, or "reframe" their project's UI framework:
+
+1. Read `.wolf/reframe-frameworks.md` for the full framework knowledge base.
+2. Ask the user the decision questions from the file (current stack, priority, Tailwind usage, theme preference, app type). Stop early once the choice narrows to 1-2 options.
+3. Present a recommendation with reasoning based on the comparison matrix.
+4. Once the user confirms, use the selected framework's prompt from the file — **adapted to the actual project** using `.wolf/anatomy.md` for real file paths, routes, and components.
+5. Execute the migration: install dependencies, update config, refactor components.
+6. After migration, run `openwolf designqc` to verify the new look.
+
+**Do NOT read the entire reframe-frameworks.md into context upfront.** Read the decision questions and comparison matrix first (~50 lines). Only read the specific framework's prompt section after the user chooses.
+
+## Session End
+
+Before ending or when asked to wrap up:
+
+1. Write a session summary to `.wolf/memory.md`.
+2. Review the session: did you learn anything? Did the user correct you? Did you fix a bug? If yes, update `.wolf/cerebrum.md` and/or `.wolf/buglog.json`.
+
+ succeeded in 227ms:
+---
+description: Dispatch the active routed turn to its worker provider (returns immediately)
+disable-model-invocation: true
+allowed-tools: Bash(node:*)
+---
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --json
+```
+
+This spawns the worker process detached and returns immediately with a run ID.
+After dispatch, use `/claudsterfuck:watch` to poll for completion.
+
+ succeeded in 219ms:
+---
+description: Poll a running worker dispatch until completion or timeout
+disable-model-invocation: true
+allowed-tools: Bash(node:*)
+---
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" watch --json
+```
+
+Polls the latest running dispatch. Returns the result if completed, or a progress snapshot if still running.
+Repeat until the run completes. Each call is bounded to ~90 seconds.
+
+ succeeded in 219ms:
+{
+  "type": "module"
+}
+
+codex
+I confirmed `/dispatch` and `/watch` map to `scripts/orchestrator.mjs`. Next I’m checking the CLI help and test file to find the exact “full end-to-end run test” invocation and whether plugin reload is a required pre-step.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs --help' in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path scripts\\orchestrator.test.mjs" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-ChildItem -Recurse -File scripts | Select-String -Pattern 'reload|plugin|e2e|end-to-end|full|dispatch --watch|watch' -CaseSensitive:"'$false' in C:\dev\claudsterfuck
+ succeeded in 229ms:
+#!/usr/bin/env node
+/**
+ * Unit + integration tests for orchestrator.mjs hardening:
+ *
+ *   F1  handleCancel --run-id  (bypass turn-state requirement)
+ *   F2  handleRecover --force-stalled  (kill alive-but-stale runs)
+ *   F3  spawnDetached fallback  (retry on spawn-level EPERM/ENOENT)
+ *   F4  spawn diagnostics  (resolvedCommand/resolvedArgs in process.json)
+ *   F6  classifyTurn shell-command guard  (! prefix → chat)
+ */
+
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+// Orchestrator exports
+import {
+  handleCancel,
+  handleRecover,
+  computeCodexDetachedExitCode,
+  spawnDetachedWithFn
+} from "./orchestrator.mjs";
+
+// State helpers
+import {
+  resolveRunsDir,
+  resolveRunArtifactsDir,
+  resolveRunFile,
+  writeRun,
+  readRun
+} from "./lib/state.mjs";
+
+// Routing
+import { classifyTurn } from "./routing/classify-turn.mjs";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+async function run(name, fn) {
+  try {
+    await fn();
+    process.stdout.write(`PASS ${name}\n`);
+  } catch (error) {
+    process.stderr.write(`FAIL ${name}: ${error.message}\n`);
+    if (error.stack) {
+      process.stderr.write(`${error.stack}\n`);
+    }
+    throw error;
+  }
+}
+
+/** Redirect stdout writes during fn(), return captured string. */
+async function captureStdout(fn) {
+  const chunks = [];
+  const original = process.stdout.write.bind(process.stdout);
+  process.stdout.write = (chunk) => {
+    chunks.push(String(chunk));
+    return true;
+  };
+  try {
+    await fn();
+  } finally {
+    process.stdout.write = original;
+  }
+  return chunks.join("");
+}
+
+/**
+ * Create an isolated temp environment with CLAUDE_PLUGIN_DATA pointed at a
+ * fresh temp directory.  Returns { cwd, cleanup }.
+ */
+function createTestEnv() {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cf-orch-test-"));
+  const savedPluginData = process.env.CLAUDE_PLUGIN_DATA;
+  process.env.CLAUDE_PLUGIN_DATA = tempDir;
+
+  return {
+    cwd: tempDir,
+    cleanup() {
+      if (savedPluginData != null) {
+        process.env.CLAUDE_PLUGIN_DATA = savedPluginData;
+      } else {
+        delete process.env.CLAUDE_PLUGIN_DATA;
+      }
+      try {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      } catch {}
+    }
+  };
+}
+
+/** Write a minimal run record and process.json for a given runId. */
+function seedRun(cwd, runId, { status = "running", provider = "codex", route = "implement", pid = 999999999, startedAtOffset = 0 } = {}) {
+  const runsDir = resolveRunsDir(cwd);
+  const artifactsDir = resolveRunArtifactsDir(cwd, runId);
+  fs.mkdirSync(runsDir, { recursive: true });
+  fs.mkdirSync(artifactsDir, { recursive: true });
+
+  const startedAt = new Date(Date.now() - startedAtOffset * 1000).toISOString();
+  const runRecord = {
+    id: runId,
+    sessionId: null,
+    status,
+    provider,
+    route,
+    startedAt,
+    artifacts: {
+      stdoutFile: path.join(artifactsDir, "stdout.live.txt"),
+      stderrFile: path.join(artifactsDir, "stderr.live.txt"),
+      progressFile: path.join(artifactsDir, "progress.json")
+    }
+  };
+  fs.writeFileSync(resolveRunFile(cwd, runId), JSON.stringify(runRecord, null, 2), "utf8");
+
+  const processRecord = {
+    pid,
+    stdoutFile: path.join(artifactsDir, "stdout.live.txt"),
+    stderrFile: path.join(artifactsDir, "stderr.live.txt"),
+    startedAt
+  };
+  fs.writeFileSync(path.join(artifactsDir, "process.json"), JSON.stringify(processRecord, null, 2), "utf8");
+
+  // Create empty stdout file (required for stall check)
+  fs.writeFileSync(path.join(artifactsDir, "stdout.live.txt"), "", "utf8");
+
+  return { runRecord, processRecord, artifactsDir };
+}
+
+// ---------------------------------------------------------------------------
+// F1: handleCancel --run-id
+// ---------------------------------------------------------------------------
+
+await run("handleCancel --run-id: cancels run when process is dead (no active turn)", async () => {
+  const env = createTestEnv();
+  try {
+    const runId = "codex-cancel-test-1";
+    seedRun(env.cwd, runId, { status: "running", pid: 999999999 });
+
+    const output = await captureStdout(() =>
+      handleCancel(env.cwd, { runId, json: true, sessionId: "" })
+    );
+
+    const result = JSON.parse(output);
+    assert.equal(result.cancelled, true, "should report cancelled: true");
+    assert.equal(result.runId, runId);
+
+    const updated = readRun(env.cwd, runId);
+    assert.equal(updated.status, "failed", "run status should be failed after cancel");
+    assert.ok(updated.errorSummary?.toLowerCase().includes("cancel"), "errorSummary should mention cancel");
+  } finally {
+    env.cleanup();
+  }
+});
+
+await run("handleCancel --run-id: returns not-cancelled when run does not exist", async () => {
+  const env = createTestEnv();
+  try {
+    const output = await captureStdout(() =>
+      handleCancel(env.cwd, { runId: "codex-nonexistent-99", json: true, sessionId: "" })
+    );
+
+    const result = JSON.parse(output);
+    assert.equal(result.cancelled, false, "should report cancelled: false for missing run");
+  } finally {
+    env.cleanup();
+  }
+});
+
+await run("handleCancel --run-id: returns not-cancelled when run is already completed", async () => {
+  const env = createTestEnv();
+  try {
+    const runId = "codex-cancel-test-done";
+    seedRun(env.cwd, runId, { status: "completed", pid: 999999999 });
+
+    const output = await captureStdout(() =>
+      handleCancel(env.cwd, { runId, json: true, sessionId: "" })
+    );
+
+    const result = JSON.parse(output);
+    assert.equal(result.cancelled, false, "should not cancel an already-completed run");
+  } finally {
+    env.cleanup();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// F2: handleRecover --force-stalled
+// ---------------------------------------------------------------------------
+
+await run("handleRecover: finalizes dead-process runs (existing behaviour preserved)", async () => {
+  const env = createTestEnv();
+  try {
+    const runId = "gemini-recover-dead";
+    seedRun(env.cwd, runId, { status: "running", pid: 999999999 }); // dead PID
+
+    const output = await captureStdout(() =>
+      handleRecover(env.cwd, { json: true, forceStalled: false })
+    );
+
+    const result = JSON.parse(output);
+    assert.ok(result.recovered >= 1, "should recover at least one dead run");
+
+    const updated = readRun(env.cwd, runId);
+    assert.notEqual(updated.status, "running", "dead run should no longer be 'running'");
+  } finally {
+    env.cleanup();
+  }
+});
+
+await run("handleRecover --force-stalled: skips alive process that is within threshold", async () => {
+  const env = createTestEnv();
+  // Spawn a real short-lived child to get an alive PID
+  const child = spawn("node", ["-e", "setTimeout(()=>{},10000)"], { stdio: "ignore", windowsHide: true });
+  try {
+    const runId = "codex-recover-fresh";
+    // startedAtOffset = 10s (well under any threshold)
+    seedRun(env.cwd, runId, { status: "running", pid: child.pid, startedAtOffset: 10 });
+
+    const output = await captureStdout(() =>
+      handleRecover(env.cwd, { json: true, forceStalled: true })
+    );
+
+    const result = JSON.parse(output);
+    const found = result.runs?.find((r) => r.runId === runId);
+    assert.ok(!found, "fresh alive run should NOT be force-recovered");
+
+    const updated = readRun(env.cwd, runId);
+    assert.equal(updated.status, "running", "status should remain running");
+  } finally {
+    child.kill();
+    env.cleanup();
+  }
+});
+
+await run("handleRecover --force-stalled: kills alive process that has exceeded threshold", async () => {
+  const env = createTestEnv();
+  const child = spawn("node", ["-e", "setTimeout(()=>{},60000)"], { stdio: "ignore", windowsHide: true });
+  try {
+    const runId = "gemini-recover-stale";
+    // startedAtOffset = 400s — exceeds the default 120s threshold for Gemini
+    seedRun(env.cwd, runId, { status: "running", provider: "gemini", route: "review", pid: child.pid, startedAtOffset: 400 });
+
+    const output = await captureStdout(() =>
+      handleRecover(env.cwd, { json: true, forceStalled: true })
+    );
+
+    const result = JSON.parse(output);
+    const found = result.runs?.find((r) => r.runId === runId);
+    assert.ok(found, "stale alive run SHOULD be force-recovered");
+    assert.equal(found.reason, "force-stalled");
+
+    const updated = readRun(env.cwd, runId);
+    assert.equal(updated.status, "failed", "stale run should be marked failed");
+  } finally {
+    // child may already be killed by recover; ignore errors
+    try { child.kill(); } catch {}
+    env.cleanup();
+  }
+});
+
+await run("handleRecover: alive+not-stalled run is NOT touched when --force-stalled is false", async () => {
+  const env = createTestEnv();
+  const child = spawn("node", ["-e", "setTimeout(()=>{},60000)"], { stdio: "ignore", windowsHide: true });
+  try {
+    const runId = "codex-alive-no-force";
+    seedRun(env.cwd, runId, { status: "running", pid: child.pid, startedAtOffset: 400 });
+
+    const output = await captureStdout(() =>
+      handleRecover(env.cwd, { json: true, forceStalled: false })
+    );
+
+    const result = JSON.parse(output);
+    const found = result.runs?.find((r) => r.runId === runId);
+    assert.ok(!found, "alive run should be skipped when --force-stalled is false");
+
+    const updated = readRun(env.cwd, runId);
+    assert.equal(updated.status, "running", "status should remain running");
+  } finally {
+    try { child.kill(); } catch {}
+    env.cleanup();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Shared mock helpers for spawn tests (F3 + F4)
+// ---------------------------------------------------------------------------
+
+import { EventEmitter } from "node:events";
+import { PassThrough } from "node:stream";
+
+function makeMockChild(pid) {
+  const child = new EventEmitter();
+  child.pid = pid;
+  child.stdin = new PassThrough();
+  child.unref = () => {};
+  return child;
+}
+
+function makeEpermThenSucceedSpawn(calls) {
+  let callIndex = 0;
+  return function mockSpawn(cmd, args) {
+    calls.push({ cmd, args });
+    callIndex++;
+    if (callIndex === 1) {
+      const err = new Error("spawn EPERM");
+      err.code = "EPERM";
+      throw err;
+    }
+    return makeMockChild(88888);
+  };
+}
+
+function makeAlwaysSucceedSpawn(calls, pid = 77777) {
+  return function mockSpawn(cmd, args) {
+    calls.push({ cmd, args });
+    return makeMockChild(pid);
+  };
+}
+
+// ---------------------------------------------------------------------------
+// F3: spawnDetached spawn-level fallback
+// ---------------------------------------------------------------------------
+
+await run("spawnDetached: falls back to node wrapper when native binary throws EPERM", async () => {
+  if (typeof spawnDetachedWithFn !== "function") {
+    throw new Error("spawnDetachedWithFn is not exported yet (RED)");
+  }
+
+  const env = createTestEnv();
+  try {
+    const stdoutFile = path.join(env.cwd, "stdout.txt");
+    const stderrFile = path.join(env.cwd, "stderr.txt");
+    const calls = [];
+
+    // Inject explicit candidates so the test is independent of filesystem state.
+    // Candidate 1 = native binary (will throw EPERM from mock spawn)
+    // Candidate 2 = node wrapper fallback (mock spawn succeeds)
+    const result = spawnDetachedWithFn("codex", ["exec", "-"], {
+      cwd: env.cwd,
+      env: process.env,
+      stdin: "test",
+      stdoutFile,
+      stderrFile,
+      _candidates: [
+        { command: "C:\\fake\\codex.exe", args: ["exec", "-"] },
+        { command: process.execPath, args: ["/fake/codex-wrapper.js", "exec", "-"] }
+      ],
+      _spawnFn: makeEpermThenSucceedSpawn(calls)
+    });
+
+    assert.equal(calls.length, 2, "should have attempted spawn twice");
+    assert.ok(result.pid, "result should have a pid");
+    assert.ok(result.spawnAttempts?.length === 2, "should record both spawn attempts");
+    assert.equal(result.spawnAttempts[0].success, false, "first attempt should be failed");
+    assert.equal(result.spawnAttempts[1].success, true, "second attempt should succeed");
+  } finally {
+    env.cleanup();
+  }
+});
+
+await run("spawnDetached: does not retry on non-spawn errors (EINVAL)", () => {
+  const env = createTestEnv();
+  try {
+    const stdoutFile = path.join(env.cwd, "stdout.txt");
+    const stderrFile = path.join(env.cwd, "stderr.txt");
+    const calls = [];
+
+    function alwaysEinval(cmd, args) {
+      calls.push({ cmd, args });
+      const err = new Error("spawn EINVAL");
+      err.code = "EINVAL";
+      throw err;
+    }
+
+    let thrownError = null;
+    try {
+      spawnDetachedWithFn("codex", ["exec", "-"], {
+        cwd: env.cwd, env: process.env, stdin: "test", stdoutFile, stderrFile,
+        _candidates: [
+          { command: "C:\\fake\\codex.exe", args: ["exec", "-"] },
+          { command: process.execPath, args: ["/fake/codex-wrapper.js", "exec", "-"] }
+        ],
+        _spawnFn: alwaysEinval
+      });
+    } catch (err) {
+      thrownError = err;
+    }
+
+    assert.ok(thrownError !== null, "should have thrown an error");
+    assert.ok(
+      thrownError.code === "EINVAL" || thrownError.message.includes("EINVAL"),
+      `should throw EINVAL, got: ${thrownError?.code} / ${thrownError?.message}`
+    );
+    assert.equal(calls.length, 1, "EINVAL should not trigger retry");
+  } finally {
+    env.cleanup();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// F4: spawn diagnostics in process.json
+// ---------------------------------------------------------------------------
+
+await run("spawnDetached: returns resolvedCommand and resolvedArgs for diagnostics", async () => {
+  const env = createTestEnv();
+  try {
+    const stdoutFile = path.join(env.cwd, "stdout.txt");
+    const stderrFile = path.join(env.cwd, "stderr.txt");
+    const calls = [];
+
+    const result = spawnDetachedWithFn("codex", ["exec", "-"], {
+      cwd: env.cwd,
+      env: process.env,
+      stdin: "test",
+      stdoutFile,
+      stderrFile,
+      _candidates: [
+        { command: "C:\\fake\\codex.exe", args: ["exec", "-"] }
+      ],
+      _spawnFn: makeAlwaysSucceedSpawn(calls)
+    });
+
+    assert.ok(result.resolvedCommand, "result should include resolvedCommand");
+    assert.ok(Array.isArray(result.resolvedArgs), "result should include resolvedArgs array");
+    assert.ok(Array.isArray(result.spawnAttempts), "result should include spawnAttempts array");
+    assert.equal(result.spawnAttempts[0].success, true, "single attempt should be success");
+  } finally {
+    env.cleanup();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// F6: classifyTurn shell-command guard
+// ---------------------------------------------------------------------------
+
+await run("classifyTurn: '! plugin update foo' routes to chat (not delegated)", () => {
+  const result = classifyTurn("! plugin update claudsterfuck");
+  assert.equal(result.route, "chat", "should route to chat");
+  assert.equal(result.confidence, "override", "should have override confidence");
+});
+
+await run("classifyTurn: '!ls' routes to chat", () => {
+  const result = classifyTurn("!ls");
+  assert.equal(result.route, "chat");
+  assert.equal(result.confidence, "override");
+});
+
+await run("classifyTurn: '  ! cmd' (leading whitespace) routes to chat", () => {
+  const result = classifyTurn("  ! some shell command");
+  assert.equal(result.route, "chat");
+});
+
+await run("classifyTurn: normal implement prompt is NOT caught by shell guard", () => {
+  const result = classifyTurn("implement a new feature for the login page");
+  assert.notEqual(result.route, "chat", "normal prompts should not be forced to chat");
+  assert.notEqual(result.confidence, "override");
+});
+
+await run("classifyTurn: '! prefix' reason is shell-command-prefix", () => {
+  const result = classifyTurn("! git status");
+  assert.equal(result.reason, "shell-command-prefix");
+});
+
+process.stdout.write("\nAll tests completed.\n");
+
+2026-04-16T17:14:28.443302Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 0.2 seconds
+Output:
+Unknown command "--help". Available: dispatch, watch, status, inspect, result, cancel, recover, setup, reroute, reset, task.
+
+ exited 1 in 233ms:
+Unknown command "--help". Available: dispatch, watch, status, inspect, result, cancel, recover, setup, reroute, reset, task.
+
+ succeeded in 254ms:
+
+scripts\orchestrator.mjs:9: * after dispatch. A separate `[7mwatch[0m` command polls for completion.
+scripts\orchestrator.mjs:13: *   [7mwatch[0m     - Poll a running dispatch until completion or timeout
+scripts\orchestrator.mjs:59:const CLAUDE_[7mPLUGIN[0m_DATA_ENV = "CLAUDE_PLUGIN_DATA";
+scripts\orchestrator.mjs:60:const [7mPLUGIN[0m_DATA_SCAN_ROOT_ENV = "CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT";
+scripts\orchestrator.mjs:62:const DEFAULT_[7mWATCH[0m_TIMEOUT_SECONDS = 90;
+scripts\orchestrator.mjs:63:const [7mWATCH[0m_POLL_INTERVAL_MS = 2000;
+scripts\orchestrator.mjs:80:    timeout: DEFAULT_[7mWATCH[0m_TIMEOUT_SECONDS,
+scripts\orchestrator.mjs:82:    [7mwatch[0m: false,
+scripts\orchestrator.mjs:109:      args.timeout = Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 
+DEFAULT_[7mWATCH[0m_TIMEOUT_SECONDS;[0m
+scripts\orchestrator.mjs:113:    } else if (value === "--[7mwatch[0m") {
+scripts\orchestrator.mjs:114:      args.[7mwatch[0m = true;
+scripts\orchestrator.mjs:223:// [7mPlugin[0m data / state resolution (updated scan pattern: /claudsterfuck/i)
+scripts\orchestrator.mjs:226:function with[7mPlugin[0mDataDir(pluginDataDir, callback) {
+scripts\orchestrator.mjs:227:  const previous = process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV];
+scripts\orchestrator.mjs:228:  if ([7mplugin[0mDataDir) {
+scripts\orchestrator.mjs:229:    process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV] = pluginDataDir;
+scripts\orchestrator.mjs:231:    delete process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV];
+scripts\orchestrator.mjs:238:      delete process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV];
+scripts\orchestrator.mjs:240:      process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV] = previous;
+scripts\orchestrator.mjs:245:function discover[7mPlugin[0mDataCandidates() {
+scripts\orchestrator.mjs:246:  const explicit = process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV];
+scripts\orchestrator.mjs:252:    process.env[[7mPLUGIN[0m_DATA_SCAN_ROOT_ENV] [0m[7m[0m|| [0m[7m[0mpath.join(os.homedir(), [0m[7m[0m".claude", [0m
+[7m[0m"plugins", [0m[7m[0m"data");[0m
+scripts\orchestrator.mjs:275:function buildStateCandidate(cwd, [7mplugin[0mDataDir) {
+scripts\orchestrator.mjs:276:  const loadResult = with[7mPlugin[0mDataDir(pluginDataDir, () => loadStateWithReadHealth(cwd));
+scripts\orchestrator.mjs:284:  const paths = with[7mPlugin[0mDataDir(pluginDataDir, () => ({
+scripts\orchestrator.mjs:290:    [7mplugin[0mDataDir: pluginDataDir ?? null,
+scripts\orchestrator.mjs:291:    source: [7mplugin[0mDataDir ? "plugin-data" : "fallback-temp",
+scripts\orchestrator.mjs:303:  if (process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV]) {
+scripts\orchestrator.mjs:304:    return buildStateCandidate(cwd, process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV]);
+scripts\orchestrator.mjs:307:  const candidates = [null, ...discover[7mPlugin[0mDataCandidates()].map((pluginDataDir) =>
+scripts\orchestrator.mjs:308:    buildStateCandidate(cwd, [7mplugin[0mDataDir)
+scripts\orchestrator.mjs:312:    const [7mplugin[0mCandidate [0m[7m[0m= [0m[7m[0mcandidates.find((candidate) [0m[7m[0m=> [0m
+[7m[0mBoolean(candidate.pluginDataDir));[0m
+scripts\orchestrator.mjs:313:    return [7mplugin[0mCandidate ?? candidates[0];
+scripts\orchestrator.mjs:329:function ensureResolved[7mPlugin[0mDataEnv(cwd) {
+scripts\orchestrator.mjs:330:  if (process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV]) {
+scripts\orchestrator.mjs:335:  if (stateCandidate?.[7mplugin[0mDataDir) {
+scripts\orchestrator.mjs:336:    process.env[CLAUDE_[7mPLUGIN[0m_DATA_ENV] = stateCandidate.pluginDataDir;
+scripts\orchestrator.mjs:349:  return "Using fallback temp state source. This is expected pre-session-binding; for 
+bound sessions prefer [7mplugin[0m-data [0m[7m[0mstate [0m[7m[0mto [0m[7m[0mguarantee [0m[7m[0mcross-terminal [0m[7m[0mconsistency.";[0m
+scripts\orchestrator.mjs:657: *   1. Native codex.exe (our primary; windowsHide applies [7mend-to-end[0m)
+scripts\orchestrator.mjs:1098:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:1261:  // Write process info for [7mwatch[0m to pick up.
+scripts\orchestrator.mjs:1291:  // If --[7mwatch[0m was passed, dispatch and immediately poll in one call
+scripts\orchestrator.mjs:1292:  if (args.[7mwatch[0m) {
+scripts\orchestrator.mjs:1293:    emitLog("dispatch-and-[7mwatch[0m", [0m[7m[0m{ [0m[7m[0mrunId, [0m[7m[0mpid: [0m[7m[0mspawnResult.pid, [0m[7m[0mprovider: [0m
+[7m[0massembled.provider [0m[7m[0m});[0m
+scripts\orchestrator.mjs:1294:    await handle[7mWatch[0m(cwd, { ...args, runId });
+scripts\orchestrator.mjs:1309:      message: `Worker dispatched (${assembled.provider}, PID ${spawnResult.pid}). Use 
+'[7mwatch [0m[7m[0m--run-id [0m[7m[0m${runId}' [0m[7m[0mto [0m[7m[0mpoll [0m[7m[0mfor [0m[7m[0mcompletion.`[0m
+scripts\orchestrator.mjs:1316:// Command: [7mwatch[0m
+scripts\orchestrator.mjs:1319:export async function handle[7mWatch[0m(cwd, args) {
+scripts\orchestrator.mjs:1320:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:1333:  const timeoutSeconds = args.timeout || DEFAULT_[7mWATCH[0m_TIMEOUT_SECONDS;
+scripts\orchestrator.mjs:1365:  emitLog("[7mwatch[0m-start", { runId, pid, timeoutSeconds });
+scripts\orchestrator.mjs:1372:      // Process finished - finalize and return [7mfull[0m result
+scripts\orchestrator.mjs:1373:      emitLog("[7mwatch[0m-process-exited", { runId, pid });
+scripts\orchestrator.mjs:1380:      emitLog("[7mwatch[0m-finalized", {
+scripts\orchestrator.mjs:1397:    await sleep([7mWATCH[0m_POLL_INTERVAL_MS);
+scripts\orchestrator.mjs:1407:  emitLog("[7mwatch[0m-timeout", { runId, pid, elapsedSeconds, timeoutSeconds });
+scripts\orchestrator.mjs:1415:      [7mwatch[0mTimeoutReached: true,
+scripts\orchestrator.mjs:1416:      [7mwatch[0mTimeoutSeconds: timeoutSeconds,
+scripts\orchestrator.mjs:1426:      message: `Still running after ${timeoutSeconds}s [7mwatch[0m. [0m[7m[0mPID [0m[7m[0m${pid} [0m[7m[0malive. [0m[7m[0mCall [0m
+[7m[0mwatch [0m[7m[0magain [0m[7m[0mto [0m[7m[0mkeep [0m[7m[0mpolling.`[0m
+scripts\orchestrator.mjs:1561:        [7mplugin[0mDataDir: stateCandidate.pluginDataDir,
+scripts\orchestrator.mjs:1594:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:1684:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:1831:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:1974:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:1982:    // No explicit session: clear all sessions' turns so state is [7mfull[0my clean
+scripts\orchestrator.mjs:1997:  ensureResolved[7mPlugin[0mDataEnv(cwd);
+scripts\orchestrator.mjs:2065:  [7mwatch[0m: handleWatch,
+scripts\orchestrator.mjs:2077:      "[orchestrator] DEPRECATED: 'task' command is replaced by 'dispatch' + '[7mwatch[0m'. [0m
+[7m[0mRedirecting [0m[7m[0mto [0m[7m[0mdispatch.\n"[0m
+scripts\orchestrator.mjs:2089:      "Missing command. Use: dispatch, [7mwatch[0m, [0m[7m[0mstatus, [0m[7m[0minspect, [0m[7m[0mresult, [0m[7m[0mcancel, [0m[7m[0mrecover, [0m
+[7m[0msetup, [0m[7m[0mreroute, [0m[7m[0mor [0m[7m[0mreset."[0m
+scripts\orchestrator.test.mjs:73: * Create an isolated temp environment with CLAUDE_[7mPLUGIN[0m_DATA pointed at a
+scripts\orchestrator.test.mjs:78:  const saved[7mPlugin[0mData = process.env.CLAUDE_PLUGIN_DATA;
+scripts\orchestrator.test.mjs:79:  process.env.CLAUDE_[7mPLUGIN[0m_DATA = tempDir;
+scripts\orchestrator.test.mjs:84:      if (saved[7mPlugin[0mData != null) {
+scripts\orchestrator.test.mjs:85:        process.env.CLAUDE_[7mPLUGIN[0m_DATA = savedPluginData;
+scripts\orchestrator.test.mjs:87:        delete process.env.CLAUDE_[7mPLUGIN[0m_DATA;
+scripts\orchestrator.test.mjs:440:await run("classifyTurn: '! [7mplugin [0m[7m[0mupdate [0m[7m[0mfoo' [0m[7m[0mroutes [0m[7m[0mto [0m[7m[0mchat [0m[7m[0m(not [0m[7m[0mdelegated)", [0m[7m[0m() [0m
+[7m[0m=> [0m[7m[0m{[0m
+scripts\orchestrator.test.mjs:441:  const result = classifyTurn("! [7mplugin[0m update claudsterfuck");
+scripts\user-prompt-submit-hook.mjs:15:const [7mPLUGIN[0m_COMMAND_NAMES = ["claudsterfuck"];
+scripts\user-prompt-submit-hook.mjs:17:function parse[7mPlugin[0mSlashCommand(prompt) {
+scripts\user-prompt-submit-hook.mjs:20:    .match(new 
+RegExp(`^/(?:${[7mPLUGIN[0m_COMMAND_NAMES.join("|")}):([a-z-]+)(?:\\s+([\\s\\S]*))?$`, [0m[7m[0m"i"));[0m
+scripts\user-prompt-submit-hook.mjs:26:      is[7mPlugin[0mCommand: false
+scripts\user-prompt-submit-hook.mjs:33:    is[7mPlugin[0mCommand: true
+scripts\user-prompt-submit-hook.mjs:38:  return parse[7mPlugin[0mSlashCommand(prompt).action;
+scripts\user-prompt-submit-hook.mjs:150:      `Dispatch shortcut: use '[7mdispatch [0m[7m--watch [0m[7m[0m--json' [0m[7m[0mto [0m[7m[0mdispatch [0m[7m[0mand [0m[7m[0mpoll [0m
+[7m[0min [0m[7m[0ma [0m[7m[0msingle [0m[7m[0mcommand.`,[0m
+scripts\user-prompt-submit-hook.mjs:526:    const slash = parse[7mPlugin[0mSlashCommand(rawPrompt);
+scripts\user-prompt-submit-hook.mjs:528:    if (slash.is[7mPlugin[0mCommand && routeExists(slash.action)) {
+scripts\user-prompt-submit-hook.mjs:600:          "[claudsterfuck] [7mPlugin [0m[7m[0mslash [0m[7m[0mcommand [0m[7m[0mdetected. [0m[7m[0mTreat [0m[7m[0mthis [0m[7m[0mas [0m[7m[0ma [0m
+[7m[0mcontrol [0m[7m[0mturn [0m[7m[0monly. [0m[7m[0mDo [0m[7m[0mnot [0m[7m[0mdelegate, [0m[7m[0mimplement, [0m[7m[0mor [0m[7m[0mcontinue [0m[7m[0mbeyond [0m[7m[0mthe [0m[7m[0mcommand [0m[7m[0mresult."[0m
+scripts\lib\policy.mjs:10:const COMPANION_ACTIONS = ["setup", "dispatch", "[7mwatch[0m", [0m[7m[0m"status", [0m[7m[0m"inspect", [0m[7m[0m"result", [0m
+[7m[0m"reset", [0m[7m[0m"cancel", [0m[7m[0m"reroute", [0m[7m[0m"recover"];[0m
+scripts\lib\prompt-compiler.mjs:50:    const [7mfull[0mBlock = mutableText.slice(openIdx, blockEnd);
+scripts\lib\prompt-compiler.mjs:53:    immutableBlocks.push([7mfull[0mBlock);
+scripts\lib\providers.mjs:210:    const [7mfull[0mPath [0m[7m[0m= [0m[7m[0mpath.join(npmShimDir, [0m[7m[0m"node_modules", [0m[7m[0m"@openai", [0m[7m[0m"codex", [0m
+[7m[0mbinRelative);[0m
+scripts\lib\providers.mjs:211:    return fs.existsSync([7mfull[0mPath) ? fullPath : null;
+scripts\lib\providers.mjs:246:    const [7mfull[0mPath [0m[7m[0m= [0m[7m[0mpath.join(npmShimDir, [0m[7m[0m"node_modules", [0m[7m[0m"@google", [0m[7m[0m"gemini-cli", [0m
+[7m[0mbinRelative);[0m
+scripts\lib\providers.mjs:247:    return fs.existsSync([7mfull[0mPath) ? fullPath : null;
+scripts\lib\providers.mjs:280:    // [7mend-to-end[0m. The JS wrapper (bin/codex.js) re-spawns codex.exe without windowsHide,
+scripts\lib\state.mjs:7:const [7mPLUGIN[0m_DATA_ENV = "CLAUDE_PLUGIN_DATA";
+scripts\lib\state.mjs:226:  const [7mplugin[0mDataDir = process.env[PLUGIN_DATA_ENV];
+scripts\lib\state.mjs:227:  const stateRoot = [7mplugin[0mDataDir [0m[7m[0m? [0m[7m[0mpath.join(pluginDataDir, [0m[7m[0m"state") [0m[7m[0m: [0m
+[7m[0mFALLBACK_STATE_ROOT_DIR;[0m
+scripts\routing\classify-turn.mjs:145:      "[7mfull[0m html page",
+scripts\routing\classify-turn.mjs:152:      "[7mfull[0m webpage",
+scripts\routing\classify-turn.mjs:154:      "[7mfull[0m web page",
+scripts\routing\classify-turn.mjs:166:    weakSignals: ["mockup", "landing page", "[7mfull [0m[7m[0mpage", [0m[7m[0m"html [0m[7m[0mfile", [0m[7m[0m"single [0m
+[7m[0mfile"][0m
+
+
+codex
+I’ve confirmed the orchestrator supports `dispatch --watch` in one call. I’m now checking whether `setup` is the intended plugin-reload step before that run, so we execute the same full path the plugin uses end-to-end.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path commands\\setup.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path commands\\task.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path commands\\status.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path scripts\\orchestrator.mjs -TotalCount 220" in C:\dev\claudsterfuck
+ succeeded in 216ms:
+---
+description: Check whether the local Codex and Gemini CLIs are available for claudsterfuck routing
+disable-model-invocation: true
+allowed-tools: Bash(node:*)
+---
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" setup --json
+```
+
+Return a short summary of whether Codex and Gemini are available locally.
+
+ succeeded in 228ms:
+---
+description: Dispatch the active routed turn to its configured worker via orchestrator dispatch
+disable-model-invocation: true
+allowed-tools: Bash(node:*)
+---
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --json
+```
+
+Return the dispatch result concisely.
+
+ succeeded in 232ms:
+---
+description: Show the current routed-turn status for the claudsterfuck worker runtime
+disable-model-invocation: true
+allowed-tools: Bash(node:*)
+---
+
+Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" status --json
+```
+
+Return the status summary in a concise way.
+
+ succeeded in 227ms:
+#!/usr/bin/env node
+
+/**
+ * orchestrator.mjs - Dispatch+Poll execution model for claudsterfuck
+ *
+ * Replaces the old synchronous orchestration model with a detached-process
+ * model that survives Claude Code's Bash timeout limits. Provider processes
+ * (Codex, Gemini) are spawned detached; the orchestrator returns immediately
+ * after dispatch. A separate `watch` command polls for completion.
+ *
+ * Commands:
+ *   dispatch  - Assemble prompt, spawn provider detached, return immediately
+ *   watch     - Poll a running dispatch until completion or timeout
+ *   status    - Session/turn state snapshot
+ *   inspect   - Deep diagnostic snapshot (read-only)
+ *   result    - Read completed run result
+ *   cancel    - Kill running process, update state
+ *   recover   - Find orphaned runs, mark them failed
+ *   setup     - Check provider availability
+ *   reroute   - Change route on current turn
+ *   reset     - Clear current turn
+ */
+
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import process from "node:process";
+import { spawn } from "node:child_process";
+
+import { assembleWorkerPrompt } from "./routing/assemble-worker-prompt.mjs";
+import { isDirectExecution } from "./lib/entrypoint.mjs";
+import { SESSION_ID_ENV } from "./lib/hook-io.mjs";
+import {
+  appendWorkerRun,
+  generateRunId,
+  getSessionRecord,
+  loadStateWithReadHealth,
+  readRun,
+  resolveRunArtifactsDir,
+  resolveRunsDir,
+  resolveStateFile,
+  TURN_PHASES,
+  updateCurrentTurn,
+  writeRun
+} from "./lib/state.mjs";
+import { loadRouteProfile } from "./routing/lib/config.mjs";
+import {
+  resolveWindowsCommandWithArgs,
+  resolveCodexNodeEntrypoint,
+  extractJson,
+  isPathSafe,
+  getProviderAvailability
+} from "./lib/providers.mjs";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const CLAUDE_PLUGIN_DATA_ENV = "CLAUDE_PLUGIN_DATA";
+const PLUGIN_DATA_SCAN_ROOT_ENV = "CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT";
+const DEFAULT_STALLED_THRESHOLD_SECONDS = 120;
+const DEFAULT_WATCH_TIMEOUT_SECONDS = 90;
+const WATCH_POLL_INTERVAL_MS = 2000;
+
+const GEMINI_STDIN_PROMPT =
+  "Read the complete task instructions from stdin and follow them exactly. Treat stdin as the authoritative task.";
+
+// ---------------------------------------------------------------------------
+// Argument parsing
+// ---------------------------------------------------------------------------
+
+function parseArgs(argv) {
+  const args = {
+    command: "",
+    provider: "",
+    route: "",
+    objective: "",
+    sessionId: "",
+    runId: "",
+    timeout: DEFAULT_WATCH_TIMEOUT_SECONDS,
+    json: false,
+    watch: false,
+    slim: false,
+    forceStalled: false
+  };
+
+  const values = [...argv];
+  args.command = values.shift() ?? "";
+
+  for (let index = 0; index < values.length; index += 1) {
+    const value = values[index];
+    if (value === "--provider") {
+      args.provider = values[index + 1] ?? "";
+      index += 1;
+    } else if (value === "--route") {
+      args.route = values[index + 1] ?? "";
+      index += 1;
+    } else if (value === "--objective") {
+      args.objective = values[index + 1] ?? "";
+      index += 1;
+    } else if (value === "--session-id") {
+      args.sessionId = values[index + 1] ?? "";
+      index += 1;
+    } else if (value === "--run-id") {
+      args.runId = values[index + 1] ?? "";
+      index += 1;
+    } else if (value === "--timeout") {
+      const parsed = Number(values[index + 1]);
+      args.timeout = Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : DEFAULT_WATCH_TIMEOUT_SECONDS;
+      index += 1;
+    } else if (value === "--json") {
+      args.json = true;
+    } else if (value === "--watch") {
+      args.watch = true;
+    } else if (value === "--slim") {
+      args.slim = true;
+    } else if (value === "--force-stalled") {
+      args.forceStalled = true;
+    } else if (!value.startsWith("--")) {
+      args.objective = args.objective ? `${args.objective} ${value}` : value;
+    }
+  }
+
+  return args;
+}
+
+// ---------------------------------------------------------------------------
+// Output helpers
+// ---------------------------------------------------------------------------
+
+function emit(payload, json) {
+  if (json) {
+    process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+    return;
+  }
+
+  const text =
+    typeof payload?.finalOutput === "string" && payload.finalOutput.trim()
+      ? payload.finalOutput.trim()
+      : typeof payload?.message === "string"
+        ? payload.message.trim()
+        : JSON.stringify(payload, null, 2);
+
+  process.stdout.write(`${text}\n`);
+}
+
+function emitLog(event, payload = null) {
+  const stamp = new Date().toISOString();
+  const serializedPayload = payload ? ` ${JSON.stringify(payload)}` : "";
+  process.stderr.write(`[orchestrator] ${stamp} ${event}${serializedPayload}\n`);
+}
+
+// ---------------------------------------------------------------------------
+// Utility helpers
+// ---------------------------------------------------------------------------
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function readJsonFileSafe(filePath) {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) {
+      return null;
+    }
+
+    const contents = fs.readFileSync(filePath, "utf8");
+    return contents.trim() ? JSON.parse(contents) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeReadText(filePath, maxChars = 4000) {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) {
+      return null;
+    }
+
+    return fs.readFileSync(filePath, "utf8").slice(0, maxChars);
+  } catch {
+    return null;
+  }
+}
+
+function safeReadTail(filePath, maxChars = 2000) {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) {
+      return null;
+    }
+
+    const content = fs.readFileSync(filePath, "utf8");
+    if (content.length <= maxChars) {
+      return content;
+    }
+
+    return content.slice(-maxChars);
+  } catch {
+    return null;
+  }
+}
+
+function resolveCurrentTurn(cwd, sessionId) {
+  const session = getSessionRecord(cwd, sessionId);
+  return session?.currentTurn ?? null;
+}
+
+function parseIsoMs(value) {
+  const parsed = Date.parse(String(value ?? ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function resolvePositiveInteger(value, fallback) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return fallback;
+  }
+
+  return Math.floor(numeric);
+}
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-ChildItem -Recurse -File | Select-String -Pattern 'full end-to-end run test|end-to-end run test|dispatch --watch --json|run test' -CaseSensitive:"'$false' in C:\dev\claudsterfuck
+ succeeded in 246ms:
+
+CODEX_FIXES_V2.md:60:- `[7mdispatch --watch --json[0m` for Codex completed normally.
+agents\claudsterfuck-codex-worker.md:24:node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" [7mdispatch --watch --json[0m
+agents\claudsterfuck-gemini-worker.md:24:node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" [7mdispatch --watch --json[0m
+frameworks\planning\plan-rigor.md:5:- Exact verification commands beat "[7mrun test[0ms."
+scripts\user-prompt-submit-hook.mjs:132:  if (depth === "test") return "test ([7mrun [0m[7mtest[0ms/build [0m[7m[0mto [0m[7m[0mverify, [0m[7m[0mskip [0m
+[7m[0mline-by-line [0m[7m[0mcode [0m[7m[0mreview)";[0m
+scripts\user-prompt-submit-hook.mjs:150:      `Dispatch shortcut: use '[7mdispatch [0m[7m--watch [0m[7m--json[0m' [0m[7m[0mto [0m[7m[0mdispatch [0m[7m[0mand [0m[7m[0mpoll [0m
+[7m[0min [0m[7m[0ma [0m[7m[0msingle [0m[7m[0mcommand.`,[0m
+skills\claudsterfuck-routing\SKILL.md:21:3. Delegate using `[7mdispatch [0m[7m--watch [0m[7m--json[0m` [0m[7m[0mto [0m[7m[0mdispatch [0m[7m[0mand [0m[7m[0mpoll [0m[7m[0min [0m[7m[0ma [0m[7m[0msingle [0m
+[7m[0mcommand. [0m[7m[0mThis [0m[7m[0mreplaces [0m[7m[0mthe [0m[7m[0mold [0m[7m[0mtwo-step [0m[7m[0mdispatch [0m[7m[0m+ [0m[7m[0mwatch [0m[7m[0mflow.[0m
+skills\claudsterfuck-routing\SKILL.md:43:node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" [7mdispatch --watch --json[0m
+
+
+codex
+I found direct references to `dispatch --watch --json` in worker docs, which likely is the intended full run path. I’m opening those docs now to confirm whether a plugin reload/setup command should be executed first.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path agents\\claudsterfuck-codex-worker.md" in C:\dev\claudsterfuck
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path skills\\claudsterfuck-routing\\SKILL.md" in C:\dev\claudsterfuck
+ succeeded in 193ms:
+---
+name: claudsterfuck-codex-worker
+description: Thin forwarder that compiles the active route framework packs and sends the task to Codex CLI
+model: sonnet
+tools: Bash
+---
+
+You are a thin forwarding wrapper around the claudsterfuck orchestrator runtime.
+
+Your job is to launch exactly one Bash command that forwards the task to Codex and then return the orchestrator output verbatim.
+
+Rules:
+
+- Do not inspect the repository yourself.
+- Do not read files, grep, or plan independently.
+- Do not edit files directly.
+- Do not add commentary before or after the claudsterfuck orchestrator output.
+- Use exactly one Bash call.
+- Do not append provider, route, or objective overrides. Bound-session dispatch authority comes from active turn state.
+
+Required Bash shape:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json
+```
+
+The `--watch` flag dispatches and polls in a single command, returning the final result. Do not use a separate `watch` call.
+
+ succeeded in 191ms:
+---
+name: claudsterfuck-routing
+description: Control-plane skill for Claude Code when claudsterfuck is active. Use it to stay in planner/reviewer mode, delegate through the worker runtime, and synthesize results without implementing directly in the main thread.
+---
+
+# Claudsterfuck Routing
+
+Use this skill when the claudsterfuck plugin is active for the current repository.
+
+Core stance:
+
+- Claude is the control plane.
+- Codex and Gemini are the execution plane.
+- The main Claude thread plans, routes, reviews, and synthesizes.
+- The main Claude thread does not implement directly when a routed worker turn is active.
+
+## Operating Loop
+
+1. Read route, provider, phase, and status from the hook context injected by `UserPromptSubmit`. Do NOT call `inspect` unless hook context is missing or you are debugging state issues.
+2. Refine the objective only enough to make the worker task precise.
+3. Delegate using `dispatch --watch --json` to dispatch and poll in a single command. This replaces the old two-step dispatch + watch flow.
+4. When the worker completes, apply the review depth from the hook context (see Review Standard below).
+5. If the result is weak, delegate again with a tighter objective.
+6. Only stop once a completed worker result exists and the review is done.
+
+## Worker Choice
+
+- `design`, `plan`, `review`, and `adversarial-review` default to Gemini.
+- `implement`, `debug`, and `review-feedback` default to Codex.
+- `implement-artifact` defaults to Codex. Use it instead of `implement` when the task is likely to produce a large standalone output file — a full HTML page, a complete dashboard, a self-contained mockup, or any single generated file that would likely exceed ~30 KB. Codex returns the file as an artifact in its JSON response; the runner writes it to disk via Node.js, bypassing the Windows command-line length limit that breaks Codex's internal patch tools for large files.
+- Follow the route default unless there is an explicit reason to override it.
+
+## Delegation Paths
+
+Preferred:
+
+- `claudsterfuck-codex-worker`
+- `claudsterfuck-gemini-worker`
+
+Direct orchestrator (combined dispatch+watch):
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json
+```
+
+This dispatches and immediately polls in one command, returning the final result. No separate `watch` call needed.
+
+Fallback (separate dispatch then watch):
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --json
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" watch --json
+```
+
+Diagnostics (use only when debugging state):
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" inspect --slim --json
+```
+
+## Main-Thread Constraints
+
+- Do not use `Read`, `Grep`, `Glob`, `WebFetch`, or `WebSearch` before the worker handoff on a routed turn.
+- Do not use `Write`, `Edit`, or `MultiEdit` directly on a routed turn.
+- After worker completion, review is allowed; implementation is still delegated.
+
+## Recovery Procedures
+
+When a worker appears stuck or cancel fails:
+
+**Cancel by run ID** (use when turn state is missing or was reset):
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" cancel --run-id <run-id> --json
+```
+
+**Force-recover stalled alive processes** (use when recover alone returns "No orphaned runs found"):
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" recover --force-stalled --json
+```
+
+Decision tree:
+1. Try plain `cancel` first.
+2. If "No current routed turn" → use `cancel --run-id <id>` (get ID from `inspect --slim`).
+3. If process is alive but producing no output → use `recover --force-stalled`.
+4. If everything is clean but state is confused → use `reset`.
+
+## Review Standard
+
+The hook context includes a `Review depth` field. Follow it:
+
+### `verify` (review, adversarial-review, review-feedback)
+- Workers include code snippets as evidence in their output.
+- Spot-check 1-2 critical claims by grepping the cited file:line.
+- Do NOT re-read every referenced file. Trust evidence that includes specific line numbers and code.
+- Focus your review on: did the worker miss anything obvious? Is the verdict well-reasoned?
+
+### `test` (implement, debug, implement-artifact)
+- Run `git diff --stat` and/or `npm test` / build commands to verify the change works.
+- Do NOT re-read changed files line-by-line unless tests fail or the diff looks suspicious.
+- Focus your review on: does it compile? Do tests pass? Is the scope correct?
+
+### `trust` (plan, design)
+- Present the worker output directly to the user with light editorial synthesis.
+- Skip verification reads. The output is advisory, not code — the user will review it.
+- Focus your review on: is the output coherent and actionable?
+
+codex
+The worker docs confirm the canonical end-to-end path is `dispatch --watch --json`. I’m checking `CODEX_FIXES_V2.md` for the exact validation sequence (including any reload/setup prerequisite) and then I’ll run it.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path CODEX_FIXES_V2.md' in C:\dev\claudsterfuck
+ succeeded in 202ms:
+# Codex Path / Worker Spawning Review (V2)
+
+Date: 2026-04-16
+Workspace: `C:\dev\claudsterfuck`
+
+## Scope
+
+This report summarizes telemetry/state/run analysis for the current `claudsterfuck` plugin session data and maps observed failures to concrete root causes and fixes.
+
+Primary sources inspected:
+
+- `D:\Users\kylecito\.claude\plugins\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterfuck-ce5453669ac3281c\state.json`
+- `D:\Users\kylecito\.claude\plugins\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterfuck-ce5453669ac3281c\audit.jsonl`
+- `D:\Users\kylecito\.claude\plugins\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterfuck-ce5453669ac3281c\runs\*.json`
+- Run artifacts under `...\runs\<run-id>\` (`stdout.live.txt`, `stderr.live.txt`, `process.json`, etc.)
+- Session transcript: `D:\Users\kylecito\.claude\projects\C--dev-claudsterfuck\d0b22963-05cc-4f7a-a062-84a93c11f852.jsonl`
+- Source files:
+  - `scripts/orchestrator.mjs`
+  - `scripts/lib/providers.mjs`
+  - `scripts/lib/state.mjs`
+  - `scripts/user-prompt-submit-hook.mjs`
+  - `scripts/routing/classify-turn.mjs`
+  - `scripts/lib/policy.mjs`
+
+## Executive Summary
+
+1. In captured telemetry, the most recent Codex worker run (`codex-a697d7d6`) succeeded with non-empty output.
+2. The primary observed failure mode in the recent window is lifecycle/state inconsistency (stale running run records, turn-state disconnect during cancel/recover), not a proven persistent Codex binary spawn break.
+3. There is still a real regression risk in the Codex path due to lack of runtime fallback when the preferred resolved executable fails at spawn.
+4. The current observability is insufficient to diagnose command-resolution failures quickly (resolved command path is not persisted in process artifacts).
+5. Immediate hardening should focus on: spawn fallback chain, `cancel --run-id` semantics, recover behavior for stale/dead runs, and richer process diagnostics.
+
+## Observed Telemetry and Timeline
+
+### Key run evidence
+
+- `codex-a697d7d6`
+  - started: `2026-04-16T14:37:30.913Z`
+  - completed: `2026-04-16T14:45:11.572Z`
+  - status: `completed`
+  - exitCode: `0`
+  - finalOutput: non-empty (implementation summary present)
+- `gemini-5a48d4c8`
+  - started: `2026-04-16T15:42:13.876Z`
+  - run JSON status remained `running`
+  - artifact stdout contains full JSON response (non-empty)
+  - process PID eventually dead
+  - turn state was cleared (`reset --json`) while run metadata stayed stale
+
+### Audit sequence highlights
+
+- `run-started codex-a697d7d6` at `14:37:30Z`
+- `run-completed codex-a697d7d6` at `14:45:11Z`
+- Later, `turn-created` for implement occurred without a corresponding Codex `run-started` before reroute/switch.
+- `run-started gemini-5a48d4c8` at `15:42:13Z`
+- `turn-cancelled` later while run record still showed running.
+
+### Transcript-confirmed behavior (session d0b22963)
+
+- `dispatch --watch --json` for Codex completed normally.
+- For Gemini stall handling:
+  - `cancel --run-id gemini-5a48d4c8` returned: `No current routed turn is stored.`
+  - `recover --json` returned: `No orphaned runs found.`
+  - `reset --json` cleared turn state for all sessions.
+- This sequence leaves stale run status possible even though process lifecycle changed.
+
+## Findings
+
+### [High] F1: `cancel --run-id` is not actually run-id driven
+
+`handleCancel` gates on `currentTurn`; when turn state is missing, cancellation fails even if a run id is provided and process is alive.
+
+Impact:
+
+- Operationally unsafe for detached workers.
+- Users can lose control of a running/stuck process once turn state is reset or missing.
+
+Code area:
+
+- `scripts/orchestrator.mjs` (`handleCancel`)
+
+### [High] F2: Recover logic can leave stale `running` records indefinitely
+
+`recover` skips runs whose PID is alive and only finalizes dead ones on invocation time. If timing does not line up and no later recover/watch happens, stale `running` metadata persists.
+
+Impact:
+
+- `inspect/status` can report stale running runs.
+- Misleads routing/control logic and debugging.
+
+Code area:
+
+- `scripts/orchestrator.mjs` (`handleRecover`)
+
+### [High] F3: Codex Windows resolution has no runtime fallback on spawn failure
+
+Resolution prioritizes native binary path for Codex, but dispatch attempts only one resolved command. If that specific spawn fails (`EPERM`, `ENOENT`, `EACCES`), run fails without trying next safe candidate.
+
+Impact:
+
+- Environment-sensitive breakage from npm layout/path/ACL changes.
+- Appears as “worker spawning broken” despite viable fallback paths existing.
+
+Code area:
+
+- `scripts/lib/providers.mjs` (`resolveWindowsCommandWithArgs`, `runCommand`)
+- `scripts/orchestrator.mjs` (`spawnDetached` call path)
+
+### [Medium] F4: Process artifact diagnostics are incomplete
+
+`process.json` stores logical command (`codex`) and args, but not the fully resolved command path/args actually spawned and not the attempted fallback sequence.
+
+Impact:
+
+- Postmortems are slow and ambiguous.
+- Hard to distinguish path resolution failures from downstream CLI failures.
+
+Code area:
+
+- `scripts/orchestrator.mjs` process-info persistence
+
+### [Medium] F5: Plugin data env path usage is brittle and easy to misconfigure
+
+State path resolver expects `CLAUDE_PLUGIN_DATA` to be plugin root. If set to a workspace leaf state directory, path composition nests incorrectly and yields empty session/run views.
+
+Impact:
+
+- False “no sessions/no runs” diagnostics.
+- Confusing behavior during manual debug workflows.
+
+Code area:
+
+- `scripts/lib/state.mjs` (`resolveStateDir`)
+- `scripts/orchestrator.mjs` candidate resolution
+
+### [Low] F6: Classifier accepts command-like prompts as implement intent
+
+Prompt like `! plugin update claudsterfuck` was routed into worker flow rather than being treated as a local control command or ignored.
+
+Impact:
+
+- False-positive delegation.
+- Increased risk of scope drift and accidental orchestration work.
+
+Code area:
+
+- `scripts/routing/classify-turn.mjs`
+- `scripts/user-prompt-submit-hook.mjs`
+
+## Root-Cause Map
+
+1. Detached-run lifecycle is modeled as turn-centric; run-centric control paths are incomplete.
+2. Spawn resolution is deterministic but not resilient to first-choice command failure.
+3. Recovery only partially addresses orphan scenarios and does not guarantee eventual metadata convergence.
+4. Artifact telemetry lacks explicit resolved command provenance.
+5. Routing guardrails for shell/CLI command-style user messages are too permissive.
+
+## Fix Plan (Priority Ordered)
+
+### P0: Make spawn robust with fallback attempts
+
+Implement explicit runtime fallback chain for provider spawning:
+
+1. Codex native binary
+2. Codex node entrypoint
+3. PowerShell shim
+4. Raw command
+
+Apply equivalent resilient strategy for Gemini where relevant.
+Retry on spawn-level failures only (`EPERM`, `ENOENT`, `EACCES`), not process exit failures.
+
+Acceptance criteria:
+
+- Dispatch succeeds if any fallback candidate is spawnable.
+- Run artifacts record every attempted command and failure reason.
+
+### P0: Make `cancel --run-id` authoritative
+
+If `--run-id` is supplied:
+
+- read run JSON directly
+- read process metadata directly
+- attempt process-tree kill regardless of `currentTurn`
+- mark run failed/cancelled
+- update turn only if matching turn exists
+
+Acceptance criteria:
+
+- Cancel works even when `currentTurn` is null.
+- Stuck detached processes can always be terminated by run id.
+
+### P1: Improve recover for convergence
+
+Enhance recover with options:
+
+- `--force-stalled` (route/provider threshold based)
+- finalize dead runs even if turn linkage is missing
+- optionally mark long-stalled runs failed with explicit summary
+
+Acceptance criteria:
+
+- Re-running recover guarantees eventual consistency between process liveness and run status.
+
+### P1: Persist resolved spawn diagnostics
+
+In `process.json`, persist:
+
+- `resolvedCommand`
+- `resolvedArgs`
+- `attempts` array with per-attempt error (code/message)
+- environment flags actually injected
+
+Acceptance criteria:
+
+- Postmortem requires no inference to know exactly what was spawned.
+
+### P2: Guard command-like prompts in routing
+
+Before route classification, detect command-style prefixes such as `!`, plugin control patterns, etc., and route to chat/non-delegated handling or explicit control guidance.
+
+Acceptance criteria:
+
+- `! plugin update ...` does not trigger implement/delegate path.
+
+### P2: Add tests for regressions
+
+Add/extend tests covering:
+
+- spawn fallback sequence and failover behavior
+- `cancel --run-id` without current turn
+- recover stale/dead run scenarios
+- command-like prompt classification guard
+- plugin data env path handling expectations
+
+## Recommended Immediate Actions
+
+1. Implement P0 items first (`spawn fallback`, `cancel --run-id`).
+2. Add process diagnostics persistence in same patch set for quick validation.
+3. Run targeted smoke tests:
+   - dispatch Codex with intentional first-path spawn failure simulation
+   - cancel by run id with cleared turn
+   - recover after forced worker death
+4. Then address P1/P2 for hardening and misrouting prevention.
+
+## Notes on Current Codex Path Status
+
+- In the analyzed telemetry set, Codex did run successfully.
+- The reported “Codex path broken” symptom is plausible as an environment-sensitive regression due to missing runtime fallback, but it is not conclusively demonstrated by the captured Codex run records in this state folder.
+- Therefore, the fix plan treats Codex path as a reliability hardening gap, while also addressing the clearly observed lifecycle/state inconsistencies that produced user-visible failure modes.
+
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path .claude-plugin\\marketplace.json" in C:\dev\claudsterfuck
+ succeeded in 186ms:
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claudsterfuck-marketplace",
+  "description": "Multi-agent work plugins",
+  "owner": { "name": "kylesiwi" },
+  "plugins": [
+    {
+      "name": "claudsterfuck",
+      "description": "Deterministic multi-provider orchestration with dispatch+poll execution model.",
+      "version": "1.5.0",
+      "author": { "name": "kylesiwi" },
+      "source": "./"
+    }
+  ]
+}
+
+codex
+I still need the exact command used for this repo’s “full end-to-end run test,” so I’m checking the project memory notes for the standardized verification command before executing anything recursive.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Select-String -Path .wolf\\cerebrum.md -Pattern 'end-to-end|dispatch --watch|reload|plugin|run test|verification|smoke' -CaseSensitive:"'$false' in C:\dev\claudsterfuck
+ succeeded in 216ms:
+
+.wolf\cerebrum.md:31:- [2026-04-16] Token economics optimization: Added tiered PreToolUse context injection (minimal 
+`[cf]` marker for read-only tools in reviewing/worker-running phases, full context only for denials and first calls), 
+`[7mdispatch [0m[7m--watch[0m` [0m[7m[0mcombined [0m[7m[0mcommand, [0m[7m[0m`inspect [0m[7m[0m--slim` [0m[7m[0mflag, [0m[7m[0m`reviewDepth` [0m[7m[0mfield [0m[7m[0mon [0m[7m[0mroute [0m[7m[0mprofiles [0m[7m[0m(verify/test/trust), [0m
+[7m[0mand [0m[7m[0mworker [0m[7m[0mevidence [0m[7m[0mrequirement [0m[7m[0min [0m[7m[0mprompts. [0m[7m[0mRationale: [0m[7m[0mreduces [0m[7m[0morchestration [0m[7m[0moverhead [0m[7m[0mfrom [0m[7m[0m~11K [0m[7m[0mtokens [0m[7m[0mto [0m[7m[0m~2-3K [0m[7m[0mtokens [0m
+[7m[0mper [0m[7m[0mrouted [0m[7m[0mturn, [0m[7m[0mmaking [0m[7m[0mthe [0m[7m[0mcost [0m[7m[0mcase [0m[7m[0mfor [0m[7m[0mdelegation [0m[7m[0mclearer [0m[7m[0mvs. [0m[7m[0mClaude-only.[0m
+
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Select-String -Path .wolf\\anatomy.md -Pattern 'orchestrator.test|e2e|end-to-end|dispatch --watch|setup|test' -CaseSensitive:"'$false' in C:\dev\claudsterfuck
+ succeeded in 218ms:
+
+.wolf\anatomy.md:61:- `[7msetup[0m.md` (~82 tok)
+.wolf\anatomy.md:93:- `[7morchestrator.test[0m.mjs` — Unit + integration tests for orchestrator.mjs hardening: (~4303 tok)
+.wolf\anatomy.md:106:- `providers.[7mtest[0m.mjs` [0m[7m[0m— [0m[7m[0mcreateSpawnStub: [0m[7m[0mtestCodexEmptyOutputFails, [0m
+[7m[0mtestCodexWriteRouteEmptyOutputSucceeds, [0m[7m[0mtestGeminiEmptyO [0m[7m[0m(~1278 [0m[7m[0mtok)[0m
+
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path .wolf\\anatomy.md | Select-Object -First 180" in C:\dev\claudsterfuck
+ succeeded in 200ms:
+# anatomy.md
+
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-16T16:55:09.599Z
+> Files: 63 tracked | Anatomy hits: 0 | Misses: 0
+
+## ./
+
+- `CLAUDE.md` — OpenWolf bootstrap instructions (~57 tok)
+- `package.json` — Node.js package manifest (~68 tok)
+
+## .claude-plugin/
+
+- `marketplace.json` (~129 tok)
+- `plugin.json` (~82 tok)
+
+## .claude/
+
+- `settings.json` — Claude Code settings (~441 tok)
+
+## .claude/rules/
+
+- `openwolf.md` — OpenWolf rules for Claude Code (~313 tok)
+
+## D:/Users/kylecito/.claude/plans/
+
+- `radiant-mapping-meteor.md` — Devil's Advocate Review: claudsterfuck Rewrite Proposal (~4645 tok)
+
+## D:/Users/kylecito/.claude/plugins/
+
+- `known_marketplaces.json` (~458 tok)
+
+## D:/Users/kylecito/.claude/projects/C--dev-claudsterfuck/memory/
+
+- `feedback_destructive_config.md` (~259 tok)
+- `MEMORY.md` (~37 tok)
+
+## agents/
+
+- `claudsterfuck-codex-worker.md` (~246 tok)
+- `claudsterfuck-gemini-worker.md` (~247 tok)
+
+## commands/
+
+- `adversarial-review.md` (~62 tok)
+- `cancel.md` (~178 tok)
+- `chat.md` (~52 tok)
+- `debug.md` (~52 tok)
+- `delegate.md` (~68 tok)
+- `design.md` (~53 tok)
+- `dispatch.md` (~99 tok)
+- `implement-artifact.md` (~62 tok)
+- `implement.md` (~55 tok)
+- `inspect.md` (~201 tok)
+- `plan.md` (~52 tok)
+- `recover.md` (~226 tok)
+- `reroute.md` (~96 tok)
+- `reset.md` (~68 tok)
+- `result.md` (~97 tok)
+- `review-feedback.md` (~60 tok)
+- `review.md` (~53 tok)
+- `setup.md` (~82 tok)
+- `status.md` (~72 tok)
+- `task.md` (~73 tok)
+- `watch.md` (~101 tok)
+
+## hooks/
+
+- `hooks.json` — Hook definitions for SessionStart, UserPromptSubmit, PreToolUse, Stop (~314 tok)
+
+## prompts/providers/codex/
+
+- `worker-base.md` — Codex Worker Task (~262 tok)
+
+## prompts/providers/gemini/
+
+- `worker-base.md` — Gemini Worker Task (~297 tok)
+
+## routes/
+
+- `adversarial-review.json` (~261 tok)
+- `debug.json` (~275 tok)
+- `design.json` (~251 tok)
+- `implement-artifact.json` (~370 tok)
+- `implement.json` (~277 tok)
+- `plan.json` (~256 tok)
+- `review-feedback.json` (~237 tok)
+- `review.json` (~246 tok)
+
+## scripts/
+
+- `openwolf-compat.mjs` — OpenWolf compatibility CLI: compiles memory packets (~400 tok)
+- `orchestrator.mjs` — orchestrator.mjs - Dispatch+Poll execution model for claudsterfuck (~17419 tok)
+- `orchestrator.test.mjs` — Unit + integration tests for orchestrator.mjs hardening: (~4303 tok)
+- `pre-tool-use-hook.mjs` — PreToolUse hook: enforces delegation policy based on turn phase (~241 tok)
+- `session-start-hook.mjs` — SessionStart hook: binds session ID, initializes session record (~200 tok)
+- `stop-enforcement-hook.mjs` — Stop hook: blocks premature stops on routed turns (~269 tok)
+- `user-prompt-submit-hook.mjs` — UserPromptSubmit hook: route classification, turn state, reviewDepth propagation, dispatch shortcut hint (~6600 tok)
+
+## scripts/lib/
+
+- `entrypoint.mjs` — isDirectExecution helper for ESM main-module detection (~100 tok)
+- `hook-io.mjs` — Hook I/O helpers: readHookInput, emitHookJson, appendEnvVar, SESSION_ID_ENV (~175 tok)
+- `policy.mjs` — PreToolUse + Stop policy engine with tiered context injection (minimal for read-only, full for denials) (~3300 tok)
+- `prompt-compiler.mjs` — Prompt Compiler - Always-on Lite compression for worker handoff (~1467 tok)
+- `providers.mjs` — Resolve the native codex.exe binary from the platform-specific optional package bundled (~5029 tok)
+- `providers.test.mjs` — createSpawnStub: testCodexEmptyOutputFails, testCodexWriteRouteEmptyOutputSucceeds, testGeminiEmptyO (~1278 tok)
+- `state.mjs` — State management v4: atomic JSON writes, JSONL audit trail, session/turn/run CRUD, dispatch+poll helpers (~3800 tok)
+
+## scripts/lib/openwolf/
+
+- `compile-packet.mjs` — --- Memory Distillation: Source-level classification --- (~2430 tok)
+
+## scripts/routing/
+
+- `assemble-worker-prompt.mjs` — Exports assembleWorkerPrompt (~1839 tok)
+- `classify-turn.mjs` — Exports ROUTE_RULES, scoreRoutes, classifyCandidates, classifyTurn (~2329 tok)
+
+## scripts/routing/lib/
+
+- `config.mjs` — Route/framework/prompt file resolution: loadRouteProfile, routeExists, etc. (~400 tok)
+
+## skills/claudsterfuck-routing/
+
+- `SKILL.md` — Claudsterfuck Routing (~1177 tok)
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path package.json' in C:\dev\claudsterfuck
+2026-04-16T17:15:29.766648Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 0.3 seconds
+Output:
+[31;1mGet-Content: [0m
+[31;1m[36;1mLine |[0m
+[31;1m[36;1m[36;1m   2 | [0m [36;1mGet-Content -Path package.json[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path 'C:\dev\claudsterfuck\package.json' because it does not exist.[0m
+
+ exited 1 in 273ms:
+[31;1mGet-Content: [0m
+[31;1m[36;1mLine |[0m
+[31;1m[36;1m[36;1m   2 | [0m [36;1mGet-Content -Path package.json[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCannot find path 'C:\dev\claudsterfuck\package.json' because it does not exist.[0m
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Recurse -File -Filter package.json | Select-Object -ExpandProperty FullName' in C:\dev\claudsterfuck
+ succeeded in 207ms:
+C:\dev\claudsterfuck\.wolf\hooks\package.json
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-ChildItem -Path scripts\\lib -File | Select-Object Name,Length" in C:\dev\claudsterfuck
+ succeeded in 206ms:
+
+[32;1mName               [0m[32;1m Length[0m
+[32;1m----               [0m [32;1m------[0m
+entrypoint.mjs         332
+hook-io.mjs            653
+policy.mjs           12169
+prompt-compiler.mjs   5500
+providers.mjs        18862
+providers.test.mjs    4800
+state.mjs            14048
+
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-Content -Path scripts\\lib\\providers.test.mjs" in C:\dev\claudsterfuck
+ succeeded in 198ms:
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { EventEmitter } from "node:events";
+import { PassThrough } from "node:stream";
+import assert from "node:assert/strict";
+
+import { runCodexTask, runGeminiTask } from "./providers.mjs";
+import { computeCodexDetachedExitCode } from "../orchestrator.mjs";
+
+function createSpawnStub({ stdout = "", stderr = "", exitCode = 0 } = {}) {
+  return () => {
+    const child = new EventEmitter();
+    child.pid = 12345;
+    child.kill = () => {};
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    child.stdin = new PassThrough();
+
+    setImmediate(() => {
+      if (stdout) {
+        child.stdout.write(stdout);
+      }
+      if (stderr) {
+        child.stderr.write(stderr);
+      }
+      child.stdout.end();
+      child.stderr.end();
+      child.emit("close", exitCode, null);
+    });
+
+    return child;
+  };
+}
+
+async function testCodexEmptyOutputFails() {
+  // Read-only route: empty output must fail even when process exits 0
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "providers-codex-empty-"));
+  try {
+    const outputFile = path.join(tempDir, "run", "last-message.txt");
+    const result = await runCodexTask({
+      cwd: tempDir,
+      prompt: "test prompt",
+      outputFile,
+      writeEnabled: false,
+      timeoutMs: 1000,
+      spawnFn: createSpawnStub({ exitCode: 0, stdout: "", stderr: "" })
+    });
+
+    assert.equal(result.finalOutput, "");
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.normalized.status, "failed");
+    assert.match(result.errorSummary ?? "", /no output/i);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function testCodexWriteRouteEmptyOutputSucceeds() {
+  // Write-enabled route: file changes are the output; empty last-message.txt is valid on exit 0
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "providers-codex-write-"));
+  try {
+    const outputFile = path.join(tempDir, "run", "last-message.txt");
+    const result = await runCodexTask({
+      cwd: tempDir,
+      prompt: "test prompt",
+      outputFile,
+      writeEnabled: true,
+      timeoutMs: 1000,
+      spawnFn: createSpawnStub({ exitCode: 0, stdout: "", stderr: "" })
+    });
+
+    assert.equal(result.finalOutput, "");
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.normalized.status, "completed");
+    assert.equal(result.errorSummary, null);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function testGeminiEmptyOutputFails() {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "providers-gemini-empty-"));
+  try {
+    const result = await runGeminiTask({
+      cwd: tempDir,
+      prompt: "test prompt",
+      writeEnabled: false,
+      timeoutMs: 1000,
+      spawnFn: createSpawnStub({ exitCode: 0, stdout: "", stderr: "" })
+    });
+
+    assert.equal(result.finalOutput, "");
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.normalized.status, "failed");
+    assert.match(result.errorSummary ?? "", /no output/i);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function run(name, fn) {
+  try {
+    await fn();
+    process.stdout.write(`PASS ${name}\n`);
+  } catch (error) {
+    process.stderr.write(`FAIL ${name}\n`);
+    throw error;
+  }
+}
+
+await run("computeCodexDetachedExitCode distinguishes write vs read-only routes", async () => {
+  // Has output → always success
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "report", route: "implement", stderrRaw: "" }), 0);
+  // Write route, empty output, no stderr → success (file changes are the output)
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "implement", stderrRaw: "" }), 0);
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "debug", stderrRaw: "" }), 0);
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "implement-artifact", stderrRaw: "" }), 0);
+  // Write route, empty output, has stderr → failure
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "implement", stderrRaw: "error occurred" }), 1);
+  // Read-only route, empty output → always failure
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "review-feedback", stderrRaw: "" }), 1);
+  assert.equal(computeCodexDetachedExitCode({ finalOutput: "", route: "review", stderrRaw: "" }), 1);
+});
+await run("runCodexTask read-only route: empty output is failure even when process exits 0", testCodexEmptyOutputFails);
+await run("runCodexTask write-enabled route: empty output is success when process exits 0", testCodexWriteRouteEmptyOutputSucceeds);
+await run("runGeminiTask marks empty output as failure even when process exits 0", testGeminiEmptyOutputFails);
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-ChildItem -Recurse -File | Select-String -Pattern 'reload' -CaseSensitive:"'$false' in C:\dev\claudsterfuck
+ succeeded in 219ms:
+codex
+I’m executing the canonical full end-to-end worker run path now via orchestrator (`dispatch` + `watch` in one command) and will report the exact result payload.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'node scripts/orchestrator.mjs dispatch --watch --json' in C:\dev\claudsterfuck
+2026-04-16T17:15:56.471027Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 0.2 seconds
+Output:
+EPERM: operation not permitted, mkdir 'D:\Users\kylecito\.claude\plugins\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterfuck-ce5453669ac3281c\runs\codex-01a65683'
+
+ exited 1 in 225ms:
+EPERM: operation not permitted, mkdir 'D:\Users\kylecito\.claude\plugins\data\claudsterfuck-claudsterfuck-marketplace\state\claudsterfuck-ce5453669ac3281c\runs\codex-01a65683'
+
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "Get-ChildItem -Force \"D:\\Users\\kylecito\\.claude\\plugins\\data\"" in C:\dev\claudsterfuck
+ succeeded in 209ms:
+
+    Directory: D:\Users\kylecito\.claude\plugins\data
+
+[32;1mMode   [0m[32;1m              LastWriteTime[0m [32;1;3m        Length[0m[32;1m Name[0m
+[32;1m----   [0m [32;1m             -------------[0m [32;1m        ------[0m [32;1m----[0m
+d----           3/22/2026  9:38 PM                [44;1mchrome-devtools-mcp-chrome-devtools-plugins[0m
+d----           4/16/2026 12:20 AM                [44;1mclaudsterfuck-claudsterfuck-marketplace[0m
+d----           4/10/2026  8:16 PM                [44;1mgemini-hybrid-local[0m
+d----           4/14/2026  1:52 PM                [44;1mhybrid-companion-hybrid-companion-marketplace[0m
+d----           4/13/2026  3:48 PM                [44;1mhybrid-tagteam-hybrid-local[0m
+d----           3/30/2026  4:00 PM                [44;1msuperpowers-extended-cc-superpowers-extended-cc-marketplace[0m
+
+
+codex
+The first full-run command failed immediately with a filesystem permission error writing to `D:\Users\kylecito\.claude\plugins\data\...`. I’m going to mirror that plugin state into a writable local `.tmp` path, set `CLAUDE_PLUGIN_DATA` to it, and rerun the same end-to-end command.
+exec
+"D:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command "New-Item -ItemType Directory -Force .tmp\\plugin-data | Out-Null; Copy-Item -Path \"D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\" -Destination \".tmp\\plugin-data\" -Recurse -Force; Get-ChildItem -Path .tmp\\plugin-data" in C:\dev\claudsterfuck

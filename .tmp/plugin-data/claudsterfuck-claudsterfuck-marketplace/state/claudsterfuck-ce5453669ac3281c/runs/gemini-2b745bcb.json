@@ -1,0 +1,25 @@
+{
+  "id": "gemini-2b745bcb",
+  "sessionId": "d0b22963-05cc-4f7a-a062-84a93c11f852",
+  "route": "review",
+  "provider": "gemini",
+  "objective": "Review the current claudsterfuck plugin in this folder for functionality, reliability, and implementation quality. Provide a full write-up of your findings.",
+  "status": "completed",
+  "timeoutSeconds": 900,
+  "startedAt": "2026-04-16T04:58:58.902Z",
+  "artifactMode": null,
+  "artifacts": {
+    "promptFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\prompt.md",
+    "lastMessageFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\last-message.txt",
+    "stdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\stdout.live.txt",
+    "stderrFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\stderr.live.txt",
+    "normalizedResultFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\result.normalized.json",
+    "liveStdoutFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\stdout.live.txt",
+    "progressFile": "D:\\Users\\kylecito\\.claude\\plugins\\data\\claudsterfuck-claudsterfuck-marketplace\\state\\claudsterfuck-ce5453669ac3281c\\runs\\gemini-2b745bcb\\progress.json"
+  },
+  "completedAt": "2026-04-16T04:59:03.875Z",
+  "exitCode": 0,
+  "finalOutput": "",
+  "providerSessionId": null,
+  "errorSummary": null
+}

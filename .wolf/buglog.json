@@ -1,0 +1,1713 @@
+{
+  "version": 1,
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-04-15T18:46:48.442Z",
+      "error_message": "Function not marked async",
+      "file": "D:/Users/kylecito/.claude/plans/radiant-mapping-meteor.md",
+      "root_cause": "Function uses await but wasn't declared async",
+      "fix": "Added async modifier",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T18:46:48.442Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-04-15T19:45:57.576Z",
+      "error_message": "Incorrect value in code",
+      "file": "package.json",
+      "root_cause": "Had \"hybrid-companion\"",
+      "fix": "Changed to \"claudsterfuck\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-15T19:45:57.729Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-04-15T19:45:57.877Z",
+      "error_message": "Incorrect value in code",
+      "file": "hooks/hooks.json",
+      "root_cause": "Had \"Deterministic routing and enforcement for hybrid ",
+      "fix": "Changed to \"Deterministic routing and enforcement for claudst",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:45:57.877Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-04-15T19:45:58.027Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/lib/hook-io.mjs",
+      "root_cause": "Had \"HYBRID_TAGTEAM_SESSION_ID\"",
+      "fix": "Changed to \"CLAUDSTERFUCK_SESSION_ID\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:45:58.027Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-04-15T19:46:01.743Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/lib/policy.mjs",
+      "root_cause": "Had \"hybrid-codex-worker\"",
+      "fix": "Changed to \"claudsterfuck-codex-worker\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 14,
+      "last_seen": "2026-04-15T19:47:46.334Z"
+    },
+    {
+      "id": "bug-006",
+      "timestamp": "2026-04-15T19:46:42.382Z",
+      "error_message": "Wrong reference: HYBRID_TAGTEAM_PLUGIN_DATA_SCAN_ROOT should be CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT",
+      "file": "scripts/hybrid-companion.mjs",
+      "root_cause": "Used \"HYBRID_TAGTEAM_PLUGIN_DATA_SCAN_ROOT\" instead of \"CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT\"",
+      "fix": "Changed HYBRID_TAGTEAM_PLUGIN_DATA_SCAN_ROOT → CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-15T19:46:46.301Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-04-15T19:46:58.689Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/user-prompt-submit-hook.mjs",
+      "root_cause": "Had \"hybrid-companion\"",
+      "fix": "Changed to \"claudsterfuck\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:46:58.689Z"
+    },
+    {
+      "id": "bug-008",
+      "timestamp": "2026-04-15T19:46:59.216Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "scripts/user-prompt-submit-hook.mjs",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-15T19:47:06.569Z"
+    },
+    {
+      "id": "bug-009",
+      "timestamp": "2026-04-15T19:47:13.819Z",
+      "error_message": "Wrong reference: HYBRID_TAGTEAM_SESSION_ID should be CLAUDSTERFUCK_SESSION_ID",
+      "file": "scripts/pre-tool-use-hook.mjs",
+      "root_cause": "Used \"HYBRID_TAGTEAM_SESSION_ID\" instead of \"CLAUDSTERFUCK_SESSION_ID\"",
+      "fix": "Changed HYBRID_TAGTEAM_SESSION_ID → CLAUDSTERFUCK_SESSION_ID",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:47:13.819Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-04-15T19:47:14.784Z",
+      "error_message": "Wrong reference: HYBRID_TAGTEAM_SESSION_ID should be CLAUDSTERFUCK_SESSION_ID",
+      "file": "scripts/stop-enforcement-hook.mjs",
+      "root_cause": "Used \"HYBRID_TAGTEAM_SESSION_ID\" instead of \"CLAUDSTERFUCK_SESSION_ID\"",
+      "fix": "Changed HYBRID_TAGTEAM_SESSION_ID → CLAUDSTERFUCK_SESSION_ID",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:47:14.784Z"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-04-15T19:47:50.442Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "prompts/providers/codex/worker-base.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-15T19:47:51.498Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-04-15T19:47:54.425Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/lib/state.mjs",
+      "root_cause": "Had \"hybrid-tagteam\"",
+      "fix": "Changed to \"claudsterfuck\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:47:54.425Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-04-15T19:58:19.501Z",
+      "error_message": "Incorrect value in code",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Had \"HYBRID_TAGTEAM_PLUGIN_DATA_SCAN_ROOT\"",
+      "fix": "Changed to \"CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:58:19.501Z"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-04-15T19:59:51.719Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/lib/openwolf/compile-packet.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T19:59:51.719Z"
+    },
+    {
+      "id": "bug-015",
+      "timestamp": "2026-04-15T20:00:08.582Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/lib/openwolf/compile-packet.mjs",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 6→11 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:00:08.582Z"
+    },
+    {
+      "id": "bug-016",
+      "timestamp": "2026-04-15T20:00:34.436Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/routing/assemble-worker-prompt.mjs",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 23→36 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:00:34.436Z"
+    },
+    {
+      "id": "bug-017",
+      "timestamp": "2026-04-15T20:01:22.400Z",
+      "error_message": "Wrong reference: task should be dispatch",
+      "file": "agents/claudsterfuck-gemini-worker.md",
+      "root_cause": "Used \"task\" instead of \"dispatch\"",
+      "fix": "Changed task → dispatch",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:01:22.400Z"
+    },
+    {
+      "id": "bug-018",
+      "timestamp": "2026-04-15T20:09:45.915Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/status.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:45.915Z"
+    },
+    {
+      "id": "bug-019",
+      "timestamp": "2026-04-15T20:09:46.866Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/status.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:46.866Z"
+    },
+    {
+      "id": "bug-020",
+      "timestamp": "2026-04-15T20:09:48.757Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/delegate.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:48.757Z"
+    },
+    {
+      "id": "bug-021",
+      "timestamp": "2026-04-15T20:09:50.756Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/task.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:50.756Z"
+    },
+    {
+      "id": "bug-022",
+      "timestamp": "2026-04-15T20:09:51.570Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/inspect.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:51.570Z"
+    },
+    {
+      "id": "bug-023",
+      "timestamp": "2026-04-15T20:09:52.621Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/inspect.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:52.621Z"
+    },
+    {
+      "id": "bug-024",
+      "timestamp": "2026-04-15T20:09:54.386Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/result.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:54.386Z"
+    },
+    {
+      "id": "bug-025",
+      "timestamp": "2026-04-15T20:09:55.326Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/cancel.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:55.326Z"
+    },
+    {
+      "id": "bug-026",
+      "timestamp": "2026-04-15T20:09:56.275Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/reset.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:56.275Z"
+    },
+    {
+      "id": "bug-027",
+      "timestamp": "2026-04-15T20:09:57.804Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/reroute.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:57.804Z"
+    },
+    {
+      "id": "bug-028",
+      "timestamp": "2026-04-15T20:09:58.621Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/setup.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:58.621Z"
+    },
+    {
+      "id": "bug-029",
+      "timestamp": "2026-04-15T20:09:59.176Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/setup.md",
+      "root_cause": "Had \"${CLAUDE_PLUGIN_ROOT}/scripts/hybrid-companion.mj",
+      "fix": "Changed to \"${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:09:59.176Z"
+    },
+    {
+      "id": "bug-030",
+      "timestamp": "2026-04-15T20:10:03.122Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/implement.md",
+      "root_cause": "Had `/hybrid-companion:implement`",
+      "fix": "Changed to `/claudsterfuck:implement`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:03.122Z"
+    },
+    {
+      "id": "bug-031",
+      "timestamp": "2026-04-15T20:10:04.050Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/debug.md",
+      "root_cause": "Had `/hybrid-companion:debug`",
+      "fix": "Changed to `/claudsterfuck:debug`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:04.050Z"
+    },
+    {
+      "id": "bug-032",
+      "timestamp": "2026-04-15T20:10:05.050Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/plan.md",
+      "root_cause": "Had `/hybrid-companion:plan`",
+      "fix": "Changed to `/claudsterfuck:plan`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:05.050Z"
+    },
+    {
+      "id": "bug-033",
+      "timestamp": "2026-04-15T20:10:06.026Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/design.md",
+      "root_cause": "Had `/hybrid-companion:design`",
+      "fix": "Changed to `/claudsterfuck:design`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:06.026Z"
+    },
+    {
+      "id": "bug-034",
+      "timestamp": "2026-04-15T20:10:06.912Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/review.md",
+      "root_cause": "Had `/hybrid-companion:review`",
+      "fix": "Changed to `/claudsterfuck:review`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:06.912Z"
+    },
+    {
+      "id": "bug-035",
+      "timestamp": "2026-04-15T20:10:07.854Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/review-feedback.md",
+      "root_cause": "Had `/hybrid-companion:review-feedback`",
+      "fix": "Changed to `/claudsterfuck:review-feedback`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:07.854Z"
+    },
+    {
+      "id": "bug-036",
+      "timestamp": "2026-04-15T20:10:08.825Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/adversarial-review.md",
+      "root_cause": "Had `/hybrid-companion:adversarial-review`",
+      "fix": "Changed to `/claudsterfuck:adversarial-review`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:08.825Z"
+    },
+    {
+      "id": "bug-037",
+      "timestamp": "2026-04-15T20:10:09.721Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/chat.md",
+      "root_cause": "Had `/hybrid-companion:chat`",
+      "fix": "Changed to `/claudsterfuck:chat`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:09.721Z"
+    },
+    {
+      "id": "bug-038",
+      "timestamp": "2026-04-15T20:10:10.538Z",
+      "error_message": "Incorrect value in code",
+      "file": "commands/implement-artifact.md",
+      "root_cause": "Had `/hybrid-companion:implement-artifact`",
+      "fix": "Changed to `/claudsterfuck:implement-artifact`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:10.538Z"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-04-15T20:10:54.918Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/implement.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:54.918Z"
+    },
+    {
+      "id": "bug-040",
+      "timestamp": "2026-04-15T20:10:55.647Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/debug.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:55.647Z"
+    },
+    {
+      "id": "bug-041",
+      "timestamp": "2026-04-15T20:10:56.118Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/chat.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:56.118Z"
+    },
+    {
+      "id": "bug-042",
+      "timestamp": "2026-04-15T20:10:57.034Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/review.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:57.034Z"
+    },
+    {
+      "id": "bug-043",
+      "timestamp": "2026-04-15T20:10:57.990Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/implement-artifact.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:57.990Z"
+    },
+    {
+      "id": "bug-044",
+      "timestamp": "2026-04-15T20:10:58.926Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/adversarial-review.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:58.926Z"
+    },
+    {
+      "id": "bug-045",
+      "timestamp": "2026-04-15T20:10:59.969Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/design.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:10:59.969Z"
+    },
+    {
+      "id": "bug-046",
+      "timestamp": "2026-04-15T20:11:00.347Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/plan.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:11:00.347Z"
+    },
+    {
+      "id": "bug-047",
+      "timestamp": "2026-04-15T20:11:01.452Z",
+      "error_message": "Wrong reference: hybrid should be claudsterfuck",
+      "file": "commands/review-feedback.md",
+      "root_cause": "Used \"hybrid\" instead of \"claudsterfuck\"",
+      "fix": "Changed hybrid → claudsterfuck",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-15T20:11:01.452Z"
+    },
+    {
+      "id": "bug-048",
+      "timestamp": "2026-04-16T05:25:40.950Z",
+      "error_message": "Missing error handling in resolveGeminiNodeEntrypoint",
+      "file": "scripts/lib/providers.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T05:25:40.950Z"
+    },
+    {
+      "id": "bug-049",
+      "timestamp": "2026-04-16T05:26:05.992Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→16 lines (2 removed) | Also: const exitCode = hasOutput ? 0 : (stderrRaw.trim(); const errorSummary = exitCode === 0 ? null : summa",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T05:26:15.806Z"
+    },
+    {
+      "id": "bug-050",
+      "timestamp": "2026-04-16T05:26:21.747Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.0.0\"",
+      "fix": "Changed to \"1.1.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T05:26:21.747Z"
+    },
+    {
+      "id": "bug-051",
+      "timestamp": "2026-04-16T05:26:22.336Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.0.0\"",
+      "fix": "Changed to \"1.1.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T05:26:22.336Z"
+    },
+    {
+      "id": "bug-052",
+      "timestamp": "2026-04-16T05:27:37.570Z",
+      "error_message": "Gemini worker runs complete with empty output (0 bytes stdout/stderr) but reported as exitCode 0 success",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Two independent failures: (1) PowerShell shim does not forward stdin to Gemini (ExpectingInput gate), (2) Gemini CLI 0.37+ relaunches via spawn(process.execPath) which fails with EPERM in detached context on Windows. finalizeGeminiResult treated empty output as success.",
+      "fix": "Added resolveGeminiNodeEntrypoint in providers.mjs to bypass PowerShell shim. Injected GEMINI_CLI_NO_RELAUNCH=true in spawn env. Changed finalizeGeminiResult to treat empty output as failure. Added injectedEnv to process.json artifacts.",
+      "tags": [
+        "gemini",
+        "windows",
+        "spawn",
+        "stdin",
+        "silent-failure",
+        "providers"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T05:27:37.570Z"
+    },
+    {
+      "id": "bug-053",
+      "timestamp": "2026-04-16T06:20:26.835Z",
+      "error_message": "Missing await",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:20:26.835Z"
+    },
+    {
+      "id": "bug-054",
+      "timestamp": "2026-04-16T06:20:49.596Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/review.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:20:49.596Z"
+    },
+    {
+      "id": "bug-055",
+      "timestamp": "2026-04-16T06:20:54.500Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/adversarial-review.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:20:54.500Z"
+    },
+    {
+      "id": "bug-056",
+      "timestamp": "2026-04-16T06:20:58.577Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/implement.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:20:58.577Z"
+    },
+    {
+      "id": "bug-057",
+      "timestamp": "2026-04-16T06:21:05.401Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/implement-artifact.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:21:05.401Z"
+    },
+    {
+      "id": "bug-058",
+      "timestamp": "2026-04-16T06:21:11.578Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/debug.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:21:11.578Z"
+    },
+    {
+      "id": "bug-059",
+      "timestamp": "2026-04-16T06:21:19.901Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/plan.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:21:19.901Z"
+    },
+    {
+      "id": "bug-060",
+      "timestamp": "2026-04-16T06:21:36.165Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/design.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:21:36.165Z"
+    },
+    {
+      "id": "bug-061",
+      "timestamp": "2026-04-16T06:21:42.271Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/review-feedback.json",
+      "root_cause": "Had \"routeBrief\"",
+      "fix": "Changed to \"reviewDepth\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:21:42.271Z"
+    },
+    {
+      "id": "bug-062",
+      "timestamp": "2026-04-16T06:22:24.616Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/user-prompt-submit-hook.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:22:24.616Z"
+    },
+    {
+      "id": "bug-063",
+      "timestamp": "2026-04-16T06:28:15.196Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.1.0\"",
+      "fix": "Changed to \"1.2.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:28:15.196Z"
+    },
+    {
+      "id": "bug-064",
+      "timestamp": "2026-04-16T06:28:19.422Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.1.0\"",
+      "fix": "Changed to \"1.2.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:28:19.422Z"
+    },
+    {
+      "id": "bug-065",
+      "timestamp": "2026-04-16T06:54:16.942Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/lib/providers.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:54:16.942Z"
+    },
+    {
+      "id": "bug-066",
+      "timestamp": "2026-04-16T06:54:26.249Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: const explicitSessionId = args.sessionId || \"\";; if (explicitSessionId) {",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T06:54:45.569Z"
+    },
+    {
+      "id": "bug-067",
+      "timestamp": "2026-04-16T06:54:52.578Z",
+      "error_message": "Wrong reference: loadStateWithReadHealth should be loadState",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Used \"loadStateWithReadHealth\" instead of \"loadState\"",
+      "fix": "Changed loadStateWithReadHealth → loadState",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T06:55:50.115Z"
+    },
+    {
+      "id": "bug-068",
+      "timestamp": "2026-04-16T06:54:57.634Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:54:57.634Z"
+    },
+    {
+      "id": "bug-069",
+      "timestamp": "2026-04-16T06:56:14.342Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.2.0\"",
+      "fix": "Changed to \"1.3.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:56:14.342Z"
+    },
+    {
+      "id": "bug-070",
+      "timestamp": "2026-04-16T06:56:17.168Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.2.0\"",
+      "fix": "Changed to \"1.3.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T06:56:17.168Z"
+    },
+    {
+      "id": "bug-071",
+      "timestamp": "2026-04-16T14:47:31.946Z",
+      "error_message": "Missing guard clause",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "No early return/throw for edge case: hasOutput",
+      "fix": "Added guard clause: if (hasOutput)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T14:47:31.946Z"
+    },
+    {
+      "id": "bug-072",
+      "timestamp": "2026-04-16T14:47:59.514Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/lib/providers.test.mjs",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→16 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T14:47:59.514Z"
+    },
+    {
+      "id": "bug-073",
+      "timestamp": "2026-04-16T14:52:00.000Z",
+      "error_message": "computeCodexDetachedExitCode dropped WRITE_ROUTES distinction — write-mode routes (implement/debug/implement-artifact) incorrectly failed on empty last-message.txt + exit 0",
+      "file": "scripts/orchestrator.mjs, scripts/lib/providers.mjs",
+      "root_cause": "Codex worker implemented simplified empty-output check (always fail on empty) without the WRITE_ROUTES nuance. Contradicted Do-Not-Repeat entry from same session. Route and stderrRaw params were passed to computeCodexDetachedExitCode but the function only destructured finalOutput.",
+      "fix": "Restored WRITE_ROUTES set in orchestrator.mjs. computeCodexDetachedExitCode now accepts route+stderrRaw: write routes succeed on empty finalOutput+no-stderr, fail on empty+stderr. runCodexTask in providers.mjs uses options.writeEnabled for same distinction.",
+      "tags": [
+        "write-routes",
+        "empty-output",
+        "codex",
+        "regression",
+        "mjs"
+      ],
+      "related_bugs": [
+        "bug-049"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T14:52:00.000Z"
+    },
+    {
+      "id": "bug-074",
+      "timestamp": "2026-04-16T15:10:00.000Z",
+      "error_message": "Codex worker run opens a terminal window on Windows for every worker execution",
+      "file": "scripts/lib/providers.mjs",
+      "root_cause": "bin/codex.js (the JS wrapper bundled with @openai/codex) spawns the native codex.exe with `stdio:'inherit'` but no `windowsHide:true`. Our spawn of node.exe (the JS wrapper) had windowsHide:true, but the grandchild spawn of codex.exe did not, causing a console window to flash/appear.",
+      "fix": "Added resolveCodexNativeBinary() which locates codex.exe inside @openai/codex/node_modules/@openai/codex-win32-x64/. resolveWindowsCommandWithArgs now tries native binary first; our spawn of codex.exe directly has windowsHide:true end-to-end. JS wrapper fallback retained for non-Windows or if binary not found.",
+      "tags": [
+        "windows",
+        "codex",
+        "windowsHide",
+        "console-window",
+        "spawn",
+        "providers"
+      ],
+      "related_bugs": [
+        "bug-052"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:10:00.000Z"
+    },
+    {
+      "id": "bug-075",
+      "timestamp": "2026-04-16T15:37:19.102Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.3.0\"",
+      "fix": "Changed to \"1.4.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:37:19.102Z"
+    },
+    {
+      "id": "bug-076",
+      "timestamp": "2026-04-16T15:37:22.359Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.3.0\"",
+      "fix": "Changed to \"1.4.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T15:37:22.359Z"
+    },
+    {
+      "id": "bug-077",
+      "timestamp": "2026-04-16T16:33:25.773Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: resolvedCommand: spawnResult.resolvedCommand ?? null,; resolvedArgs: spawnResult.resolvedArgs ?? null, | Also: // --force-stalled: kill runs that have exceeded their stall; if (args.forceStalled) {",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-16T16:33:56.475Z"
+    },
+    {
+      "id": "bug-078",
+      "timestamp": "2026-04-16T16:33:47.073Z",
+      "error_message": "Missing error handling in function",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T16:33:47.073Z"
+    },
+    {
+      "id": "bug-079",
+      "timestamp": "2026-04-16T16:39:43.508Z",
+      "error_message": "Missing error handling in alwaysEinval",
+      "file": "scripts/orchestrator.test.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T16:39:43.508Z"
+    },
+    {
+      "id": "bug-080",
+      "timestamp": "2026-04-16T16:46:14.903Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.4.0\"",
+      "fix": "Changed to \"1.5.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T16:46:14.903Z"
+    },
+    {
+      "id": "bug-081",
+      "timestamp": "2026-04-16T16:46:15.557Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.4.0\"",
+      "fix": "Changed to \"1.5.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T16:46:15.557Z"
+    },
+    {
+      "id": "bug-082",
+      "timestamp": "2026-04-16T16:55:00.540Z",
+      "error_message": "Significant refactor of ",
+      "file": "commands/inspect.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 7→9 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T16:55:00.540Z"
+    },
+    {
+      "id": "bug-083",
+      "timestamp": "2026-04-16T17:39:00.568Z",
+      "error_message": "Missing error handling in seedTurn",
+      "file": "scripts/orchestrator.test.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:00.568Z"
+    },
+    {
+      "id": "bug-084",
+      "timestamp": "2026-04-16T17:39:10.088Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 9→12 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:10.088Z"
+    },
+    {
+      "id": "bug-085",
+      "timestamp": "2026-04-16T17:39:24.182Z",
+      "error_message": "Significant refactor of ",
+      "file": "agents/claudsterfuck-codex-worker.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 16→24 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:24.182Z"
+    },
+    {
+      "id": "bug-086",
+      "timestamp": "2026-04-16T17:39:29.553Z",
+      "error_message": "Significant refactor of ",
+      "file": "agents/claudsterfuck-gemini-worker.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 16→24 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:29.553Z"
+    },
+    {
+      "id": "bug-087",
+      "timestamp": "2026-04-16T17:39:43.766Z",
+      "error_message": "Significant refactor of ",
+      "file": "skills/claudsterfuck-routing/SKILL.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 8→16 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:43.766Z"
+    },
+    {
+      "id": "bug-088",
+      "timestamp": "2026-04-16T17:39:51.123Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.5.0\"",
+      "fix": "Changed to \"1.6.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:51.123Z"
+    },
+    {
+      "id": "bug-089",
+      "timestamp": "2026-04-16T17:39:51.827Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.5.0\"",
+      "fix": "Changed to \"1.6.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T17:39:51.827Z"
+    },
+    {
+      "id": "bug-090",
+      "timestamp": "2026-04-16T18:06:33.063Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 13→28 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T18:06:33.063Z"
+    },
+    {
+      "id": "bug-091",
+      "timestamp": "2026-04-16T18:06:51.911Z",
+      "error_message": "Significant refactor of ",
+      "file": "agents/claudsterfuck-codex-worker.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 13→15 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T18:06:51.911Z"
+    },
+    {
+      "id": "bug-092",
+      "timestamp": "2026-04-16T18:06:57.218Z",
+      "error_message": "Significant refactor of ",
+      "file": "agents/claudsterfuck-gemini-worker.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 13→15 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T18:06:57.218Z"
+    },
+    {
+      "id": "bug-093",
+      "timestamp": "2026-04-16T18:07:14.056Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.6.0\"",
+      "fix": "Changed to \"1.7.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T18:07:14.056Z"
+    },
+    {
+      "id": "bug-094",
+      "timestamp": "2026-04-16T18:07:14.959Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.6.0\"",
+      "fix": "Changed to \"1.7.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T18:07:14.959Z"
+    },
+    {
+      "id": "bug-095",
+      "timestamp": "2026-04-16T19:11:48.697Z",
+      "error_message": "Missing error handling in spawnMonitorWindow",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T19:11:48.697Z"
+    },
+    {
+      "id": "bug-096",
+      "timestamp": "2026-04-16T19:12:22.075Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.7.0\"",
+      "fix": "Changed to \"1.8.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T19:12:22.075Z"
+    },
+    {
+      "id": "bug-097",
+      "timestamp": "2026-04-16T19:12:24.667Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.7.0\"",
+      "fix": "Changed to \"1.8.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T19:12:24.667Z"
+    },
+    {
+      "id": "bug-098",
+      "timestamp": "2026-04-16T19:32:12.061Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.8.0\"",
+      "fix": "Changed to \"1.8.1\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-16T19:40:49.440Z"
+    },
+    {
+      "id": "bug-099",
+      "timestamp": "2026-04-16T19:32:13.615Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.8.0\"",
+      "fix": "Changed to \"1.8.1\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-04-16T19:40:50.337Z"
+    },
+    {
+      "id": "bug-100",
+      "timestamp": "2026-04-16T19:55:53.752Z",
+      "error_message": "Missing error handling in extractFirstJsonObject",
+      "file": "scripts/orchestrator.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T19:55:53.752Z"
+    },
+    {
+      "id": "bug-101",
+      "timestamp": "2026-04-16T19:56:04.597Z",
+      "error_message": "Null/undefined access in ",
+      "file": "scripts/monitor.mjs",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // Worker output — for Gemini, extract the response field fr; // object so the monitor shows the actual review content, no",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-16T19:56:18.457Z"
+    },
+    {
+      "id": "bug-102",
+      "timestamp": "2026-04-16T19:58:31.871Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.8.3\"",
+      "fix": "Changed to \"1.8.4\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T19:58:31.871Z"
+    },
+    {
+      "id": "bug-103",
+      "timestamp": "2026-04-16T19:58:32.665Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.8.3\"",
+      "fix": "Changed to \"1.8.4\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T19:58:32.665Z"
+    },
+    {
+      "id": "bug-104",
+      "timestamp": "2026-04-16T21:29:37.804Z",
+      "error_message": "Significant refactor of ",
+      "file": "routes/plan.json",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→5 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T21:29:37.804Z"
+    },
+    {
+      "id": "bug-105",
+      "timestamp": "2026-04-16T21:29:59.983Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/plugin.json",
+      "root_cause": "Had \"1.8.4\"",
+      "fix": "Changed to \"1.8.5\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T21:29:59.983Z"
+    },
+    {
+      "id": "bug-106",
+      "timestamp": "2026-04-16T21:30:00.708Z",
+      "error_message": "Incorrect value in code",
+      "file": ".claude-plugin/marketplace.json",
+      "root_cause": "Had \"1.8.4\"",
+      "fix": "Changed to \"1.8.5\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-04-16T21:30:00.708Z"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "route": "implement",
+  "description": "Implement an approved task with tests, tight scope control, and explicit verification.",
+  "defaultProvider": "codex",
+  "writeEnabled": true,
+  "requiresDelegation": true,
+  "requiredFrameworks": [
+    "implementation/worker-contract.md",
+    "implementation/tdd.md",
+    "implementation/testing-anti-patterns.md",
+    "implementation/yagni-and-scope-control.md",
+    "implementation/verification-before-completion.md"
+  ],
+  "reviewDepth": "test",
+  "routeBrief": "Implement exactly the scoped task, use tests to drive behavior, avoid overbuilding, and verify before making completion claims.",
+  "timeoutSeconds": 900,
+  "stalledThresholdSeconds": 240,
+  "defaultMemoryPlan": {
+    "sources": ["anatomy", "cerebrum", "buglog"],
+    "maxChars": 6000,
+    "maxChunks": 8,
+    "perSourceMaxChunks": {
+      "anatomy": 3,
+      "cerebrum": 3,
+      "buglog": 2,
+      "identity": 1
+    },
+    "includeIdentity": false
+  }
+}
