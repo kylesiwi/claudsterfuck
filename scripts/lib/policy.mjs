@@ -84,6 +84,80 @@ function resolveOpenWolfWritableTarget(toolName, toolInput, cwd) {
   };
 }
 
+/**
+ * Resolve a read target that is inside the workspace's .wolf/ directory.
+ * Broader than the writable target: any file under .wolf/ is readable context
+ * (anatomy, cerebrum, buglog, memory, plans, designqc captures, subfolders).
+ *
+ * Returns { relativePath } for .wolf/* reads, or null otherwise.
+ */
+function resolveOpenWolfReadableTarget(toolInput, cwd) {
+  const targetPath = resolveToolTargetPath(toolInput);
+  if (!targetPath) {
+    return null;
+  }
+
+  const workspaceRoot = path.resolve(cwd || process.cwd());
+  const wolfRoot = path.resolve(workspaceRoot, ".wolf");
+  const resolvedTarget = path.resolve(workspaceRoot, targetPath);
+  const relativeToWolf = path.relative(wolfRoot, resolvedTarget);
+
+  if (!relativeToWolf || relativeToWolf.startsWith("..") || path.isAbsolute(relativeToWolf)) {
+    return null;
+  }
+
+  return {
+    relativePath: `.wolf/${relativeToWolf}`.replace(/[/\\]+/g, "/")
+  };
+}
+
+/**
+ * Some Grep/Glob calls don't have a single `file_path` — they use `path` or
+ * `--include` semantics. Extract whatever target-ish field we can to check
+ * whether the call is scoped to .wolf/.
+ */
+function resolveSearchTargetPath(toolName, toolInput) {
+  if (toolName === "Grep" || toolName === "Glob") {
+    const candidates = [
+      toolInput?.path,
+      toolInput?.file_path,
+      toolInput?.pattern,
+      toolInput?.glob
+    ];
+    for (const value of candidates) {
+      if (typeof value === "string" && value.trim()) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+  return toolInput?.file_path ?? null;
+}
+
+function isSearchScopedToWolf(toolName, toolInput, cwd) {
+  const target = resolveSearchTargetPath(toolName, toolInput);
+  if (typeof target !== "string" || !target.trim()) {
+    return false;
+  }
+
+  // Accept both forward- and back-slashed paths; accept absolute paths that
+  // resolve inside .wolf/ as well as short relative hints (".wolf/anatomy.md").
+  const normalized = target.replace(/\\/g, "/");
+  if (normalized.startsWith(".wolf/") || normalized === ".wolf") {
+    return true;
+  }
+  // Resolve and check
+  const workspaceRoot = path.resolve(cwd || process.cwd());
+  const wolfRoot = path.resolve(workspaceRoot, ".wolf");
+  try {
+    const resolvedTarget = path.resolve(workspaceRoot, target);
+    const rel = path.relative(wolfRoot, resolvedTarget);
+    return Boolean(rel) && !rel.startsWith("..") && !path.isAbsolute(rel);
+  } catch {
+    return false;
+  }
+}
+
 function buildAdditionalContext(turn) {
   return [
     `[claudsterfuck] Routed turn active.`,
@@ -220,8 +294,43 @@ export function evaluatePreToolUse(input, turn) {
     if (openWolfTarget) {
       return allow(`Allowed routed OpenWolf maintenance write: ${openWolfTarget.relativePath}.`, routedContext);
     }
+
+    // Source-read blackout: .wolf/* memory is readable (file map, conventions,
+    // bug log, memory), but source files are not. The worker receives the
+    // memory packet and reads source itself — Claude should not pre-digest.
     if (isContextTool(toolName)) {
-      return allow("Read-only context gathering is allowed before delegation.", routedContext);
+      // Read / Grep / Glob: allow only when the target is inside .wolf/.
+      if (toolName === "Read") {
+        const memReadTarget = resolveOpenWolfReadableTarget(toolInput, cwd);
+        if (memReadTarget) {
+          return allow(
+            `Allowed memory read: ${memReadTarget.relativePath}. .wolf/ files give Claude project context without pre-digesting source code.`,
+            routedContext
+          );
+        }
+        return deny(
+          "Source-code reads are blocked before dispatch on routed turns. The worker receives the .wolf/anatomy.md + .wolf/cerebrum.md memory packet and reads source files itself. Include any specific file paths in --objective and let the worker explore. Use route:claude if you need unrestricted source access.",
+          routedContext
+        );
+      }
+      if (toolName === "Grep" || toolName === "Glob") {
+        if (isSearchScopedToWolf(toolName, toolInput, cwd)) {
+          return allow(
+            "Memory search allowed (scoped to .wolf/). Use this to surface conventions or prior work before dispatching.",
+            routedContext
+          );
+        }
+        return deny(
+          "Source-code searches (Grep/Glob over source) are blocked before dispatch on routed turns. Scope the search to .wolf/ (e.g. .wolf/anatomy.md) or let the worker explore after dispatch. Use route:claude for unrestricted search.",
+          routedContext
+        );
+      }
+      // WebSearch / WebFetch and MCP read-style tools stay blocked pre-dispatch —
+      // the worker can fetch too, and Claude shouldn't pre-research.
+      return deny(
+        "Web/external reads are blocked before dispatch on routed turns. Include relevant URLs or context in --objective; the worker can fetch them.",
+        routedContext
+      );
     }
     if (isWriteTool) {
       return deny(

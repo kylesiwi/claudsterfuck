@@ -281,6 +281,7 @@ node orchestrator.mjs <command> [--flags] [--json]
 |---|---|
 | `dispatch` | Assemble prompt, spawn provider detached, return immediately |
 | `watch` | Poll a running dispatch until completion or timeout |
+| `watch --heartbeat` | Cheap non-blocking snapshot (~50 tokens): alive, silentSeconds, eventCount, lastEventType |
 | `dispatch --watch` | Combined: dispatch then immediately poll (preferred path in v2.0+) |
 | `inspect [--slim]` | Dump current session/turn/run state |
 | `result` | Show last completed run output |
@@ -290,6 +291,8 @@ node orchestrator.mjs <command> [--flags] [--json]
 | `reroute --route X` | Change route on current turn |
 | `setup` | Check Codex/Gemini provider availability |
 | `status` | Short summary of current turn phase |
+| `usage` | Token aggregates for the current session + workspace, broken down by route and provider |
+| `second-opinion` | Cross-provider review of the latest completed run (Codex ↔ Gemini) |
 
 ### Flags
 
@@ -702,16 +705,29 @@ evaluatePreToolUse(input, turn):
         pytest, vitest, cargo/go/dotnet/mvn/gradle test, ruff, eslint, tsc, turbo test) → allow
     else → deny
   if phase REFINING / READY_TO_DELEGATE:
-    allow OpenWolf writes, allow context reads (Read/Glob/Grep/Web*),
-    deny write tools
+    allow OpenWolf writes.
+    for Read: allow ONLY if file_path is under .wolf/ (memory). Deny source reads
+      with a teaching message pointing Claude to the worker's memory packet.
+    for Grep/Glob: allow ONLY if path/pattern is scoped to .wolf/. Deny broad
+      searches over source.
+    for WebSearch/WebFetch: deny pre-dispatch (the worker can fetch too).
+    deny write tools.
   if phase WORKER_RUNNING:
     allow Read/Glob/Grep (status inspection),
     deny all other tools (prevents duplicating worker work from the main thread)
   if phase REVIEWING:
-    allow OpenWolf writes, allow context reads,
+    allow OpenWolf writes, allow context reads (source reads unblocked post-completion),
     deny write tools
   else → pass through
 ```
+
+### Source-read blackout (R2 / v2.6.0)
+
+During REFINING and READY_TO_DELEGATE, Claude can read `.wolf/*` memory files (anatomy, cerebrum, buglog, memory) but **cannot** read source code, run broad greps, or fetch external URLs. The rationale: the worker receives the memory packet and explores source itself. Pre-digesting source in the main Claude thread is the "Claude builds the whole thing, tells Codex to transcribe" anti-pattern.
+
+Escape hatches for legitimate cases:
+- **route:chat** — read-only Claude with full read access
+- **route:claude** — unrestricted Claude with writes + reads
 
 ### Stop enforcement — `evaluateStop`
 

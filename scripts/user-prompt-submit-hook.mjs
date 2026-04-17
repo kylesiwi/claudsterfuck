@@ -123,6 +123,28 @@ function withWarning(lines, warning) {
   return warning ? [warning, ...lines] : lines;
 }
 
+function clipText(value, maxChars) {
+  const str = String(value ?? "").trim();
+  if (str.length <= maxChars) return str;
+  return `${str.slice(0, maxChars - 1)}…`;
+}
+
+/**
+ * R6: surface the prior turn's objective (or pendingObjective for chat-fallback
+ * turns) so Claude can decide whether the user's new prompt continues the prior
+ * thread or starts fresh. Returns a 3-line block or [] when no prior context.
+ */
+function buildPriorContextLines(priorTurn) {
+  if (!priorTurn) return [];
+  const priorObjective = String(priorTurn.objective ?? priorTurn.pendingObjective ?? "").trim();
+  if (!priorObjective) return [];
+  return [
+    `Prior turn objective: "${clipText(priorObjective, 300)}"`,
+    `Prior route: ${priorTurn.route ?? "?"} (phase: ${priorTurn.phase ?? "?"})`,
+    `Continuation inference: if the new user prompt continues, clarifies, or confirms the prior objective, use the prior objective as the basis for the new delegation. If the prompt introduces a new topic, treat it as fresh.`
+  ];
+}
+
 function formatFrameworkList(turn) {
   return turn.requiredFrameworks.length > 0 ? turn.requiredFrameworks.join(", ") : "(none)";
 }
@@ -134,7 +156,8 @@ function formatReviewDepth(turn) {
   return "verify (spot-check 1-2 critical claims from worker evidence)";
 }
 
-function buildDelegatedContext(turn, warning, extraLines = []) {
+function buildDelegatedContext(turn, warning, extraLines = [], priorTurn = null) {
+  const priorLines = buildPriorContextLines(priorTurn);
   return withWarning(
     [
       `[claudsterfuck] Route this turn through the worker runtime.`,
@@ -145,9 +168,9 @@ function buildDelegatedContext(turn, warning, extraLines = []) {
       `Review depth: ${formatReviewDepth(turn)}`,
       `Required framework packs: ${formatFrameworkList(turn)}`,
       `Route lock behavior: one active turn maps to one route/provider at a time.`,
-      `If you need the next phase in another route, ask the user to reroute explicitly.`,
-      `No-text reroute preserves the objective, e.g. /claudsterfuck:implement`,
       `Dispatch shortcut: use 'dispatch --watch --json' to dispatch and poll in a single command.`,
+      `User escape hatches (relay if asked): /claudsterfuck:cancel (stop) · /claudsterfuck:<route> (switch, keeps objective) · route:chat (pause delegation) · route:claude (bypass plugin)`,
+      ...priorLines,
       ...extraLines,
       `Main-thread rule: plan, delegate, review, and synthesize. Do not implement directly in Claude's main thread.`
     ],
@@ -155,18 +178,20 @@ function buildDelegatedContext(turn, warning, extraLines = []) {
   ).join("\n");
 }
 
-function buildNonDelegatedContext(turn, warning, extraLines = []) {
+function buildNonDelegatedContext(turn, warning, extraLines = [], priorTurn = null) {
+  const priorLines = buildPriorContextLines(priorTurn);
   return withWarning(
     [
       `[claudsterfuck] Non-delegated turn. You may read, explain, and discuss freely. No worker delegation is required for this turn.`,
       `Classified route: ${turn.route}`,
+      ...priorLines,
       ...extraLines
     ],
     warning
   ).join("\n");
 }
 
-function buildChatFallbackContext(turn, classification, warning) {
+function buildChatFallbackContext(turn, classification, warning, priorTurn = null) {
   const lines = [
     `[claudsterfuck] Routing to chat — confidence too low for automatic delegation (${classification.confidence}).`,
     `Classified route: ${turn.route}`,
@@ -182,6 +207,11 @@ function buildChatFallbackContext(turn, classification, warning) {
     lines.push(`Likely delegation routes if user wants action: ${names}`);
     lines.push(`User can confirm intent with: route:<name> or /claudsterfuck:<name>`);
     lines.push(`The objective has been stored and will carry forward if the user provides a bare route override.`);
+  }
+
+  const priorLines = buildPriorContextLines(priorTurn);
+  if (priorLines.length > 0) {
+    lines.push(...priorLines);
   }
 
   return withWarning(lines, warning).join("\n");
@@ -748,7 +778,7 @@ export function buildUserPromptDecision(input, options = {}) {
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: buildChatFallbackContext(chatTurn, classification, warning)
+        additionalContext: buildChatFallbackContext(chatTurn, classification, warning, existingTurn)
       }
     };
   }
@@ -769,8 +799,8 @@ export function buildUserPromptDecision(input, options = {}) {
     hookSpecificOutput: {
       hookEventName: "UserPromptSubmit",
       additionalContext: currentTurn.requiresDelegation
-        ? buildDelegatedContext(currentTurn, warning)
-        : buildNonDelegatedContext(currentTurn, warning)
+        ? buildDelegatedContext(currentTurn, warning, [], existingTurn)
+        : buildNonDelegatedContext(currentTurn, warning, [], existingTurn)
     }
   };
 }

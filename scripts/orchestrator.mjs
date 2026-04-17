@@ -41,6 +41,8 @@ import {
   resolveRunFile,
   resolveRunsDir,
   resolveStateFile,
+  setCurrentTurn,
+  TURN_DEFAULTS,
   TURN_PHASES,
   updateCurrentTurn,
   writeRun
@@ -86,6 +88,7 @@ function parseArgs(argv) {
     watch: false,
     slim: false,
     forceStalled: false,
+    heartbeat: false,
     stream: false,
     noMonitor: false,
     dryRun: false
@@ -125,6 +128,8 @@ function parseArgs(argv) {
       args.slim = true;
     } else if (value === "--force-stalled") {
       args.forceStalled = true;
+    } else if (value === "--heartbeat") {
+      args.heartbeat = true;
     } else if (value === "--stream") {
       args.stream = true;
     } else if (value === "--no-monitor") {
@@ -1579,6 +1584,50 @@ export async function handleWatch(cwd, args) {
   const timeoutSeconds = args.timeout || DEFAULT_WATCH_TIMEOUT_SECONDS;
   const run = readRun(cwd, runId);
 
+  // R3: --heartbeat — cheap non-blocking snapshot Claude can call between long
+  // watch calls to confirm the worker is alive and making progress without
+  // burning tokens on a full watch payload.
+  if (args.heartbeat) {
+    const processInfo = readRunProcess(cwd, runId);
+    const alive = processInfo?.pid ? isProcessAlive(processInfo.pid) : false;
+    const runArtifactsDir = resolveRunArtifactsDir(cwd, runId);
+    const latestEventPath = path.join(runArtifactsDir, "latest-event.json");
+    let lastEvent = null;
+    try {
+      lastEvent = JSON.parse(fs.readFileSync(latestEventPath, "utf8"));
+    } catch {
+      lastEvent = null;
+    }
+    const lastEventAtMs = lastEvent?.timestamp ? Date.parse(lastEvent.timestamp) : null;
+    const silentSeconds = lastEventAtMs && Number.isFinite(lastEventAtMs)
+      ? Math.floor((Date.now() - lastEventAtMs) / 1000)
+      : null;
+
+    // Event count from events.jsonl (cheap — count newlines)
+    let eventCount = 0;
+    try {
+      const content = fs.readFileSync(path.join(runArtifactsDir, "events.jsonl"), "utf8");
+      const lines = content.split(/\r?\n/);
+      for (const line of lines) {
+        if (line.trim().length > 0) eventCount += 1;
+      }
+    } catch {
+      eventCount = 0;
+    }
+
+    emit({
+      runId,
+      status: run.status,
+      alive,
+      silentSeconds,
+      eventCount,
+      lastEventType: lastEvent?.eventType ?? null,
+      lastEventLabel: lastEvent?.label ?? null,
+      lastEventIcon: lastEvent?.icon ?? null
+    }, args.json);
+    return;
+  }
+
   // Already completed?
   if (run.status === "completed" || run.status === "failed") {
     const alreadyDonePayload = {
@@ -2346,6 +2395,327 @@ export async function handleReroute(cwd, args) {
 }
 
 // ---------------------------------------------------------------------------
+// Command: usage (token aggregates for current session + workspace)
+// ---------------------------------------------------------------------------
+
+/**
+ * Extract the normalized token counts from a run's tokenUsage field, which
+ * has different shapes per provider:
+ *   Codex:  { input_tokens, cached_input_tokens, output_tokens }
+ *   Gemini: { total_tokens, input_tokens, output_tokens, cached, duration_ms, ... }
+ */
+function normalizeTokenUsage(tokenUsage) {
+  if (!tokenUsage || typeof tokenUsage !== "object") {
+    return { input: 0, output: 0, cached: 0, total: 0 };
+  }
+  const input = Number.isFinite(tokenUsage.input_tokens)
+    ? tokenUsage.input_tokens
+    : Number.isFinite(tokenUsage.input)
+      ? tokenUsage.input
+      : 0;
+  const output = Number.isFinite(tokenUsage.output_tokens) ? tokenUsage.output_tokens : 0;
+  const cached = Number.isFinite(tokenUsage.cached_input_tokens)
+    ? tokenUsage.cached_input_tokens
+    : Number.isFinite(tokenUsage.cached)
+      ? tokenUsage.cached
+      : 0;
+  const total = Number.isFinite(tokenUsage.total_tokens) ? tokenUsage.total_tokens : input + output;
+  return { input, output, cached, total };
+}
+
+function emptyAggregate() {
+  return { runs: 0, input: 0, output: 0, cached: 0, total: 0 };
+}
+
+function addToAggregate(agg, tokens) {
+  agg.runs += 1;
+  agg.input += tokens.input;
+  agg.output += tokens.output;
+  agg.cached += tokens.cached;
+  agg.total += tokens.total;
+}
+
+function readAllRunRecords(cwd) {
+  const runsDir = resolveRunsDir(cwd);
+  if (!fs.existsSync(runsDir)) return [];
+  const entries = fs.readdirSync(runsDir);
+  const runs = [];
+  for (const entry of entries) {
+    if (!entry.endsWith(".json")) continue;
+    const runFile = path.join(runsDir, entry);
+    try {
+      const record = JSON.parse(fs.readFileSync(runFile, "utf8"));
+      if (record && record.id) {
+        runs.push(record);
+      }
+    } catch {
+      // Skip unreadable records
+    }
+  }
+  return runs;
+}
+
+export async function handleUsage(cwd, args) {
+  const requestedSessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const allRuns = readAllRunRecords(cwd);
+
+  const workspace = emptyAggregate();
+  const session = emptyAggregate();
+  const byProvider = {};
+  const byRoute = {};
+
+  for (const run of allRuns) {
+    const tokens = normalizeTokenUsage(run.tokenUsage);
+    addToAggregate(workspace, tokens);
+    if (requestedSessionId && run.sessionId === requestedSessionId) {
+      addToAggregate(session, tokens);
+    }
+    const provider = run.provider || "unknown";
+    const route = run.route || "unknown";
+    byProvider[provider] = byProvider[provider] ?? emptyAggregate();
+    byRoute[route] = byRoute[route] ?? emptyAggregate();
+    addToAggregate(byProvider[provider], tokens);
+    addToAggregate(byRoute[route], tokens);
+  }
+
+  const payload = {
+    sessionId: requestedSessionId || null,
+    workspace,
+    session: requestedSessionId ? session : null,
+    byProvider,
+    byRoute
+  };
+
+  if (args.json) {
+    emit(payload, true);
+    return;
+  }
+
+  // Pretty print
+  const out = [];
+  out.push("claudsterfuck usage");
+  out.push("");
+  if (requestedSessionId) {
+    out.push(`Session ${requestedSessionId}: ${session.runs} run(s)`);
+    out.push(`  tokens: ${session.total.toLocaleString()} (in=${session.input.toLocaleString()} out=${session.output.toLocaleString()} cached=${session.cached.toLocaleString()})`);
+    out.push("");
+  }
+  out.push(`Workspace total: ${workspace.runs} run(s)`);
+  out.push(`  tokens: ${workspace.total.toLocaleString()} (in=${workspace.input.toLocaleString()} out=${workspace.output.toLocaleString()} cached=${workspace.cached.toLocaleString()})`);
+  out.push("");
+  out.push("By provider:");
+  for (const [provider, agg] of Object.entries(byProvider)) {
+    out.push(`  ${provider.padEnd(10)} ${String(agg.runs).padStart(3)} run(s) · ${agg.total.toLocaleString()} tok`);
+  }
+  out.push("");
+  out.push("By route:");
+  for (const [route, agg] of Object.entries(byRoute)) {
+    out.push(`  ${route.padEnd(22)} ${String(agg.runs).padStart(3)} run(s) · ${agg.total.toLocaleString()} tok`);
+  }
+  process.stdout.write(out.join("\n") + "\n");
+}
+
+// ---------------------------------------------------------------------------
+// Command: second-opinion (cross-provider review of the latest completed run)
+// ---------------------------------------------------------------------------
+
+function parseLastJsonBlock(text) {
+  const s = String(text ?? "");
+  const lastOpen = s.lastIndexOf("{");
+  if (lastOpen === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = lastOpen; i < s.length; i += 1) {
+    const ch = s[i];
+    if (escape) { escape = false; continue; }
+    if (inString) {
+      if (ch === "\\") escape = true;
+      else if (ch === "\"") inString = false;
+      continue;
+    }
+    if (ch === "\"") inString = true;
+    else if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        try {
+          return JSON.parse(s.slice(lastOpen, i + 1));
+        } catch {
+          return null;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+export async function handleSecondOpinion(cwd, args) {
+  ensureResolvedPluginDataEnv(cwd);
+
+  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  if (!sessionId) {
+    throw new Error("No session ID available. Second-opinion requires an active session with a completed run.");
+  }
+
+  const session = getSessionRecord(cwd, sessionId);
+  const currentTurn = session?.currentTurn ?? null;
+
+  // Find the most recent completed run from this turn's workerRuns.
+  const lastCompletedRef = (currentTurn?.workerRuns ?? []).find(
+    (r) => r && r.status === "completed" && r.id
+  );
+  if (!lastCompletedRef) {
+    throw new Error(
+      "No completed worker run found in the current turn. Dispatch + complete a task first, then invoke second-opinion."
+    );
+  }
+
+  const originalRun = readRun(cwd, lastCompletedRef.id);
+  const originalProvider = String(originalRun.provider ?? "").toLowerCase();
+  if (originalProvider !== "codex" && originalProvider !== "gemini") {
+    throw new Error(`Cannot determine opposite provider for "${originalProvider}".`);
+  }
+  const oppositeProvider = originalProvider === "codex" ? "gemini" : "codex";
+
+  // Re-derive a review objective from the original output. Explicitly frame it as
+  // a cross-model second opinion — not a rubber-stamp — so the reviewer pushes
+  // back rather than agreeing with the original worker's conclusions.
+  const originalObjective = String(originalRun.objective ?? "").trim();
+  const originalOutput = String(originalRun.finalOutput ?? "").trim();
+  const reviewObjective = [
+    `Silent cross-model second-opinion review.`,
+    ``,
+    `Original worker: ${originalProvider}`,
+    `Original route:  ${originalRun.route}`,
+    `Original objective: "${originalObjective || "(not recorded)"}"`,
+    ``,
+    `Your job: review the output below with calibrated skepticism. You are the OTHER model, trained differently, and the user wants a genuinely independent perspective. Surface:`,
+    `  - Missed edge cases or failure modes`,
+    `  - Incorrect assumptions`,
+    `  - Alternative approaches you would have taken`,
+    `  - Concrete risks the original worker did not call out`,
+    `Do NOT rubber-stamp. Disagreement is the point. Cite file paths and line numbers when possible.`,
+    ``,
+    `--- ORIGINAL OUTPUT BEGIN ---`,
+    originalOutput || "(no output recorded)",
+    `--- ORIGINAL OUTPUT END ---`
+  ].join("\n");
+
+  // Stage a second-opinion turn: route=review, provider=oppositeProvider, override
+  // confidence. Save the current turn so we can restore it after the dispatch.
+  const reviewProfile = loadRouteProfile("review");
+  const archivedRuns = [
+    ...(currentTurn?.archivedRuns ?? []),
+    ...(currentTurn?.workerRuns ?? [])
+  ];
+
+  const secondOpinionTurn = {
+    ...TURN_DEFAULTS,
+    prompt: reviewObjective,
+    objective: reviewObjective,
+    route: "review",
+    provider: oppositeProvider,
+    writeEnabled: false,
+    requiresDelegation: true,
+    requiredFrameworks: Array.isArray(reviewProfile.requiredFrameworks) ? reviewProfile.requiredFrameworks : [],
+    reviewDepth: reviewProfile.reviewDepth ?? "verify",
+    timeoutSeconds:
+      Number.isFinite(reviewProfile.timeoutSeconds) && reviewProfile.timeoutSeconds > 0
+        ? Math.floor(reviewProfile.timeoutSeconds)
+        : 900,
+    defaultMemoryPlan: reviewProfile.defaultMemoryPlan ?? null,
+    matchedSignals: ["second-opinion"],
+    confidence: "override",
+    phase: TURN_PHASES.REFINING,
+    status: "needs-delegation",
+    latestRunId: null,
+    latestRunStatus: null,
+    latestRunErrorSummary: null,
+    workerRuns: [],
+    archivedRuns
+  };
+
+  setCurrentTurn(cwd, sessionId, secondOpinionTurn);
+
+  let secondOpinionResult = null;
+  let dispatchError = null;
+  try {
+    // Dispatch via a subprocess so we capture the JSON result cleanly without
+    // colliding with the parent process's stdout. --no-monitor keeps it silent.
+    const selfPath = fileURLToPath(import.meta.url);
+    const child = spawn(
+      process.execPath,
+      [selfPath, "dispatch", "--watch", "--json", "--no-monitor"],
+      {
+        cwd,
+        env: { ...process.env, [SESSION_ID_ENV]: sessionId },
+        stdio: ["ignore", "pipe", "pipe"]
+      }
+    );
+    const outChunks = [];
+    const errChunks = [];
+    child.stdout.on("data", (d) => outChunks.push(d));
+    child.stderr.on("data", (d) => errChunks.push(d));
+    const childExitCode = await new Promise((resolve) => child.on("close", resolve));
+    const stdoutText = Buffer.concat(outChunks).toString();
+    const stderrText = Buffer.concat(errChunks).toString();
+
+    secondOpinionResult = parseLastJsonBlock(stdoutText);
+    if (!secondOpinionResult) {
+      dispatchError = `Second-opinion dispatch produced no parseable JSON (exit ${childExitCode}). stderr tail: ${stderrText.slice(-400)}`;
+    }
+  } catch (error) {
+    dispatchError = error instanceof Error ? error.message : String(error);
+  }
+
+  // Restore the original turn so the user's next prompt continues from there.
+  // Append the second-opinion's workerRuns into archivedRuns so the history is preserved.
+  if (currentTurn) {
+    const refreshedSession = getSessionRecord(cwd, sessionId);
+    const refreshedTurn = refreshedSession?.currentTurn;
+    const newlyArchived = [
+      ...(currentTurn.archivedRuns ?? []),
+      ...(refreshedTurn?.workerRuns ?? []),
+      ...(currentTurn.workerRuns ?? [])
+    ];
+    setCurrentTurn(cwd, sessionId, {
+      ...currentTurn,
+      archivedRuns: newlyArchived
+    });
+  }
+
+  if (dispatchError) {
+    throw new Error(dispatchError);
+  }
+
+  const payload = {
+    original: {
+      runId: originalRun.id,
+      provider: originalProvider,
+      route: originalRun.route,
+      objective: originalObjective,
+      finalOutput: originalRun.finalOutput,
+      providerSessionId: originalRun.providerSessionId ?? null,
+      completedAt: originalRun.completedAt ?? null
+    },
+    secondOpinion: {
+      runId: secondOpinionResult?.runId ?? null,
+      provider: oppositeProvider,
+      route: "review",
+      status: secondOpinionResult?.status ?? null,
+      finalOutput: secondOpinionResult?.finalOutput ?? null,
+      providerSessionId: secondOpinionResult?.providerSessionId ?? null,
+      tokenUsage: secondOpinionResult?.tokenUsage ?? null,
+      errorSummary: secondOpinionResult?.errorSummary ?? null,
+      completedAt: secondOpinionResult?.completedAt ?? null
+    }
+  };
+
+  emit(payload, args.json);
+}
+
+// ---------------------------------------------------------------------------
 // Main entry point
 // ---------------------------------------------------------------------------
 
@@ -2360,6 +2730,8 @@ const COMMANDS = {
   setup: handleSetup,
   reroute: handleReroute,
   reset: handleReset,
+  usage: handleUsage,
+  "second-opinion": handleSecondOpinion,
   // Backward compat: "task" still works but prints a deprecation warning
   task: async (cwd, args) => {
     process.stderr.write(

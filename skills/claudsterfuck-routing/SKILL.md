@@ -36,6 +36,93 @@ Core stance:
 
 **Why direct Bash dispatch (v2.0):** Previous versions spawned a subagent wrapper that called the orchestrator via Bash. Subagents do not inherit runtime-granted Bash permissions from the parent session, so the wrapper frequently stalled on permission prompts. Direct Bash from the main thread uses already-granted permissions and eliminates the stuck-forwarder failure mode.
 
+## Crafting the Objective (few-shot examples)
+
+The objective you pass to the worker is where token efficiency lives or dies. The worker already receives a memory packet containing `.wolf/anatomy.md` (the file-by-file map), `.wolf/cerebrum.md` (conventions and preferences), and `.wolf/buglog.json` (known bugs) via the route's `defaultMemoryPlan`. **You do not need to pre-digest source code to give the worker context** — the worker reads source files itself.
+
+### Objective-writing checklist
+
+Before dispatching, your objective should answer:
+
+1. **What outcome** does the user want? State it in one sentence.
+2. **Where** should the work happen? A file path, a module name, or "find it" if the anatomy map lists it.
+3. **Constraints** the worker might miss? Test expectations, naming conventions from cerebrum, backward-compatibility needs, inline snippets the user supplied.
+
+If answering 1–3 requires you to read source code files, **stop — you are about to pre-solve the task.** The worker will read the files. Name the file path or module from anatomy and let the worker explore.
+
+### Few-shot 1: "refactor the user service"
+
+❌ **Don't do this** (Claude pre-solves → wastes tokens):
+
+1. Grep for `UserService` → finds `src/services/user.ts`
+2. Read `src/services/user.ts` (347 lines) → ~2,800 tokens
+3. Read `src/services/user.test.ts` (412 lines) → ~3,300 tokens
+4. Write a detailed objective quoting line numbers and proposing line-by-line changes
+
+Total Claude cost: ~7,000 tokens. The worker then re-reads the same files to verify and implement. Claude did the work Codex was supposed to do.
+
+✅ **Instead do this** (delegate discovery → efficient):
+
+1. Glance at `.wolf/cerebrum.md` for DI conventions (allowed — memory, not source).
+2. Write the objective:
+   > "Refactor the user service to use dependency injection per our DI convention in cerebrum.md. The anatomy map shows where the service lives and who its callers are. Maintain test coverage."
+3. Dispatch.
+
+Total Claude cost: ~400 tokens. The worker explores the anatomy, reads the relevant source, and implements.
+
+### Few-shot 2: "fix the failing payment webhook test"
+
+❌ **Don't do this:**
+
+1. Glob for `*payment*webhook*` test files.
+2. Read the test to see what it asserts.
+3. Read the production code it exercises.
+4. Write an objective that proposes the fix Claude already figured out.
+
+✅ **Instead do this:**
+
+> "Investigate and fix the failing payment webhook test. The anatomy map points to the relevant files. Root-cause first: confirm whether the test or the production code is wrong before patching. TDD discipline: write a failing test for the true behavior if you change production code."
+
+The worker reads, diagnoses, and fixes. Your job is to state the outcome and the discipline — not to identify the bug yourself.
+
+### Few-shot 3: user supplies a specific symptom inline
+
+User prompt: *"The `isValid` check in the auth middleware returns false for inputs with trailing whitespace. Please fix."*
+
+✅ **Correct:**
+
+> "The `isValid` check in the auth middleware incorrectly rejects inputs with trailing whitespace. Fix the validator to trim before checking. Add a unit test covering the trailing-whitespace case. The anatomy map points to the middleware file."
+
+The user already gave you the symptom and the module (auth middleware). Pass it through. Do **not** read the auth middleware to "confirm" the function name — the worker will find `isValid` in the file and fix it.
+
+### Few-shot 4: user asks for a new feature in a specific file
+
+User prompt: *"Add a retry wrapper around the fetch calls in src/api/client.ts — exponential backoff, max 3 retries."*
+
+✅ **Correct:**
+
+> "Add an exponential-backoff retry wrapper around the fetch calls in `src/api/client.ts`. Max 3 retries with jittered delays. Honor existing error-handling patterns in the file (see cerebrum for our error-handling convention). Add tests for the retry path."
+
+You passed the file path verbatim from the user. You passed the constraints they stated. You deferred "existing error-handling patterns" to the worker + cerebrum. You did not open `src/api/client.ts`.
+
+### When you MAY read before dispatching
+
+Reads to `.wolf/*` files are **allowed** during REFINING:
+
+- `.wolf/anatomy.md` — the file map. A quick glance to confirm a module exists or to find a file path to put in the objective.
+- `.wolf/cerebrum.md` — conventions, user preferences, do-not-repeat list.
+- `.wolf/buglog.json` — known bugs and their fixes (avoid re-introducing).
+- `.wolf/memory.md` — recent session activity.
+
+Reads to **source files** (`src/`, `scripts/`, `lib/`, etc.) during REFINING are an anti-pattern and are blocked by policy. If you catch yourself grep'ing `src/` to understand a task, stop: you are pre-solving. Write a shorter objective instead and trust the worker.
+
+If the user genuinely wants Claude to inspect source (rare), they should pick the right route:
+
+- **route:chat** — discussion/clarification, Claude answers with read access but no writes.
+- **route:claude** — unrestricted Claude with full tool access and no framework discipline.
+
+Both of those are escape hatches from delegated workflow, not part of it.
+
 ## Route Reference
 
 - `chat` — non-delegated, read-only fallback. Write tools blocked. Default for low-confidence and question-like prompts. Stores the objective so a bare `route:implement` (no text) on the next message carries it forward automatically.
@@ -76,6 +163,34 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" inspect --slim --json
 - Do not use `Write`, `Edit`, or `MultiEdit` directly on a routed turn.
 - Do not spawn subagents via the `Agent` tool on a routed turn — dispatch directly via Bash.
 - After worker completion, review is allowed; implementation is still delegated.
+
+## Long-Running Dispatches
+
+If `dispatch --watch --json` takes more than ~4 minutes, the user benefits from a quick liveness check. Run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" watch --heartbeat --json
+```
+
+Returns a minimal payload (~100 tokens):
+```json
+{
+  "runId": "codex-abc",
+  "status": "running",
+  "alive": true,
+  "silentSeconds": 12,
+  "eventCount": 47,
+  "lastEventType": "item.started",
+  "lastEventLabel": "exec: npm test"
+}
+```
+
+Decision rules:
+- `alive:false` → worker process died. Run `recover` and report failure to user.
+- `silentSeconds > 120` → worker is hung. Tell the user and offer to `cancel`.
+- Otherwise → worker is making progress. Re-enter `watch` (or continue waiting).
+
+Do **not** run heartbeat checks more than once per ~4 minutes — the statusline third line already covers continuous progress visibility for the user.
 
 ## Recovery Procedures
 

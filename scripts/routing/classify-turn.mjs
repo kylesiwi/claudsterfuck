@@ -2,8 +2,48 @@
 
 import { isDirectExecution } from "../lib/entrypoint.mjs";
 
-function normalizePrompt(prompt) {
+function rawNormalize(prompt) {
   return String(prompt ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+// Filler prefixes that dilute positional scoring without changing intent.
+// Stripped for scoring only — question detection and display use the raw form.
+const FILLER_PREFIX_PATTERNS = [
+  /^please\s+/i,
+  /^i\s+want\s+(?:you\s+)?to\s+/i,
+  /^i\s+need\s+(?:you\s+)?to\s+/i,
+  /^i'?d\s+like\s+(?:you\s+)?to\s+/i,
+  /^we\s+(?:want|need)\s+to\s+/i,
+  /^let'?s\s+/i,
+  /^let\s+us\s+/i,
+  /^could\s+you\s+/i,
+  /^would\s+you\s+/i,
+  /^can\s+you\s+/i,
+  /^hey\s+claude[,\s]+/i,
+  /^ok\s+/i,
+  /^okay\s+/i,
+  /^alright\s+/i,
+  /^so\s+/i
+];
+
+function stripFillerPrefixes(normalized) {
+  let stripped = normalized;
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const pattern of FILLER_PREFIX_PATTERNS) {
+      const next = stripped.replace(pattern, "");
+      if (next !== stripped) {
+        stripped = next;
+        changed = true;
+      }
+    }
+  }
+  return stripped;
+}
+
+function normalizeForScoring(prompt) {
+  return stripFillerPrefixes(rawNormalize(prompt));
 }
 
 function escapeRegex(value) {
@@ -30,11 +70,14 @@ function matchWeakSignals(text, signals) {
 function extractPositionalZones(normalized) {
   const words = normalized.split(" ");
   if (words.length <= 5) {
-    return { head: normalized, tail: normalized };
+    return { head: normalized, tail: normalized, firstWord: words[0] ?? "", firstTwo: normalized, firstThree: normalized };
   }
   return {
     head: words.slice(0, 3).join(" "),
-    tail: words.slice(-5).join(" ")
+    tail: words.slice(-5).join(" "),
+    firstWord: words[0] ?? "",
+    firstTwo: words.slice(0, 2).join(" "),
+    firstThree: words.slice(0, 3).join(" ")
   };
 }
 
@@ -43,14 +86,38 @@ function isPositional(signal, zones) {
   return zones.head.includes(s) || zones.tail.includes(s);
 }
 
+/**
+ * First-word boost (R1C): if the signal matches the very first word or the
+ * first 2–3 words of the prompt (after filler stripping), the user's intent is
+ * unambiguous and the signal carries outsized weight.
+ *
+ * - strong signal as first word/phrase → 8 points
+ * - weak signal as first word/phrase   → 6 points (treated as strong-in-head)
+ * - strong signal in head/tail zone    → 6 points (unchanged)
+ * - weak signal in head/tail zone      → 2 points (unchanged)
+ * - body                               → 3 / 1 (unchanged)
+ */
+function isFirstWordMatch(signal, zones) {
+  const s = signal.toLowerCase();
+  return s === zones.firstWord || s === zones.firstTwo || s === zones.firstThree;
+}
+
 function candidateShape(rule, matchedStrong, matchedWeak, zones) {
   const strongCount = matchedStrong.length;
   const weakCount = matchedWeak.length;
   const count = strongCount + weakCount;
 
   const score =
-    matchedStrong.reduce((sum, s) => sum + (isPositional(s, zones) ? 6 : 3), 0) +
-    matchedWeak.reduce((sum, s) => sum + (isPositional(s, zones) ? 2 : 1), 0);
+    matchedStrong.reduce((sum, s) => {
+      if (isFirstWordMatch(s, zones)) return sum + 8;
+      if (isPositional(s, zones)) return sum + 6;
+      return sum + 3;
+    }, 0) +
+    matchedWeak.reduce((sum, s) => {
+      if (isFirstWordMatch(s, zones)) return sum + 6;
+      if (isPositional(s, zones)) return sum + 2;
+      return sum + 1;
+    }, 0);
 
   return {
     route: rule.route,
@@ -82,7 +149,9 @@ export const ROUTE_RULES = [
       "pr comments",
       "code review feedback",
       "feedback from reviewer",
-      "reviewer said"
+      "reviewer said",
+      "reviewer comments",
+      "reviewer's comments"
     ],
     weakSignals: ["feedback"]
   },
@@ -98,9 +167,13 @@ export const ROUTE_RULES = [
       "challenge this",
       "what could go wrong",
       "blind spots",
-      "failure modes"
+      "failure modes",
+      "stress test",
+      "stress-test",
+      "red team",
+      "red-team"
     ],
-    weakSignals: ["premortem", "adversarial"]
+    weakSignals: ["premortem", "adversarial", "critique"]
   },
   {
     route: "review",
@@ -108,6 +181,8 @@ export const ROUTE_RULES = [
     strongSignals: [
       "code review",
       "review this",
+      "review my",
+      "review the",
       "look for issues",
       "check this diff",
       "inspect this",
@@ -125,9 +200,12 @@ export const ROUTE_RULES = [
       "task list",
       "step by step plan",
       "rollout plan",
-      "execution plan"
+      "execution plan",
+      "plan for",
+      "outline the steps",
+      "plan this out"
     ],
-    weakSignals: ["plan", "roadmap"]
+    weakSignals: ["plan", "roadmap", "outline", "breakdown", "blueprint"]
   },
   {
     route: "design",
@@ -139,9 +217,10 @@ export const ROUTE_RULES = [
       "tradeoffs",
       "alternative approaches",
       "design this",
-      "architecture"
+      "architecture",
+      "architect this"
     ],
-    weakSignals: ["design", "spec", "approach", "options"]
+    weakSignals: ["design", "spec", "approach", "options", "architect"]
   },
   {
     route: "debug",
@@ -153,9 +232,32 @@ export const ROUTE_RULES = [
       "fix failing",
       "why is this failing",
       "stack trace",
-      "reproduce the bug"
+      "reproduce the bug",
+      "not working",
+      "doesn't work",
+      "does not work",
+      "fix the bug",
+      "fix this bug"
     ],
-    weakSignals: ["bug", "error", "broken", "regression", "debug", "failure", "failing"]
+    weakSignals: [
+      "bug",
+      "error",
+      "broken",
+      "regression",
+      "debug",
+      "failure",
+      "failing",
+      "fix",
+      "fails",
+      "crash",
+      "crashes",
+      "crashing",
+      "hangs",
+      "hanging",
+      "stuck",
+      "issue",
+      "breaking"
+    ]
   },
   {
     route: "implement-artifact",
@@ -189,11 +291,38 @@ export const ROUTE_RULES = [
     reason: "implementation language",
     strongSignals: [
       "write code",
+      "write the code",
       "implement this",
       "add support",
-      "retry logic"
+      "retry logic",
+      "build this",
+      "build this out"
     ],
-    weakSignals: ["implement", "build", "add", "create", "refactor", "patch"]
+    weakSignals: [
+      "implement",
+      "build",
+      "add",
+      "create",
+      "refactor",
+      "patch",
+      "write",
+      "make",
+      "update",
+      "modify",
+      "remove",
+      "delete",
+      "rename",
+      "extract",
+      "split",
+      "merge",
+      "simplify",
+      "replace",
+      "optimize",
+      "move",
+      "rewrite",
+      "port",
+      "wire"
+    ]
   },
   {
     route: "chat",
@@ -214,7 +343,7 @@ export const ROUTE_RULES = [
 ];
 
 export function scoreRoutes(prompt) {
-  const normalized = normalizePrompt(prompt);
+  const normalized = normalizeForScoring(prompt);
   if (!normalized) {
     return {
       normalized,
@@ -301,12 +430,34 @@ export function classifyCandidates(candidates) {
     };
   }
 
-  const confidence =
-    top.strongCount >= 2 || top.score >= 6
-      ? "high"
-      : top.strongCount >= 1 || top.score >= 3
-        ? "medium"
-        : "low";
+  let confidence;
+  if (top.strongCount >= 2 || top.score >= 6) {
+    confidence = "high";
+  } else if (top.strongCount >= 1 || top.score >= 3) {
+    confidence = "medium";
+  } else {
+    confidence = "low";
+  }
+
+  // R1A: promote medium to high when the top candidate clearly dominates.
+  // Dominance definition: runner-up is materially behind (gap >= 3) AND the
+  // top candidate has either a strong signal or a meaningful score.
+  if (confidence === "medium") {
+    const runnerUp = summary[1];
+    const dominanceGap = runnerUp ? top.score - runnerUp.score : top.score;
+    const strongDominance = top.strongCount >= 1 && dominanceGap >= 3;
+    const scoreDominance = top.score >= 5 && dominanceGap >= 3;
+    if (strongDominance || scoreDominance) {
+      confidence = "high";
+      return {
+        route: top.route,
+        reason: `${top.reason} (medium-with-dominance)`,
+        confidence,
+        matchedSignals: top.signals,
+        candidates: summary
+      };
+    }
+  }
 
   return {
     route: top.route,
@@ -340,8 +491,8 @@ export function classifyTurn(prompt) {
     };
   }
 
-  const normalized = normalizePrompt(prompt);
-  if (!normalized) {
+  const rawNormalized = rawNormalize(prompt);
+  if (!rawNormalized) {
     return {
       route: "chat",
       reason: "empty prompt fallback",
@@ -353,7 +504,7 @@ export function classifyTurn(prompt) {
 
   // Rule A: question mark anywhere in prompt → always chat, regardless of strong signals.
   // A "?" signals the user wants dialogue, not delegation.
-  if (hasQuestionMark(normalized)) {
+  if (hasQuestionMark(rawNormalized)) {
     return {
       route: "chat",
       reason: "question-mark-detected",
@@ -366,7 +517,8 @@ export function classifyTurn(prompt) {
   const result = classifyCandidates(scoreRoutes(prompt).candidates);
 
   // Rule B: question-starter phrasing with no strong delegation signal → chat.
-  if (isQuestionLike(normalized) && (result.candidates[0]?.strongCount ?? 0) === 0) {
+  // Uses rawNormalized (pre-strip) so stripped filler prefixes don't hide the question starter.
+  if (isQuestionLike(rawNormalized) && (result.candidates[0]?.strongCount ?? 0) === 0) {
     return {
       route: "chat",
       reason: "question-starter-no-strong-signal",
