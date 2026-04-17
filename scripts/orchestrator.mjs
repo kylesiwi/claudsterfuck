@@ -1277,11 +1277,14 @@ function finalizeRun(cwd, runId, run, processInfo) {
     exitCode: result.exitCode,
     finalOutput: result.finalOutput,
     providerSessionId: result.providerSessionId ?? null,
+    tokenUsage: result.tokenUsage ?? null,
     errorSummary: result.errorSummary ?? null,
     artifacts: {
       ...run.artifacts,
       stdoutFile: processInfo.stdoutFile,
       stderrFile: processInfo.stderrFile,
+      eventsFile: path.join(resolveRunArtifactsDir(cwd, runId), "events.jsonl"),
+      latestEventFile: path.join(resolveRunArtifactsDir(cwd, runId), "latest-event.json"),
       normalizedResultFile: path.join(resolveRunArtifactsDir(cwd, runId), "result.normalized.json")
     }
   };
