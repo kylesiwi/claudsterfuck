@@ -8,7 +8,8 @@ A Claude Code plugin for deterministic multi-provider orchestration. Routes your
 - [OpenWolf](https://github.com/cytostack/openwolf) — Claude Code context management system (required; provides `.wolf/` memory, anatomy, and cerebrum files)
 - [Codex CLI](https://github.com/openai/codex) — `npm install -g @openai/codex` — for implementation/debug routes
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) — `npm install -g @google/gemini-cli` — for design/review/plan routes
-- Environment variables: `OPENAI_API_KEY`, `GEMINI_API_KEY`
+
+> Both CLIs use OAuth. Log in to each before use (`codex auth login`, `gemini auth login`). No API keys required.
 
 > **Windows note:** Codex CLI spawns PowerShell subshells internally on Windows. This is expected behavior; the orchestrator hides the root `codex.exe` window but Codex's own exec subshells may be visible briefly during runs.
 
@@ -30,12 +31,11 @@ claude plugin enable claudsterfuck
 
 Follow the [OpenWolf setup instructions](https://github.com/cytostack/openwolf) to initialize the `.wolf/` directory in your project. OpenWolf provides the context memory system that claudsterfuck depends on.
 
-### 4. Set API keys
+### 4. Log in to Codex and Gemini
 
 ```bash
-# In your shell profile or .env (not committed):
-export OPENAI_API_KEY=sk-...
-export GEMINI_API_KEY=AI...
+codex auth login
+gemini auth login
 ```
 
 ### 5. Verify providers
