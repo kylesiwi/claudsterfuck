@@ -50,7 +50,7 @@ This checks that both CLIs are available and reports which binaries were resolve
 
 ## Usage
 
-Just write naturally. The plugin classifies your prompt (keyword heuristics + weighting, or inferenced intent if low confidence) and routes it:
+Just write naturally. The plugin classifies your prompt (keyword heuristics with positional weighting + first-word intent boost, falling back to chat for low-confidence prompts) and routes it:
 
 ```
 write a retry wrapper around the fetch calls in api.ts
@@ -141,6 +141,8 @@ Even though these two routes are "free chat", they do NOT break the plugin's int
 | `/claudsterfuck:recover` | Mark dead workers as failed |
 | `/claudsterfuck:result` | Show the last completed run result |
 | `/claudsterfuck:reroute` | Change route on the active turn |
+| `/claudsterfuck:usage` | Token totals for the current session + workspace, by provider and route |
+| `/claudsterfuck:second-opinion` | Silently run a cross-provider review of the last completed run (Codex ↔ Gemini) and return both outputs side-by-side |
 
 ## Live Visibility
 
@@ -150,6 +152,8 @@ While a worker runs, you get progress on two surfaces without the main Claude th
 - **Monitor window** opens automatically in a separate terminal, rendering the structured event stream (reasoning, tool calls with exit codes, token usage, completion banner). Pass `--no-monitor` on dispatch to skip it.
 
 Both surfaces read NDJSON event streams emitted natively by the provider CLIs (`codex exec --json`, `gemini --output-format stream-json`). Events are archived per run in `events.jsonl` under `${CLAUDE_PLUGIN_DATA}/state/<workspace>/runs/<runId>/` for post-hoc inspection.
+
+For long-running tasks, Claude can poll a lightweight heartbeat endpoint (`watch --heartbeat --json`, ~50 tokens) to confirm a worker is still making progress without burning tokens on a full watch payload.
 
 ## License
 
