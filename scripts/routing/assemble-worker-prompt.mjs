@@ -105,22 +105,32 @@ function loadFrameworks(frameworkPaths) {
   });
 }
 
+const EMPTY_MEMORY_RESULT = Object.freeze({
+  packet: "",
+  qualityScore: null,
+  includedChunks: []
+});
+
 function buildMemoryPacket(route, options) {
   if (!route.requiresDelegation || !route.defaultMemoryPlan || !options.workspaceRoot) {
-    return "";
+    return EMPTY_MEMORY_RESULT;
   }
 
   try {
-    return (
-      compileMemoryPacket({
-        workspaceRoot: options.workspaceRoot,
-        objective: options.objective,
-        route: route.route,
-        memoryPlan: route.defaultMemoryPlan
-      }).packet || ""
-    );
+    const compiled = compileMemoryPacket({
+      workspaceRoot: options.workspaceRoot,
+      objective: options.objective,
+      route: route.route,
+      memoryPlan: route.defaultMemoryPlan,
+      vocabulary: route.vocabulary
+    });
+    return {
+      packet: compiled.packet || "",
+      qualityScore: compiled.qualityScore ?? null,
+      includedChunks: Array.isArray(compiled.includedChunks) ? compiled.includedChunks : []
+    };
   } catch {
-    return "";
+    return EMPTY_MEMORY_RESULT;
   }
 }
 
@@ -152,7 +162,7 @@ export function assembleWorkerPrompt(options) {
 
   const frameworks = loadFrameworks(route.requiredFrameworks);
   const template = readText(ensureExists(providerPromptPath(provider), "Provider prompt"));
-  const memoryPacket = buildMemoryPacket(route, {
+  const memory = buildMemoryPacket(route, {
     workspaceRoot: options.workspaceRoot ?? process.cwd(),
     objective: options.objective
   });
@@ -162,7 +172,7 @@ export function assembleWorkerPrompt(options) {
     WRITE_MODE: route.writeEnabled ? "write-enabled" : "read-only",
     OBJECTIVE: String(options.objective ?? "").trim() || "No objective provided.",
     ROUTE_BRIEF: route.routeBrief,
-    MEMORY_PACKET: memoryPacket ? `${memoryPacket}\n` : "",
+    MEMORY_PACKET: memory.packet ? `${memory.packet}\n` : "",
     FRAMEWORKS_SECTION: renderFrameworkSection(frameworks),
     OUTPUT_CONTRACT_SECTION: outputContractSection
   });
@@ -191,7 +201,9 @@ export function assembleWorkerPrompt(options) {
       originalLength: compiled.originalLength,
       compressedLength: compiled.compressedLength,
       reduction: compiled.reduction
-    }
+    },
+    memoryQuality: memory.qualityScore,
+    memoryIncludedChunks: memory.includedChunks
   };
 }
 

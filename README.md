@@ -118,11 +118,13 @@ These routes bypass using other workers (Gemini/Codex) and let you talk directly
 |---|---|---|
 | `chat` | Claude | Read-only fallback (default for low-confidence prompts) |
 | `claude` | Claude | Explicit full-permissions bypass, never auto-routed |
+| `enrichmemory` | Claude | Housekeeping — refreshes the memory-packet corpus enrichment (see *Memory-Packet Retrieval* below) |
 
 - Use "chat" when you just want Claude's advice but you DON'T want Claude to just start coding on its own (which it tends to do unprompted in normal Claude Code sessions, as you might have unfortunately found out). This route is READ-ONLY; Claude has NO write permissions.
 - Use "claude" when you want the normal Claude Code experience; it has full permissions and basically "skips" the plugin
+- Use "enrichmemory" (or `/claudsterfuck:enrichmemory`) when the retrieval layer asks for a refresh. It spawns one-shot Haiku calls to enrich file descriptions in `.wolf/anatomy.md`. Cache is content-hash-keyed so warm runs are instant.
 
-Even though these two routes are "free chat", they do NOT break the plugin's internals because they preserve run state and objectives (e.g. if you state you want to build a website and then use route:chat to ask Claude clarifying questions, the next time you use route:design it should automatically go back to the website building task and not break the plugin flow).
+Even though these special routes are "free chat", they do NOT break the plugin's internals because they preserve run state and objectives (e.g. if you state you want to build a website and then use route:chat to ask Claude clarifying questions, the next time you use route:design it should automatically go back to the website building task and not break the plugin flow).
 
 
 
@@ -143,6 +145,7 @@ Even though these two routes are "free chat", they do NOT break the plugin's int
 | `/claudsterfuck:reroute` | Change route on the active turn |
 | `/claudsterfuck:usage` | Token totals for the current session + workspace, by provider and route |
 | `/claudsterfuck:second-opinion` | Silently run a cross-provider review of the last completed run (Codex ↔ Gemini) and return both outputs side-by-side |
+| `/claudsterfuck:enrichmemory` | Rebuild the memory-packet corpus enrichment (headless Haiku summaries, auto-prune, batched calls). Opens a `cf-enrich-monitor` window with live progress |
 
 ## Live Visibility
 
@@ -154,6 +157,31 @@ While a worker runs, you get progress on two surfaces without the main Claude th
 Both surfaces read NDJSON event streams emitted natively by the provider CLIs (`codex exec --json`, `gemini --output-format stream-json`). Events are archived per run in `events.jsonl` under `${CLAUDE_PLUGIN_DATA}/state/<workspace>/runs/<runId>/` for post-hoc inspection.
 
 For long-running tasks, Claude can poll a lightweight heartbeat endpoint (`watch --heartbeat --json`, ~50 tokens) to confirm a worker is still making progress without burning tokens on a full watch payload.
+
+## Memory-Packet Retrieval
+
+Each worker dispatch receives a compiled "memory packet" — a small bundle of relevant file descriptions and prior learnings pulled from `.wolf/anatomy.md` and `.wolf/cerebrum.md`. The compiler keeps packets tight (1800-2700 chars per route) while surfacing the files a worker is actually likely to need, instead of forcing the worker to grep the codebase from scratch.
+
+What the compiler does:
+
+- **Aggressive stopword filtering** on the user's objective, so instruction-framing words ("look into what are the possible approaches…") don't crowd out topical nouns.
+- **Vocabulary expansion** bridges user prose to codebase vernacular (e.g. `model → provider, codex, gemini, binary, backend`). Routes can extend the default vocabulary via an optional `vocabulary` field in their JSON profile.
+- **Per-bullet cerebrum chunking** makes individual learnings independently selectable (a single "Do-Not-Repeat" entry can surface on its own instead of the whole section).
+- **Interleaved source selection** preserves diversity under tight budgets — anatomy and cerebrum chunks alternate so the trimmer can't starve one source.
+- **Size-ranked fallback** when nothing matches — biases toward architecturally heavy files by their anatomy `(~N tok)` annotation.
+- **Quality telemetry** on every run: `memoryQuality` (score, fallback usage, distinct sources) and `packetVsReads` (how much of the packet the worker actually used) are persisted on the run record for post-hoc analysis and future learning.
+
+### Corpus enrichment
+
+OpenWolf's auto-scanner extracts anatomy descriptions from the first JSDoc / H1 line of each tracked file. That works well when files have rich headers but breaks down for files whose first line is a decoration, a function-level comment, or a test stub. For those, `/claudsterfuck:enrichmemory` spawns headless `claude -p --model haiku` calls to generate richer per-file descriptions (summary, keywords, exports) written to `.wolf/anatomy.enriched.md`. The compiler merges the enriched text on top of the vanilla anatomy chunks before scoring.
+
+- **Batched calls.** Files are grouped 5-per-prompt (configurable), cutting CLI spawn count by ~5× — fewer fleeting console windows on Windows.
+- **Content-hash cache.** Only files whose content changed since last run re-trigger an LLM call. Warm runs are instant.
+- **Auto-prune.** Each run removes cache entries for files no longer tracked in anatomy.md (renamed/deleted), keeping the sidecar tidy.
+- **Live monitor.** A `cf-enrich-monitor` window opens during real runs showing phase, file progress bar, batch progress bar, and the in-flight batch's file list. Auto-closes on completion.
+- **Threshold-driven reminders.** The `UserPromptSubmit` hook surfaces a reminder in Claude's context when >10 anatomy files have retrieval-weak descriptions. For ≤10 unenriched files the hook silently triggers a background refresh.
+
+Run `/claudsterfuck:enrichmemory` manually any time, or simply type the route (`route:enrichmemory`). No API key is required — the plugin uses your existing `claude` CLI auth. Cost is ~$0.001/file in Haiku tokens; a full ~45-file repo scan is roughly $0.05 and 2-3 minutes.
 
 ## License
 

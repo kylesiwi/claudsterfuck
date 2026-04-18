@@ -9,79 +9,113 @@ function shortenLabel(text) {
   return compact.length > 72 ? `${compact.slice(0, 69)}...` : compact;
 }
 
-export function chunkAnatomy(content, sourcePath) {
-  return String(content ?? "")
-    .split(/\r?\n/)
-    .map((line, index) => ({
-      line,
-      index
-    }))
-    .filter(({ line }) => {
-      const trimmed = line.trim();
-      return trimmed && !trimmed.startsWith("#");
-    })
-    .map(({ line, index }) => {
-      const text = cleanBullet(line);
-      return {
-        sourceName: "anatomy",
-        sourcePath,
-        label: shortenLabel(text),
-        text,
-        position: index
-      };
+// chunkAnatomy tracks the current `## <dir>` section as it walks lines,
+// computes per-bullet relative paths, and (when an enriched map is provided)
+// appends LLM-backed enrichment text to the chunk's text before emission.
+// The enrichedMap is a Map<relativePath, enrichedText> produced from
+// .wolf/anatomy.enriched.md by the corpus-enrichment sidecar.
+//
+// The enriched text is concatenated into the same chunk so scoring,
+// interleaved selection, and the trimmer continue to treat one file as one
+// unit of evidence (no new source, no extra per-source cap pressure).
+export function chunkAnatomy(content, sourcePath, enrichedMap = null) {
+  const map = enrichedMap instanceof Map ? enrichedMap : new Map(Object.entries(enrichedMap ?? {}));
+  const chunks = [];
+  let currentDir = ".";
+
+  const lines = String(content ?? "").split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Section header — track current directory for relative-path computation.
+    if (trimmed.startsWith("## ")) {
+      currentDir = trimmed.replace(/^##\s*/, "").replace(/\/$/, "") || ".";
+      continue;
+    }
+    if (trimmed.startsWith("#")) continue;
+
+    const text = cleanBullet(line);
+    if (!text) continue;
+
+    // Extract the backticked filename from the bullet (format:
+    // `filename.ext` — description ... (~N tok)`). cleanBullet has already
+    // stripped the first `- ` and one pair of outer backticks if present.
+    const filenameMatch = text.match(/^([^`\s]+?)(?:`|\s+—|\s+$)/) || text.match(/^(\S+)/);
+    const filename = filenameMatch ? filenameMatch[1].replace(/`/g, "") : text.split(/\s/)[0];
+    const relativePath = currentDir === "." ? filename : `${currentDir}/${filename}`;
+    const enrichedText = map.get(relativePath);
+    const mergedText = enrichedText ? `${text} ${enrichedText}` : text;
+
+    chunks.push({
+      sourceName: "anatomy",
+      sourcePath,
+      label: shortenLabel(text),
+      text: mergedText,
+      position: index
     });
+  }
+
+  return chunks;
 }
 
+// Per-bullet chunking for cerebrum. Previously every heading was collapsed
+// into a single mega-chunk containing every bullet under it. That made an
+// individual learning invisible to retrieval — the "Do-Not-Repeat" block
+// would match every keyword in the project and either flood the packet or
+// hog the budget, starving anatomy. Per-bullet chunking lets each learning
+// be selected independently based on its own text match.
 export function chunkCerebrum(content, sourcePath) {
   const lines = String(content ?? "").split(/\r?\n/);
   const chunks = [];
   let heading = "General";
-  let bullets = [];
-  let groupStart = 0;
+  let currentBullet = null;
+  let currentPosition = 0;
 
-  const flush = () => {
-    if (bullets.length === 0) {
+  const flushBullet = () => {
+    if (!currentBullet) return;
+    const bulletText = compactWhitespace(currentBullet);
+    if (!bulletText) {
+      currentBullet = null;
       return;
     }
-
-    const text = bullets.map((bullet) => `- ${bullet}`).join("\n");
     chunks.push({
       sourceName: "cerebrum",
       sourcePath,
-      label: `${heading} > ${shortenLabel(bullets[0])}`,
-      text: compactWhitespace(`${heading} ${text}`),
-      position: groupStart
+      label: `${heading} > ${shortenLabel(bulletText)}`,
+      text: compactWhitespace(`${heading}: ${bulletText}`),
+      position: currentPosition
     });
-    bullets = [];
+    currentBullet = null;
   };
 
   lines.forEach((line, index) => {
     const trimmed = line.trim();
     if (!trimmed) {
-      flush();
+      flushBullet();
       return;
     }
 
     if (trimmed.startsWith("#")) {
-      flush();
+      flushBullet();
       heading = trimmed.replace(/^#+\s*/, "") || "General";
       return;
     }
 
     if (/^[-*+]\s+/.test(trimmed)) {
-      if (bullets.length === 0) {
-        groupStart = index;
-      }
-      bullets.push(cleanBullet(trimmed));
+      flushBullet();
+      currentBullet = cleanBullet(trimmed);
+      currentPosition = index;
       return;
     }
 
-    if (bullets.length > 0) {
-      bullets[bullets.length - 1] = compactWhitespace(`${bullets[bullets.length - 1]} ${trimmed}`);
+    if (currentBullet) {
+      currentBullet = compactWhitespace(`${currentBullet} ${trimmed}`);
     }
   });
 
-  flush();
+  flushBullet();
   return chunks;
 }
 

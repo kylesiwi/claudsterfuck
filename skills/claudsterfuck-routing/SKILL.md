@@ -127,6 +127,7 @@ Both of those are escape hatches from delegated workflow, not part of it.
 
 - `chat` — non-delegated, read-only fallback. Write tools blocked. Default for low-confidence and question-like prompts. Stores the objective so a bare `route:implement` (no text) on the next message carries it forward automatically.
 - `claude` — non-delegated, full permissions. Explicit bypass only. Never auto-routed.
+- `enrichmemory` — housekeeping route. Runs `scripts/enrich-anatomy.mjs` to refresh the corpus-enrichment sidecar (`.wolf/anatomy.enriched.md`). Non-delegated; Claude runs the CLI and reports back. Invoke via `/claudsterfuck:enrichmemory` or `route:enrichmemory`. The `UserPromptSubmit` hook surfaces a reminder in `additionalContext` when >10 anatomy files have retrieval-weak vanilla descriptions, and auto-runs the enrichment in background when only a handful (≤10) are unenriched.
 
 ## Provider Choice
 

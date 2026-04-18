@@ -1,0 +1,10 @@
+{
+  "route": "enrichmemory",
+  "description": "Housekeeping turn for running memory-packet corpus enrichment (scripts/enrich-anatomy.mjs). Non-delegated; Claude runs the enrichment CLI and reports results.",
+  "defaultProvider": null,
+  "writeEnabled": false,
+  "requiresDelegation": false,
+  "requiredFrameworks": [],
+  "routeBrief": "Run corpus enrichment for retrieval quality. Check --status first, then --problem-only to enrich weak descriptions, or --prune to clean orphan cache entries. Report counts before/after.",
+  "timeoutSeconds": 900
+}

@@ -5,6 +5,7 @@ import process from "node:process";
 import { classifyCandidates, classifyTurn } from "./routing/classify-turn.mjs";
 import { isDirectExecution } from "./lib/entrypoint.mjs";
 import { appendEnvVar, emitHookJson, readHookInput, SESSION_ID_ENV } from "./lib/hook-io.mjs";
+import { buildEnrichmentReminder } from "./lib/openwolf/enrichment-reminder.mjs";
 import { loadRouteProfile, routeExists } from "./routing/lib/config.mjs";
 import { getSessionRecord, setCurrentTurn, setSessionRecord, TURN_DEFAULTS, TURN_PHASES } from "./lib/state.mjs";
 
@@ -805,8 +806,40 @@ export function buildUserPromptDecision(input, options = {}) {
   };
 }
 
+// Append an enrichment-memory reminder (and optionally trigger background
+// enrichment) onto whatever additionalContext the core hook decision built.
+// Skip entirely when the current turn IS the enrichmemory housekeeping turn
+// (to avoid recursion and to let the user run it uninterrupted).
+function augmentWithEnrichmentReminder(decision, rawInput) {
+  try {
+    const prompt = String(rawInput?.prompt ?? "");
+    const mentionsEnrichMemory =
+      /^\s*\/claudsterfuck:enrichmemory\b/i.test(prompt) ||
+      /^\s*\[?route:enrichmemory\]?\b/i.test(prompt);
+    if (mentionsEnrichMemory) return decision;
+
+    const cwd = rawInput?.cwd || process.cwd();
+    const { reminder } = buildEnrichmentReminder(cwd);
+    if (!reminder) return decision;
+
+    const existing = decision?.hookSpecificOutput?.additionalContext ?? "";
+    const separator = existing.endsWith("\n") ? "" : "\n";
+    return {
+      ...decision,
+      hookSpecificOutput: {
+        ...(decision?.hookSpecificOutput ?? { hookEventName: "UserPromptSubmit" }),
+        additionalContext: existing ? `${existing}${separator}${reminder}` : reminder
+      }
+    };
+  } catch {
+    return decision;
+  }
+}
+
 function main() {
-  emitHookJson(buildUserPromptDecision(readHookInput()));
+  const rawInput = readHookInput();
+  const decision = buildUserPromptDecision(rawInput);
+  emitHookJson(augmentWithEnrichmentReminder(decision, rawInput));
 }
 
 if (isDirectExecution(import.meta.url)) {

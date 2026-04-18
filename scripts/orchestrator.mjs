@@ -1243,6 +1243,80 @@ function finalizeGeminiResult(cwd, runId, run, processInfo) {
 /**
  * Finalize a completed run by reading its output and updating state.
  */
+// Extracts file paths the worker actually touched during the run from the
+// structured event stream. Used to compare against the files the memory
+// packet surfaced — the overlap/miss signal drives future compiler learning
+// and is the observability floor for packet quality regressions.
+function computePacketVsReadsTelemetry(runArtifactsDir, memoryIncludedFiles) {
+  const eventsFile = path.join(runArtifactsDir, "events.jsonl");
+  if (!fs.existsSync(eventsFile)) {
+    return null;
+  }
+
+  const readPathKeys = ["file_path", "path", "absolute_path", "dir_path", "filename"];
+  const workerReadFiles = new Set();
+  let toolCallCount = 0;
+
+  let raw;
+  try {
+    raw = fs.readFileSync(eventsFile, "utf8");
+  } catch {
+    return null;
+  }
+
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    let event;
+    try {
+      event = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    if (event?.type !== "tool_use") continue;
+    toolCallCount += 1;
+    const parameters = event.parameters ?? {};
+    for (const key of readPathKeys) {
+      const value = parameters[key];
+      if (typeof value === "string" && value.trim()) {
+        workerReadFiles.add(normalizeReadPath(value));
+      }
+    }
+  }
+
+  const packetFiles = Array.isArray(memoryIncludedFiles) ? [...new Set(memoryIncludedFiles)] : [];
+  const workerReadArray = [...workerReadFiles];
+  const packetSet = new Set(packetFiles);
+  const workerReadBaseNames = new Set(workerReadArray.map(baseName));
+
+  // A packet file is "used" if the worker read the exact normalized path OR a
+  // file with the same basename. Loose match tolerates workspace-root drift.
+  const unusedPacketFiles = packetFiles.filter((file) => {
+    if (workerReadFiles.has(file)) return false;
+    return !workerReadBaseNames.has(baseName(file));
+  });
+  const overlap = packetFiles.length - unusedPacketFiles.length;
+  const missedFiles = workerReadArray.filter((file) => !packetSet.has(file) && !packetSet.has(baseName(file)));
+
+  return {
+    packetFiles,
+    workerReadFiles: workerReadArray,
+    overlap,
+    missedFiles,
+    unusedPacketFiles,
+    toolCallCount
+  };
+}
+
+function normalizeReadPath(input) {
+  return String(input).replace(/\\/g, "/").replace(/^\.\/+/, "").trim();
+}
+
+function baseName(filePath) {
+  const normalized = normalizeReadPath(filePath);
+  const idx = normalized.lastIndexOf("/");
+  return idx >= 0 ? normalized.slice(idx + 1) : normalized;
+}
+
 function finalizeRun(cwd, runId, run, processInfo) {
   const provider = String(run.provider ?? "").toLowerCase();
 
@@ -1274,6 +1348,9 @@ function finalizeRun(cwd, runId, run, processInfo) {
   const completedAt = new Date().toISOString();
   const finalStatus = result.exitCode === 0 ? "completed" : "failed";
 
+  const runArtifactsDir = resolveRunArtifactsDir(cwd, runId);
+  const packetVsReads = computePacketVsReadsTelemetry(runArtifactsDir, run.memoryIncludedFiles ?? []);
+
   // Update the run record
   const completedRun = {
     ...run,
@@ -1284,13 +1361,14 @@ function finalizeRun(cwd, runId, run, processInfo) {
     providerSessionId: result.providerSessionId ?? null,
     tokenUsage: result.tokenUsage ?? null,
     errorSummary: result.errorSummary ?? null,
+    packetVsReads,
     artifacts: {
       ...run.artifacts,
       stdoutFile: processInfo.stdoutFile,
       stderrFile: processInfo.stderrFile,
-      eventsFile: path.join(resolveRunArtifactsDir(cwd, runId), "events.jsonl"),
-      latestEventFile: path.join(resolveRunArtifactsDir(cwd, runId), "latest-event.json"),
-      normalizedResultFile: path.join(resolveRunArtifactsDir(cwd, runId), "result.normalized.json")
+      eventsFile: path.join(runArtifactsDir, "events.jsonl"),
+      latestEventFile: path.join(runArtifactsDir, "latest-event.json"),
+      normalizedResultFile: path.join(runArtifactsDir, "result.normalized.json")
     }
   };
 
@@ -1439,6 +1517,10 @@ export async function handleDispatch(cwd, args, overrides = {}) {
     timeoutSeconds,
     startedAt,
     artifactMode: assembled.artifactMode ?? null,
+    memoryQuality: assembled.memoryQuality ?? null,
+    memoryIncludedFiles: Array.isArray(assembled.memoryIncludedChunks)
+      ? [...new Set(assembled.memoryIncludedChunks.map((chunk) => chunk?.source).filter(Boolean))]
+      : [],
     artifacts: {
       promptFile,
       lastMessageFile: runOutputFile,
