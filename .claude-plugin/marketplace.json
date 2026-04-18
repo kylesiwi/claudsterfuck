@@ -7,7 +7,7 @@
     {
       "name": "claudsterfuck",
       "description": "Deterministic multi-provider orchestration with dispatch+poll execution model.",
-      "version": "1.9.0",
+      "version": "2.5.2",
       "author": { "name": "kylesiwi" },
       "source": "./"
     }
