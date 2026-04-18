@@ -228,6 +228,64 @@ export function resolveStateDir(cwd) {
   return path.join(stateRoot, workspaceHash(cwd));
 }
 
+// Scan the conventional Claude Code plugin-data root for a dir matching
+// claudsterfuck (any marketplace slug). Returns the pluginDataDir path that
+// contains a populated state/<workspace-slug>/state.json for the given cwd,
+// or null if no such candidate exists.
+//
+// Used by subprocesses that aren't spawned through a Claude Code hook and
+// therefore don't inherit CLAUDE_PLUGIN_DATA — e.g. the monitor daemon
+// launched via `cmd /c start powershell`. Without this probe, such
+// subprocesses fall back to the empty TEMP state dir and can't see the
+// session written by the hooks pipeline.
+export function discoverPluginDataDir(cwd) {
+  const explicit = process.env[PLUGIN_DATA_ENV];
+  if (explicit) return explicit;
+
+  const scanRoot = path.join(os.homedir(), ".claude", "plugins", "data");
+  if (!fs.existsSync(scanRoot)) return null;
+
+  const slug = workspaceHash(cwd);
+  let best = null;
+  let bestMtime = -Infinity;
+
+  let entries;
+  try {
+    entries = fs.readdirSync(scanRoot, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (!/claudsterfuck/i.test(entry.name)) continue;
+    const candidate = path.join(scanRoot, entry.name);
+    const stateFile = path.join(candidate, "state", slug, STATE_FILE_NAME);
+    if (!fs.existsSync(stateFile)) continue;
+    try {
+      const mtime = fs.statSync(stateFile).mtimeMs;
+      if (mtime > bestMtime) {
+        best = candidate;
+        bestMtime = mtime;
+      }
+    } catch {
+      // ignore unreadable entries
+    }
+  }
+
+  return best;
+}
+
+// Convenience wrapper: populate process.env.CLAUDE_PLUGIN_DATA if it's
+// empty, using discoverPluginDataDir. Idempotent; returns the resolved
+// value (or null if nothing found).
+export function ensurePluginDataEnv(cwd) {
+  if (process.env[PLUGIN_DATA_ENV]) return process.env[PLUGIN_DATA_ENV];
+  const found = discoverPluginDataDir(cwd);
+  if (found) process.env[PLUGIN_DATA_ENV] = found;
+  return found;
+}
+
 export function resolveStateFile(cwd) {
   return path.join(resolveStateDir(cwd), STATE_FILE_NAME);
 }

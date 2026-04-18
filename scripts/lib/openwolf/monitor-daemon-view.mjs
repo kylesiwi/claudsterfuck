@@ -2,12 +2,21 @@
 // primitives. No filesystem or spawn concerns — those live in the daemon
 // script that imports these. Testable in isolation.
 
-// Full terminal clear sequence: scrollback + visible + cursor home. Order
-// matters on some terminals; `\x1b[3J` (scrollback) then `\x1b[2J` (screen)
-// then `\x1b[H` (home) is the most broadly compatible sequence for
-// Windows PowerShell ConPTY + modern terminals.
+// Full terminal clear sequence.
+//
+// Start with `\x1bc` (ESC c — full terminal reset). This is more broadly
+// honored than `\x1b[3J` alone on classic Windows conhost.exe, which may
+// ignore the 3J scrollback-clear opcode but does honor the reset. Follow
+// with belt-and-suspenders `\x1b[3J` (scrollback) + `\x1b[2J` (visible
+// area) + `\x1b[H` (cursor home) so modern terminals (Windows Terminal,
+// ConPTY, xterm-class) that don't need the reset still behave correctly.
+//
+// This addresses the UX complaint that per-frame redraws left stale
+// content visible in the scrollback buffer — in practice any one of the
+// sequences above is enough on a given terminal, and the combination is
+// a no-op when unnecessary.
 export function buildClearScreenSequence() {
-  return "\x1b[3J\x1b[2J\x1b[H";
+  return "\x1bc\x1b[3J\x1b[2J\x1b[H";
 }
 
 // Decide which view to render based on the live state snapshot. Rules:

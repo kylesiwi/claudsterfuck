@@ -45,7 +45,7 @@ import {
   summarizeEnrichmentState
 } from "./lib/openwolf/monitor-daemon-view.mjs";
 import { resolveWolfPaths } from "./lib/openwolf/enrich-status.mjs";
-import { resolveRunArtifactsDir, resolveRunFile, resolveStateFile } from "./lib/state.mjs";
+import { ensurePluginDataEnv, resolveRunArtifactsDir, resolveRunFile, resolveStateFile } from "./lib/state.mjs";
 import { summarizeEvent } from "./lib/event-stream.mjs";
 
 const POLL_INTERVAL_MS = 1000;
@@ -130,6 +130,11 @@ function spawnVisibleWindow({ sessionId, workspaceRoot }) {
   const launcherContent = [
     "\ufeff",
     `$host.ui.RawUI.WindowTitle = 'cf-monitor [${sessionId.slice(0, 8)}]'`,
+    // Clear both the visible buffer AND scrollback at launch. The daemon's
+    // per-frame clear handles ongoing redraws; this one-shot wipe ensures
+    // the PowerShell window opens blank even on hosts (classic conhost)
+    // that ignore the daemon's \x1b[3J sequence.
+    `Clear-Host`,
     `Set-Location -LiteralPath '${safeCwd}'`,
     `& '${safeExec}' '${safeScript}' --session-id '${safeSession}'`
   ].join("\r\n");
@@ -312,6 +317,13 @@ function renderFrame({ sessionId, snapshot }) {
 // ---------- Daemon loop ----------
 
 async function runDaemonLoop({ sessionId, workspaceRoot }) {
+  // Ensure CLAUDE_PLUGIN_DATA is populated. Subprocesses spawned via
+  // `cmd /c start` don't inherit the env var that Claude Code hooks
+  // otherwise set, so the daemon must discover the plugin-data dir
+  // itself by probing conventional locations. Without this, we'd fall
+  // back to an empty %TEMP% state dir and see "(no turn)" forever.
+  ensurePluginDataEnv(workspaceRoot);
+
   const lockPath = lockPathFor(workspaceRoot, sessionId);
   const lockResult = tryAcquireLock(lockPath, { sessionId, workspaceRoot });
   if (!lockResult.acquired) {

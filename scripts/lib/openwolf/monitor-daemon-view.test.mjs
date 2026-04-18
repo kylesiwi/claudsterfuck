@@ -68,8 +68,9 @@ await run("selectView -> 'idle' on empty input", () => {
 
 // --- buildClearScreenSequence ---
 
-await run("buildClearScreenSequence clears scrollback AND screen AND moves cursor home", () => {
+await run("buildClearScreenSequence clears scrollback AND screen AND moves cursor home AND resets terminal", () => {
   const seq = buildClearScreenSequence();
+  assert.ok(seq.startsWith("\x1bc"), "must start with \\x1bc (full reset) for conhost scrollback wipe");
   assert.ok(seq.includes("\x1b[3J"), "must include \\x1b[3J to clear scrollback");
   assert.ok(seq.includes("\x1b[2J"), "must include \\x1b[2J to clear visible area");
   assert.ok(seq.includes("\x1b[H"), "must include \\x1b[H to home the cursor");
