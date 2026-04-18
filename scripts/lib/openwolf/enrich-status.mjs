@@ -24,6 +24,50 @@ const WEAK_DESCRIPTION_PATTERNS = [
   /^Hook shape\b/i
 ];
 
+// Safety filter: which paths are eligible for LLM enrichment?
+//
+// The enrichment subprocess streams file contents into a Haiku prompt. Two
+// classes of files must never leave the workspace:
+//   1. .wolf/ sources — they ARE the retrieval corpus (self-referential);
+//      sending them to an LLM wastes tokens and risks leaking context
+//      assembled for the user's private memory/learning files.
+//   2. Paths that resolve outside the workspace root (e.g. absolute paths
+//      like D:/Users/<user>/.claude/settings.json that OpenWolf sometimes
+//      tracks for cross-project context). Those are user-personal config
+//      and must not be shipped to an LLM.
+//
+// Returns true when the path is safe to enrich. Uses relative-path string
+// checks (cheap, called per anatomy entry) plus absolute-path containment
+// verified against the workspace root.
+export function isSafeToEnrich(relativePath, workspaceRoot) {
+  const normalized = String(relativePath ?? "").replace(/\\/g, "/").trim();
+  if (!normalized) return false;
+
+  // Hard exclusions on relative form
+  if (normalized.startsWith(".wolf/") || normalized === ".wolf") return false;
+  if (normalized.startsWith("../")) return false;
+  // Drive-letter or POSIX absolute forms signal out-of-workspace paths
+  // that OpenWolf occasionally tracks (e.g. D:/Users/.../settings.json).
+  if (/^[a-z]:\//i.test(normalized) || normalized.startsWith("/")) return false;
+
+  // Defensive: resolve against workspace and ensure containment
+  try {
+    const resolved = path.resolve(workspaceRoot, normalized);
+    const workspaceResolved = path.resolve(workspaceRoot);
+    // Use normalized case for Windows comparisons
+    const rLow = resolved.toLowerCase();
+    const wLow = workspaceResolved.toLowerCase();
+    if (!rLow.startsWith(wLow)) return false;
+    // Guard again inside workspace to exclude .wolf/ by absolute path too
+    const rel = path.relative(workspaceResolved, resolved).replace(/\\/g, "/");
+    if (rel.startsWith(".wolf/") || rel === ".wolf") return false;
+  } catch {
+    return false;
+  }
+
+  return true;
+}
+
 export function resolveWolfPaths(workspaceRoot) {
   const wolfDir = path.join(workspaceRoot, WOLF_DIR_NAME);
   return {
@@ -107,7 +151,10 @@ export function getEnrichmentStatus(workspaceRoot) {
   }
 
   const anatomy = fs.readFileSync(paths.anatomyPath, "utf8");
-  const entries = parseAnatomyForEnrichment(anatomy);
+  const allEntries = parseAnatomyForEnrichment(anatomy);
+  // Safety filter: never count or process .wolf/* or out-of-workspace paths.
+  const entries = allEntries.filter((e) => isSafeToEnrich(e.relativePath, workspaceRoot));
+  const unsafeSkipped = allEntries.length - entries.length;
   const cache = loadCache(paths.cachePath);
 
   const anatomyPathSet = new Set(entries.map((e) => e.relativePath));
@@ -130,6 +177,7 @@ export function getEnrichmentStatus(workspaceRoot) {
   return {
     anatomyMissing: false,
     totalFiles: entries.length,
+    unsafeSkipped,
     problemFiles,
     enrichedProblemFiles,
     unenrichedProblemFiles: unenrichedProblemList.length,

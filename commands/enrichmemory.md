@@ -73,3 +73,16 @@ After the enrichment run, summarize:
 - Duration
 - Any `llm-error` or `llm-malformed` entries (these files need investigation)
 - Current `--status` output for verification
+
+## Safety
+
+Two defense-in-depth layers protect against accidental data leakage:
+
+1. **Path scope filter.** `isSafeToEnrich` in `scripts/lib/openwolf/enrich-status.mjs` excludes from enrichment any anatomy entry that resolves to:
+   - a path under `.wolf/` — those files *are* the retrieval corpus and must never be shipped back to an LLM;
+   - an absolute path (Windows `D:/...` or POSIX `/...`) or a parent-escape (`../`) — these indicate files OpenWolf tracks outside the workspace (e.g. `D:/Users/<you>/.claude/settings.json`, user-memory files) which must not leave the machine.
+   The `--status` output reports the count as `Unsafe skipped`. The full-repo scan always skips these before any LLM call.
+
+2. **Haiku tool lockdown.** The subprocess is spawned as `claude -p --model haiku --output-format text --tools ""`, which disables **every** tool in the built-in set. Since file contents are injected via stdin and responses are parsed from stdout, the subprocess has no legitimate reason to Read, Write, Edit, Bash, or Agent anything. `--tools ""` blocks a hypothetical prompt-injection payload in a file from tricking Haiku into escalating capability.
+
+Write access to the enrichment sidecar (`anatomy.enriched.md`) and cache (`anatomy.cache.json`) stays entirely owned by the parent Node process, which only writes those two paths under `.wolf/`. Haiku never writes anything.

@@ -7,6 +7,7 @@ import path from "node:path";
 import {
   getEnrichmentStatus,
   isProblemDescription,
+  isSafeToEnrich,
   parseAnatomyForEnrichment,
   pruneCacheOrphans
 } from "./enrich-status.mjs";
@@ -232,6 +233,88 @@ await run("buildEnrichmentReminder skips auto-run during cooldown window", async
     const { reminder, autoRunStarted } = buildEnrichmentReminder(root);
     assert.equal(autoRunStarted, false, "should not auto-run within cooldown");
     assert.equal(reminder, null, "no reminder emitted during cooldown");
+  } finally {
+    cleanup();
+  }
+});
+
+// --- PR: safety filter (isSafeToEnrich) ---
+
+await run("isSafeToEnrich rejects .wolf/ paths", () => {
+  const root = "C:/dev/claudsterfuck";
+  assert.equal(isSafeToEnrich(".wolf/anatomy.md", root), false);
+  assert.equal(isSafeToEnrich(".wolf/cerebrum.md", root), false);
+  assert.equal(isSafeToEnrich(".wolf/subdir/file.md", root), false);
+  assert.equal(isSafeToEnrich(".wolf", root), false);
+});
+
+await run("isSafeToEnrich rejects absolute paths with drive letters", () => {
+  const root = "C:/dev/claudsterfuck";
+  assert.equal(isSafeToEnrich("D:/Users/me/.claude/settings.json", root), false);
+  assert.equal(isSafeToEnrich("C:/other/project/file.mjs", root), false);
+});
+
+await run("isSafeToEnrich rejects POSIX absolute paths", () => {
+  const root = "/home/user/project";
+  assert.equal(isSafeToEnrich("/etc/passwd", root), false);
+  assert.equal(isSafeToEnrich("/home/other/file", root), false);
+});
+
+await run("isSafeToEnrich rejects parent-escape paths", () => {
+  const root = "C:/dev/claudsterfuck";
+  assert.equal(isSafeToEnrich("../other/file.mjs", root), false);
+  assert.equal(isSafeToEnrich("../../etc", root), false);
+});
+
+await run("isSafeToEnrich accepts normal in-workspace paths", () => {
+  const root = "C:/dev/claudsterfuck";
+  assert.equal(isSafeToEnrich("scripts/orchestrator.mjs", root), true);
+  assert.equal(isSafeToEnrich("routes/design.json", root), true);
+  assert.equal(isSafeToEnrich("README.md", root), true);
+  assert.equal(isSafeToEnrich("scripts/lib/openwolf/compile-packet.mjs", root), true);
+});
+
+await run("isSafeToEnrich normalizes backslashes", () => {
+  const root = "C:/dev/claudsterfuck";
+  assert.equal(isSafeToEnrich(".wolf\\anatomy.md", root), false);
+  assert.equal(isSafeToEnrich("scripts\\orchestrator.mjs", root), true);
+});
+
+await run("isSafeToEnrich rejects empty or null", () => {
+  const root = "C:/dev/claudsterfuck";
+  assert.equal(isSafeToEnrich("", root), false);
+  assert.equal(isSafeToEnrich(null, root), false);
+  assert.equal(isSafeToEnrich(undefined, root), false);
+});
+
+await run("getEnrichmentStatus skips unsafe paths and reports unsafeSkipped count", () => {
+  // Construct anatomy with a mix of safe, .wolf/, and absolute paths
+  const anatomy = `# anatomy.md
+
+## ./
+
+- \`README.md\` — Project documentation (~100 tok)
+
+## scripts/
+
+- \`orchestrator.mjs\` — Main CLI (~8000 tok)
+
+## .wolf/
+
+- \`anatomy.md\` — Self-reference (~300 tok)
+- \`cerebrum.md\` — Learnings (~1000 tok)
+
+## D:/Users/kylecito/.claude/
+
+- \`settings.json\` (~100 tok)
+`;
+  const { root, cleanup } = createWorkspace({ anatomy, cache: { version: 1, entries: {} } });
+  try {
+    const status = getEnrichmentStatus(root);
+    // Safe entries: README.md + scripts/orchestrator.mjs = 2
+    // Unsafe: .wolf/anatomy.md, .wolf/cerebrum.md, D:/…/settings.json = 3
+    assert.equal(status.totalFiles, 2, `expected 2 safe files, got ${status.totalFiles}`);
+    assert.equal(status.unsafeSkipped, 3, `expected 3 unsafe skipped, got ${status.unsafeSkipped}`);
   } finally {
     cleanup();
   }

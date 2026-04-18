@@ -38,6 +38,7 @@ import { spawn } from "node:child_process";
 import {
   getEnrichmentStatus,
   isProblemDescription,
+  isSafeToEnrich,
   loadCache,
   parseAnatomyForEnrichment,
   pruneCacheOrphans,
@@ -258,7 +259,27 @@ async function runClaudeBatch({ entries, model, gitBashPath }) {
     const env = { ...process.env };
     if (gitBashPath) env.CLAUDE_CODE_GIT_BASH_PATH = gitBashPath;
 
-    const args = ["-p", "--model", model, "--output-format", "text"];
+    // Tool lockdown for the Haiku subprocess:
+    //
+    // We stream file content into the prompt via stdin and parse summaries
+    // from stdout. The subprocess is a pure text-in/text-out transformer —
+    // it has no legitimate reason to invoke ANY tool. Passing `--tools ""`
+    // disables every tool in the built-in set (Read, Write, Edit, Bash,
+    // Agent, WebFetch, WebSearch, etc.), which:
+    //   (a) prevents prompt-injection from file content coercing Haiku
+    //       into reading/writing arbitrary paths;
+    //   (b) hard-bounds future refactors of this script — an agentic
+    //       enrichment prompt would fail fast rather than silently acquire
+    //       capabilities;
+    //   (c) keeps write access to the enrichment sidecar entirely owned by
+    //       this parent Node process, which only ever writes .wolf/
+    //       artifacts (anatomy.enriched.md, anatomy.cache.json).
+    const args = [
+      "-p",
+      "--model", model,
+      "--output-format", "text",
+      "--tools", ""
+    ];
     const child = spawn(CLAUDE_BIN, args, {
       env,
       stdio: ["pipe", "pipe", "pipe"],
@@ -446,6 +467,7 @@ async function main() {
     }
     process.stdout.write(
       `Tracked files:        ${status.totalFiles}\n` +
+      `Unsafe skipped:       ${status.unsafeSkipped ?? 0} (.wolf/* or outside workspace)\n` +
       `Problem files:        ${status.problemFiles}\n` +
       `  - enriched:         ${status.enrichedProblemFiles}\n` +
       `  - unenriched:       ${status.unenrichedProblemFiles}\n` +
@@ -481,6 +503,17 @@ async function main() {
 
   const anatomy = fs.readFileSync(ANATOMY_PATH, "utf8");
   let entries = parseAnatomyForEnrichment(anatomy);
+
+  // Safety gate: exclude .wolf/* and out-of-workspace paths before any
+  // downstream processing (dry-run reporting, batch building, LLM calls).
+  // This is defense-in-depth against OpenWolf tracking changes, user-side
+  // anatomy edits, and path-resolution quirks.
+  const unsafeCount = entries.length;
+  entries = entries.filter((e) => isSafeToEnrich(e.relativePath, WORKSPACE));
+  const skippedUnsafe = unsafeCount - entries.length;
+  if (skippedUnsafe > 0) {
+    process.stdout.write(`Skipped ${skippedUnsafe} unsafe path(s) (.wolf/* or outside workspace).\n`);
+  }
 
   if (Array.isArray(options.files) && options.files.length > 0) {
     const wanted = new Set(options.files.map((f) => f.replace(/\\/g, "/")));
