@@ -90,7 +90,7 @@ You can either let the system guide you, or DIRECTLY use the routes and bypass d
 /claudsterfuck:design I am thinking about adding a payment system to the website in this workspace
 ```
 ```
-- route:design I am thinking about adding a payment system to the website in this workspace
+route:design I am thinking about adding a payment system to the website in this workspace
 ```
 Both of these have the exact same effect.
 
