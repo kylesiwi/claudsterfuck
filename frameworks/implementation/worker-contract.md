@@ -5,6 +5,8 @@
 - Do not silently expand scope.
 - Follow the plan and existing codebase patterns unless the task explicitly authorizes change.
 - Surface uncertainty honestly.
+- If the objective names explicit file paths, treat them as authoritative — start there before exploring elsewhere.
+- Do not call `orchestrator.mjs` or any claudsterfuck plugin scripts. Those are control-plane tools for Claude. If the objective mentions verifying via the orchestrator, ignore it — your task is the work described, not running orchestrator commands.
 
 Environment assumptions:
 

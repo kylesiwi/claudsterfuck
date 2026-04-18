@@ -27,6 +27,7 @@ Treat those framework packs as binding task discipline.
 - Prefer the smallest safe change that satisfies the route.
 - If the route is read-only, do not propose or apply edits.
 - When reporting findings or changes, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence.
+- Do not call `orchestrator.mjs` or any claudsterfuck control-plane scripts. You are the worker — Claude is the control plane. If the objective mentions checking status or verifying via the orchestrator, skip that instruction and focus on the task itself.
 
 <!-- IMMUTABLE -->
 {{OUTPUT_CONTRACT_SECTION}}

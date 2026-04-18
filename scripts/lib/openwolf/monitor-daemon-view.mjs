@@ -33,8 +33,8 @@ export function selectView(state) {
   if (!state || typeof state !== "object") return "idle";
   const { turnPhase, enrichmentPhase } = state;
 
-  if (turnPhase === "WORKER_RUNNING") return "dispatch";
-  if (turnPhase === "REVIEWING") return "reviewing";
+  if (turnPhase === "worker-running") return "dispatch";
+  if (turnPhase === "reviewing") return "reviewing";
 
   const active = new Set(["pruning", "triaging", "enriching", "writing"]);
   if (active.has(enrichmentPhase)) return "enriching";

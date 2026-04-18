@@ -28,6 +28,7 @@ Treat those framework packs as binding task discipline.
 - Ask for clarification instead of guessing.
 - If the route is read-only, stay read-only.
 - For each finding, include the relevant code snippet (3-8 lines) with file path and line number as inline evidence. Claude uses these snippets to verify your work without re-reading files.
+- Do not call `orchestrator.mjs` or any claudsterfuck control-plane scripts. You are the worker — Claude is the control plane. If the objective mentions checking status or verifying via the orchestrator, skip that instruction and focus on the task itself.
 
 <!-- IMMUTABLE -->
 ## Output Contract

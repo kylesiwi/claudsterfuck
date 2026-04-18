@@ -142,12 +142,15 @@ All four hooks are registered in `hooks/hooks.json`. Each hook reads a JSON payl
 
 ### SessionStart — `scripts/session-start-hook.mjs`
 
-Fires when a Claude Code session opens. Binds `session_id` from the hook payload to a session record in state, then exports `CLAUDSTERFUCK_SESSION_ID` into the environment.
+Fires when a Claude Code session opens. Binds `session_id` from the hook payload to a session record in state, then exports two env vars into the environment via `appendEnvVar`:
 
 ```
 input.session_id → createOrGetSessionRecord(cwd, sessionId)
                  → appendEnvVar("CLAUDSTERFUCK_SESSION_ID", sessionId)
+                 → appendEnvVar("CLAUDE_PLUGIN_ROOT", PLUGIN_ROOT)
 ```
+
+`CLAUDE_PLUGIN_ROOT` is derived from `import.meta.url` at module load time (the `scripts/` directory's parent). This is the real shell env var that makes `node "$CLAUDE_PLUGIN_ROOT/scripts/orchestrator.mjs"` work from Bash. The `${CLAUDE_PLUGIN_ROOT}` template substitution in `hooks/hooks.json` only applies within hook command strings — it is **not** automatically available to Bash tool calls. `SessionStart` bridging it into the shell env via `appendEnvVar` is what makes the dispatch command functional across sessions.
 
 ### UserPromptSubmit — `scripts/user-prompt-submit-hook.mjs`
 
@@ -899,3 +902,12 @@ Codex real-world runs take 5–10 min. Do not lower this without testing against
 
 **Claude Code's `Bash` tool buffers stdout.**
 NDJSON events emitted during `dispatch --watch` do not reach Claude mid-turn — they all arrive as a batch when the command exits. Live visibility for the user is entirely via the statusline third line and the monitor window, both of which read disk artifacts directly. Do not add a "progress to Claude's context" path under the assumption that Bash streams.
+
+**`TURN_PHASES` constants are lowercase-with-hyphens.**
+`TURN_PHASES.WORKER_RUNNING = "worker-running"`, `TURN_PHASES.REVIEWING = "reviewing"`, etc. Any view-routing logic that compares against phase strings must use the constant or the literal lowercase value — never uppercase or underscore variants. `selectView()` in `monitor-daemon-view.mjs` is the canonical consumer; keep it in sync with `state.mjs`.
+
+**`CLAUDE_PLUGIN_ROOT` in `hooks.json` is a template variable, not a shell env var.**
+The plugin framework substitutes `${CLAUDE_PLUGIN_ROOT}` when registering hook commands — that substitution does not propagate to the shell environment available to Bash tool calls. The `SessionStart` hook exports it explicitly via `appendEnvVar("CLAUDE_PLUGIN_ROOT", PLUGIN_ROOT)` so that `node "$CLAUDE_PLUGIN_ROOT/scripts/orchestrator.mjs"` works from the main thread. If you add a new hook that relies on this, verify `SessionStart` fires first.
+
+**Workers must not call `orchestrator.mjs`.**
+The orchestrator is a control-plane tool for Claude. Workers (Codex, Gemini) should never invoke it. If an objective inadvertently includes orchestrator verification steps (e.g., "confirm via orchestrator.mjs result"), workers will call the orchestrator on themselves and do nothing else. The prohibition is enforced in `worker-contract.md` and both `worker-base.md` files. When writing objectives, never include orchestrator commands — those belong in Claude's post-dispatch review step, not the task spec.

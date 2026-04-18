@@ -47,6 +47,7 @@ Before dispatching, your objective should answer:
 1. **What outcome** does the user want? State it in one sentence.
 2. **Where** should the work happen? A file path, a module name, or "find it" if the anatomy map lists it.
 3. **Constraints** the worker might miss? Test expectations, naming conventions from cerebrum, backward-compatibility needs, inline snippets the user supplied.
+4. **No orchestrator instructions.** Never include phrases like "check via orchestrator", "run orchestrator.mjs result", or verification steps that involve control-plane commands. Those instructions are for you (Claude), not the worker. If they appear in the objective, the worker will call the orchestrator on itself instead of doing the task.
 
 If answering 1–3 requires you to read source code files, **stop — you are about to pre-solve the task.** The worker will read the files. Name the file path or module from anatomy and let the worker explore.
 
