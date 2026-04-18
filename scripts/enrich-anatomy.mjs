@@ -550,9 +550,12 @@ async function main() {
   };
   if (!options.dryRun) {
     writeProgress(progress);
-    if (!options.noMonitor) {
-      spawnEnrichmentMonitor();
-    }
+    // Per-run monitor popups were removed — the persistent monitor daemon
+    // (scripts/monitor-daemon.mjs, launched via /claudsterfuck:monitor)
+    // picks up the progress file and renders it. `--no-monitor` is retained
+    // as a no-op flag for backwards compatibility. `spawnEnrichmentMonitor`
+    // stays in the file but is intentionally not invoked here.
+    void options.noMonitor;
   }
 
   // Auto-prune stale cache entries at the start of every enrichment run

@@ -1,0 +1,10 @@
+{
+  "route": "monitor",
+  "description": "Housekeeping turn for opening the persistent monitor window. Non-delegated; Claude runs the daemon launcher and reports.",
+  "defaultProvider": null,
+  "writeEnabled": false,
+  "requiresDelegation": false,
+  "requiredFrameworks": [],
+  "routeBrief": "Spawn or reopen the cf-monitor window via scripts/monitor-daemon.mjs --spawn-window. Idempotent; reports whether a new window was opened or an existing one detected.",
+  "timeoutSeconds": 120
+}

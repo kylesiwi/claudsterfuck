@@ -119,6 +119,7 @@ These routes bypass using other workers (Gemini/Codex) and let you talk directly
 | `chat` | Claude | Read-only fallback (default for low-confidence prompts) |
 | `claude` | Claude | Explicit full-permissions bypass, never auto-routed |
 | `enrichmemory` | Claude | Housekeeping — refreshes the memory-packet corpus enrichment (see *Memory-Packet Retrieval* below) |
+| `monitor` | Claude | Housekeeping — opens the persistent monitor window (see *Live Visibility* above) |
 
 - Use "chat" when you just want Claude's advice but you DON'T want Claude to just start coding on its own (which it tends to do unprompted in normal Claude Code sessions, as you might have unfortunately found out). This route is READ-ONLY; Claude has NO write permissions.
 - Use "claude" when you want the normal Claude Code experience; it has full permissions and basically "skips" the plugin
@@ -145,16 +146,19 @@ Even though these special routes are "free chat", they do NOT break the plugin's
 | `/claudsterfuck:reroute` | Change route on the active turn |
 | `/claudsterfuck:usage` | Token totals for the current session + workspace, by provider and route |
 | `/claudsterfuck:second-opinion` | Silently run a cross-provider review of the last completed run (Codex ↔ Gemini) and return both outputs side-by-side |
-| `/claudsterfuck:enrichmemory` | Rebuild the memory-packet corpus enrichment (headless Haiku summaries, auto-prune, batched calls). Opens a `cf-enrich-monitor` window with live progress |
+| `/claudsterfuck:enrichmemory` | Rebuild the memory-packet corpus enrichment (headless Haiku summaries, auto-prune, batched calls). Progress reflected in the monitor daemon window when open |
+| `/claudsterfuck:monitor` | Open the persistent per-session monitor window (idle/enriching/dispatch/reviewing views). Idempotent; safe to re-run |
 
 ## Live Visibility
 
 While a worker runs, you get progress on two surfaces without the main Claude thread burning any tokens on telemetry:
 
 - **Statusline third line** in the Claude Code UI shows the most recent worker event — e.g. `⚙ codex: exec: npm test` or `💬 gemini: generating…`. Updates every ~2 seconds.
-- **Monitor window** opens automatically in a separate terminal, rendering the structured event stream (reasoning, tool calls with exit codes, token usage, completion banner). Pass `--no-monitor` on dispatch to skip it.
+- **Monitor daemon window** (optional; opened via `/claudsterfuck:monitor`). A single persistent per-session PowerShell window that stays open across turns and rotates between views based on current activity: idle / enriching / dispatch / reviewing. Safe to close any time; reopen with the same slash command.
 
-Both surfaces read NDJSON event streams emitted natively by the provider CLIs (`codex exec --json`, `gemini --output-format stream-json`). Events are archived per run in `events.jsonl` under `${CLAUDE_PLUGIN_DATA}/state/<workspace>/runs/<runId>/` for post-hoc inspection.
+The monitor daemon reads the same NDJSON event streams emitted natively by the provider CLIs (`codex exec --json`, `gemini --output-format stream-json`). Events are archived per run in `events.jsonl` under `${CLAUDE_PLUGIN_DATA}/state/<workspace>/runs/<runId>/` for post-hoc inspection.
+
+Per-run popups are intentionally **not** spawned — dispatch and enrichment both run headless with full correctness. The monitor is purely a visualization layer the user opts into. If the monitor isn't open, the statusline third line and `events.jsonl` still provide everything needed.
 
 For long-running tasks, Claude can poll a lightweight heartbeat endpoint (`watch --heartbeat --json`, ~50 tokens) to confirm a worker is still making progress without burning tokens on a full watch payload.
 

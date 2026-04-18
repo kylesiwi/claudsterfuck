@@ -1605,12 +1605,11 @@ export async function handleDispatch(cwd, args, overrides = {}) {
   };
   writeRunProcess(cwd, runId, processInfo);
 
-  // Spawn visible monitor window so the user can watch live worker output
-  // without requiring Claude inference on each poll tick. Skip with --no-monitor.
-  if (!args.noMonitor) {
-    const runFile = resolveRunFile(cwd, runId);
-    spawnMonitorWindow({ runId, runFile, stdoutFile });
-  }
+  // Per-dispatch monitor popups were removed — the persistent monitor
+  // daemon (scripts/monitor-daemon.mjs, launched via /claudsterfuck:monitor)
+  // handles dispatch visibility. `--no-monitor` is retained as a no-op flag
+  // for backwards compatibility with older worker-agent Bash shapes.
+  void args.noMonitor;
 
   emitLog("dispatch", {
     runId,
