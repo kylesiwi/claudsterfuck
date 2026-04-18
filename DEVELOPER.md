@@ -721,7 +721,7 @@ evaluatePreToolUse(input, turn):
   else → pass through
 ```
 
-### Source-read blackout (R2 / v2.6.0)
+### Source-read blackout (R2 / v2.5.1)
 
 During REFINING and READY_TO_DELEGATE, Claude can read `.wolf/*` memory files (anatomy, cerebrum, buglog, memory) but **cannot** read source code, run broad greps, or fetch external URLs. The rationale: the worker receives the memory packet and explores source itself. Pre-digesting source in the main Claude thread is the "Claude builds the whole thing, tells Codex to transcribe" anti-pattern.
 

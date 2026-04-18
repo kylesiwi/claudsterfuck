@@ -252,19 +252,19 @@ Routes have no scope-sensitive framework selection. Small fixes pay the same fra
 
 ---
 
-## Status (post-audit interventions — v2.6.0)
+## Status (post-audit interventions — v2.5.1)
 
 | # | Intervention | Status |
 |---|---|---|
-| R1 | Soften classifier (generous verbs + first-word boost + dominance) | ✅ Shipped v2.6.0 |
-| R2 | Source-read denial with `.wolf/*` whitelist | ✅ Shipped v2.6.0 (policy + SKILL.md few-shots) |
-| R3 | Heartbeat endpoint (`watch --heartbeat`, ~50 tokens) | ✅ Shipped v2.6.0 |
-| R4 | Escape-hatches line in hook context | ✅ Shipped v2.6.0 |
-| R5 | `/claudsterfuck:usage` command | ✅ Shipped v2.6.0 |
-| R6 | Continue-turn delegated to Claude (prior-context injection) | ✅ Shipped v2.6.0 |
+| R1 | Soften classifier (generous verbs + first-word boost + dominance) | ✅ Shipped v2.5.1 |
+| R2 | Source-read denial with `.wolf/*` whitelist | ✅ Shipped v2.5.1 (policy + SKILL.md few-shots) |
+| R3 | Heartbeat endpoint (`watch --heartbeat`, ~50 tokens) | ✅ Shipped v2.5.1 |
+| R4 | Escape-hatches line in hook context | ✅ Shipped v2.5.1 |
+| R5 | `/claudsterfuck:usage` command | ✅ Shipped v2.5.1 |
+| R6 | Continue-turn delegated to Claude (prior-context injection) | ✅ Shipped v2.5.1 |
 | R7 | README demo GIF | ⏳ Deferred (requires human recording) |
 | R8 | Scope-adaptive framework packs | ⏳ Deferred (low-impact, high-effort) |
-| R9 | `/claudsterfuck:second-opinion` route | ✅ Shipped v2.6.0 |
+| R9 | `/claudsterfuck:second-opinion` route | ✅ Shipped v2.5.1 |
 
 ## 4. Concrete Recommendations (ranked by impact)
 
