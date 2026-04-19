@@ -907,7 +907,11 @@ export function spawnDetachedWithFn(command, args, options) {
         cwd: options.cwd,
         env: options.env || process.env,
         stdio: ["pipe", stdoutFd, stderrFd],
-        detached: true,
+        // On POSIX, detached makes the child a process group leader so killProcess()
+        // can send signals to the whole group via kill(-pid). On Windows, detached
+        // conflicts with windowsHide (Node.js #21825) causing console window flashes;
+        // taskkill /T handles tree kills without needing a process group.
+        detached: process.platform !== "win32",
         windowsHide: true
       });
       spawnAttempts.push({ command: candidate.command, args: candidate.args, success: true });
