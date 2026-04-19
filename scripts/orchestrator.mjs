@@ -2541,7 +2541,7 @@ export async function handleReroute(cwd, args) {
     const workerRuns = Array.isArray(turn.workerRuns) ? turn.workerRuns : [];
     const requiresDelegation = Boolean(routeProfile.requiresDelegation);
 
-    return {
+    const updated = {
       ...turn,
       route: routeProfile.route,
       provider: routeProfile.defaultProvider ?? null,
@@ -2571,6 +2571,10 @@ export async function handleReroute(cwd, args) {
       pendingCandidates: [],
       pendingProvider: null
     };
+    if (args.objective && typeof args.objective === "string" && args.objective.trim()) {
+      updated.objective = args.objective.trim();
+    }
+    return updated;
   });
 
   emit(
