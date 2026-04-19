@@ -53,7 +53,8 @@ import {
   resolveCodexNodeEntrypoint,
   extractJson,
   isPathSafe,
-  getProviderAvailability
+  getProviderAvailability,
+  requestTermination
 } from "./lib/providers.mjs";
 import { reconstructFromNdjson, summarizeEvent } from "./lib/event-stream.mjs";
 
@@ -64,7 +65,7 @@ import { reconstructFromNdjson, summarizeEvent } from "./lib/event-stream.mjs";
 const CLAUDE_PLUGIN_DATA_ENV = "CLAUDE_PLUGIN_DATA";
 const PLUGIN_DATA_SCAN_ROOT_ENV = "CLAUDSTERFUCK_PLUGIN_DATA_SCAN_ROOT";
 const DEFAULT_STALLED_THRESHOLD_SECONDS = 120;
-const DEFAULT_WATCH_TIMEOUT_SECONDS = 600; // 10 min — Codex can take 5-10 min in real runs
+const DEFAULT_WATCH_TIMEOUT_SECONDS = 720; // 12 min — Codex can take 5-10+ min in real runs
 const WATCH_POLL_INTERVAL_MS = 2000;
 const WATCH_PROGRESS_INTERVAL_MS = 10000; // 10s between events — limits token cost; output > telemetry
 
@@ -661,6 +662,26 @@ function writeLatestEventTerminal(runArtifactsDir, { provider, runId, route, sta
   } catch {}
 }
 
+function terminateDetachedProcess(pid) {
+  if (!pid) {
+    return false;
+  }
+
+  try {
+    requestTermination({
+      pid,
+      kill() {
+        try {
+          process.kill(pid);
+        } catch {}
+      }
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Tail the detached run's stdout file, parse each new NDJSON line since the last
  * position, and update latest-event.json with a compact summary of the most recent
@@ -694,6 +715,8 @@ function tailStdoutForEvents(stdoutFile, runArtifactsDir, state) {
     state.carry = lines.pop() ?? "";
 
     let lastSummary = null;
+    const eventsFile = path.join(runArtifactsDir, "events.jsonl");
+    const ndjsonBatch = [];
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed || !trimmed.startsWith("{")) continue;
@@ -703,8 +726,12 @@ function tailStdoutForEvents(stdoutFile, runArtifactsDir, state) {
       } catch {
         continue;
       }
+      ndjsonBatch.push(trimmed);
       const summary = summarizeEvent(state.provider, event);
       if (summary) lastSummary = summary;
+    }
+    if (ndjsonBatch.length > 0) {
+      try { fs.appendFileSync(eventsFile, ndjsonBatch.join("\n") + "\n", "utf8"); } catch {}
     }
 
     if (lastSummary) {
@@ -1398,6 +1425,81 @@ function finalizeRun(cwd, runId, run, processInfo) {
   };
 }
 
+function finalizeTimedOutRun(cwd, runId, run, processInfo, { timeoutSeconds, stdoutTail = null, stderrTail = null }) {
+  const completedAt = new Date().toISOString();
+  const runArtifactsDir = resolveRunArtifactsDir(cwd, runId);
+  const errorSummary = `Worker timed out after ${timeoutSeconds}s and was terminated.`;
+
+  writeTextArtifact(path.join(runArtifactsDir, "stdout.raw.txt"), safeReadText(processInfo.stdoutFile, 500000) ?? "");
+  writeTextArtifact(path.join(runArtifactsDir, "stderr.raw.txt"), safeReadText(processInfo.stderrFile, 100000) ?? "");
+  writeLatestEventTerminal(runArtifactsDir, {
+    provider: run.provider,
+    runId,
+    route: run.route,
+    status: "failed"
+  });
+
+  const normalizedResult = {
+    runId,
+    provider: run.provider,
+    route: run.route,
+    status: "failed",
+    exitCode: -1,
+    finalOutput: "",
+    providerSessionId: run.providerSessionId ?? null,
+    errorSummary,
+    completedAt
+  };
+  writeJsonArtifact(path.join(runArtifactsDir, "result.normalized.json"), normalizedResult);
+
+  const completedRun = {
+    ...run,
+    status: "failed",
+    completedAt,
+    exitCode: -1,
+    finalOutput: "",
+    providerSessionId: run.providerSessionId ?? null,
+    errorSummary,
+    artifacts: {
+      ...run.artifacts,
+      stdoutFile: processInfo.stdoutFile,
+      stderrFile: processInfo.stderrFile,
+      eventsFile: path.join(runArtifactsDir, "events.jsonl"),
+      latestEventFile: path.join(runArtifactsDir, "latest-event.json"),
+      normalizedResultFile: path.join(runArtifactsDir, "result.normalized.json")
+    }
+  };
+
+  writeRun(cwd, runId, completedRun);
+
+  const sessionId = run.sessionId ?? null;
+  if (sessionId) {
+    finalizeCurrentTurn(cwd, sessionId, runId, "failed", completedAt, {
+      exitCode: -1,
+      providerSessionId: run.providerSessionId ?? null,
+      errorSummary
+    });
+  }
+
+  return {
+    runId,
+    pid: processInfo.pid ?? null,
+    provider: run.provider,
+    route: run.route,
+    status: "failed",
+    exitCode: -1,
+    finalOutput: "",
+    providerSessionId: run.providerSessionId ?? null,
+    errorSummary,
+    completedAt,
+    watchTimeoutReached: true,
+    watchTimeoutSeconds: timeoutSeconds,
+    latestStdout: stdoutTail,
+    latestStderr: stderrTail,
+    message: `Worker timed out after ${timeoutSeconds}s and was terminated. The turn has been marked failed. You can retry with dispatch or cancel.`
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Command: dispatch
 // ---------------------------------------------------------------------------
@@ -1818,7 +1920,7 @@ export async function handleWatch(cwd, args) {
     await sleep(WATCH_POLL_INTERVAL_MS);
   }
 
-  // Timeout reached - process still running, return progress snapshot
+  // Timeout reached - kill the worker, mark the run failed, and unblock the turn
   const elapsedSeconds = startedAtMs > 0 ? Math.floor((Date.now() - startedAtMs) / 1000) : null;
   const progressFile = run.artifacts?.progressFile ?? null;
   const progress = readJsonFileSafe(progressFile);
@@ -1827,23 +1929,25 @@ export async function handleWatch(cwd, args) {
 
   emitLog("watch-timeout", { runId, pid, elapsedSeconds, timeoutSeconds });
 
+  const terminationRequested = terminateDetachedProcess(pid);
+  await sleep(500);
+
   const timeoutPayload = {
-    runId,
-    pid,
-    status: "running",
-    elapsed: elapsedSeconds,
-    watchTimeoutReached: true,
-    watchTimeoutSeconds: timeoutSeconds,
-    provider: run.provider,
-    route: run.route,
-    progress: progress ?? null,
-    latestStdout: latestStdout ?? null,
-    latestStderr: latestStderr ?? null,
-    liveness: computeRunLiveness({
-      ...run,
-      startedAt: processInfo.startedAt
+    ...finalizeTimedOutRun(cwd, runId, run, processInfo, {
+      timeoutSeconds,
+      stdoutTail: latestStdout ?? null,
+      stderrTail: latestStderr ?? null
     }),
-    message: `Still running after ${timeoutSeconds}s watch. PID ${pid} alive. Call watch again to keep polling.`
+    elapsed: elapsedSeconds,
+    progress: progress ?? null,
+    liveness: {
+      ...computeRunLiveness({
+        ...run,
+        status: "failed",
+        startedAt: processInfo.startedAt
+      }),
+      terminationRequested
+    }
   };
   if (args.stream) {
     process.stdout.write(JSON.stringify({ type: "result", ...timeoutPayload }) + "\n");

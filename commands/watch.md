@@ -10,5 +10,5 @@ Run:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" watch --json
 ```
 
-Polls the latest running dispatch. Returns the result if completed, or a progress snapshot if still running.
-Repeat until the run completes. Each call is bounded to ~600 seconds (10 min) by default.
+Polls the latest running dispatch. Returns the result if completed, or fails the run if the worker exceeds the watch timeout.
+Each call is bounded to ~720 seconds (12 min) by default.

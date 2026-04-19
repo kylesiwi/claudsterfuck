@@ -63,6 +63,10 @@ export function summarizeEnrichmentState(progress) {
   };
 }
 
+export function buildIdleRecoveryHint() {
+  return "Orphaned workers? Run: node orchestrator.mjs recover --force-stalled";
+}
+
 // Display-friendly truncation of the current turn's user prompt. Used for
 // the "Last prompt:" header line so the user can always see which session/
 // prompt the monitor window is tracking.

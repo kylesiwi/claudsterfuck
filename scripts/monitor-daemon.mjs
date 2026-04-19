@@ -39,6 +39,7 @@ import {
   isPidAlive
 } from "./lib/openwolf/monitor-daemon-lock.mjs";
 import {
+  buildIdleRecoveryHint,
   buildClearScreenSequence,
   extractSessionPromptPreview,
   selectView,
@@ -297,6 +298,7 @@ function renderIdleView(snapshot) {
   }
 
   lines.push("");
+  lines.push(buildIdleRecoveryHint());
   lines.push(`${DIM}Refresh: 1s. Close this window any time; reopen with /claudsterfuck:monitor${RESET}`);
   return lines.join("\n");
 }

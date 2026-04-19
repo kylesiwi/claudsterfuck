@@ -21,6 +21,7 @@ import {
   handleCancel,
   handleRecover,
   handleDispatch,
+  handleWatch,
   computeCodexDetachedExitCode,
   spawnDetachedWithFn
 } from "./orchestrator.mjs";
@@ -32,8 +33,10 @@ import {
   resolveRunFile,
   writeRun,
   readRun,
+  getSessionRecord,
   setCurrentTurn,
-  TURN_DEFAULTS
+  TURN_DEFAULTS,
+  TURN_PHASES
 } from "./lib/state.mjs";
 
 // Routing
@@ -97,7 +100,7 @@ function createTestEnv() {
 }
 
 /** Write a minimal run record and process.json for a given runId. */
-function seedRun(cwd, runId, { status = "running", provider = "codex", route = "implement", pid = 999999999, startedAtOffset = 0 } = {}) {
+function seedRun(cwd, runId, { status = "running", provider = "codex", route = "implement", pid = 999999999, startedAtOffset = 0, sessionId = null } = {}) {
   const runsDir = resolveRunsDir(cwd);
   const artifactsDir = resolveRunArtifactsDir(cwd, runId);
   fs.mkdirSync(runsDir, { recursive: true });
@@ -106,7 +109,7 @@ function seedRun(cwd, runId, { status = "running", provider = "codex", route = "
   const startedAt = new Date(Date.now() - startedAtOffset * 1000).toISOString();
   const runRecord = {
     id: runId,
-    sessionId: null,
+    sessionId,
     status,
     provider,
     route,
@@ -485,6 +488,31 @@ function seedTurn(cwd, sessionId, { objective = "stored objective", route = "imp
   });
 }
 
+function seedRunningTurn(cwd, sessionId, runId, { objective = "worker is running", route = "implement", provider = "codex" } = {}) {
+  setCurrentTurn(cwd, sessionId, {
+    ...TURN_DEFAULTS,
+    prompt: objective,
+    objective,
+    route,
+    provider,
+    requiresDelegation: true,
+    writeEnabled: true,
+    phase: TURN_PHASES.WORKER_RUNNING,
+    status: "worker-running",
+    latestRunId: runId,
+    latestRunStatus: "running",
+    workerRuns: [
+      {
+        id: runId,
+        status: "running",
+        provider,
+        route,
+        startedAt: new Date().toISOString()
+      }
+    ]
+  });
+}
+
 await run("dispatch --objective: overrides turn objective passed to assembleWorkerPromptFn", async () => {
   const env = createTestEnv();
   try {
@@ -582,6 +610,37 @@ await run("dispatch: --dry-run prints assembled prompt without spawning or writi
     assert.equal(result.provider, "codex", "Provider should match");
     assert.equal(result.route, "implement", "Route should match");
   } finally {
+    env.cleanup();
+  }
+});
+
+await run("handleWatch timeout: kills the worker and marks the run failed", async () => {
+  const env = createTestEnv();
+  const child = spawn("node", ["-e", "setTimeout(()=>{},60000)"], { stdio: "ignore", windowsHide: true });
+  try {
+    const runId = "codex-watch-timeout";
+    const sessionId = "watch-timeout-session";
+    seedRun(env.cwd, runId, { status: "running", provider: "codex", route: "implement", pid: child.pid, sessionId });
+    seedRunningTurn(env.cwd, sessionId, runId);
+
+    const output = await captureStdout(() =>
+      handleWatch(env.cwd, { runId, json: true, timeout: 1, sessionId })
+    );
+
+    const result = JSON.parse(output);
+    assert.equal(result.status, "failed", "timed out watch should fail the run");
+    assert.equal(result.watchTimeoutReached, true, "timed out watch should set the timeout flag");
+    assert.match(result.message, /timed out after 1s/i, "response should explain the timeout");
+
+    const updatedRun = readRun(env.cwd, runId);
+    assert.equal(updatedRun.status, "failed", "run record should be marked failed");
+    assert.match(updatedRun.errorSummary ?? "", /timed out after 1s/i, "run errorSummary should mention timeout");
+
+    const session = getSessionRecord(env.cwd, sessionId);
+    assert.equal(session?.currentTurn?.phase, TURN_PHASES.READY_TO_DELEGATE, "turn phase should unblock Claude");
+    assert.equal(session?.currentTurn?.latestRunStatus, "failed", "turn latestRunStatus should be failed");
+  } finally {
+    try { child.kill(); } catch {}
     env.cleanup();
   }
 });
