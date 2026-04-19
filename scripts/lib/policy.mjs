@@ -1,5 +1,6 @@
 import path from "node:path";
 
+import { PROJECT_ROOT } from "../routing/lib/config.mjs";
 import { TURN_PHASES } from "./state.mjs";
 
 const COMPANION_ACTIONS = ["setup", "dispatch", "watch", "status", "inspect", "result", "reset", "cancel", "reroute", "recover"];
@@ -167,7 +168,7 @@ function buildAdditionalContext(turn) {
     `Status: ${turn.status}`,
     `Review depth: ${turn.reviewDepth ?? "verify"}`,
     `Required framework packs: ${turn.requiredFrameworks.join(", ") || "(none)"}`,
-    `Dispatch via Bash: node "\${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
+    `Dispatch via Bash: node "${PROJECT_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
     `Do not implement directly in the main Claude thread. Delegate through the claudsterfuck orchestrator first.`
   ].join("\n");
 }
@@ -262,7 +263,7 @@ export function evaluatePreToolUse(input, turn) {
 
   if (toolName === "Agent") {
     return deny(
-      `This turn is routed to ${turn.provider} (${turn.route}). Dispatch directly via Bash instead of spawning a subagent: node "\${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
+      `This turn is routed to ${turn.provider} (${turn.route}). Dispatch directly via Bash instead of spawning a subagent: node "${PROJECT_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
       routedContext
     );
   }
@@ -285,7 +286,7 @@ export function evaluatePreToolUse(input, turn) {
     }
 
     return deny(
-      `This routed turn must go through the claudsterfuck orchestrator. Dispatch with: node "\${CLAUDE_PLUGIN_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
+      `This routed turn must go through the claudsterfuck orchestrator. Dispatch with: node "${PROJECT_ROOT}/scripts/orchestrator.mjs" dispatch --watch --json`,
       routedContext
     );
   }

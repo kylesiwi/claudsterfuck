@@ -6,7 +6,7 @@ import { classifyCandidates, classifyTurn } from "./routing/classify-turn.mjs";
 import { isDirectExecution } from "./lib/entrypoint.mjs";
 import { appendEnvVar, emitHookJson, readHookInput, SESSION_ID_ENV } from "./lib/hook-io.mjs";
 import { buildEnrichmentReminder } from "./lib/openwolf/enrichment-reminder.mjs";
-import { loadRouteProfile, routeExists } from "./routing/lib/config.mjs";
+import { loadRouteProfile, PROJECT_ROOT, routeExists } from "./routing/lib/config.mjs";
 import { getSessionRecord, setCurrentTurn, setSessionRecord, TURN_DEFAULTS, TURN_PHASES } from "./lib/state.mjs";
 
 function isSlashCommandPrompt(prompt) {
@@ -547,6 +547,7 @@ export function buildUserPromptDecision(input, options = {}) {
 
   if (sessionId) {
     appendEnvVar(SESSION_ID_ENV, sessionId);
+    appendEnvVar("CLAUDE_PLUGIN_ROOT", PROJECT_ROOT);
   }
 
   const existingTurn = sessionId ? getSessionRecord(cwd, sessionId)?.currentTurn ?? null : null;
