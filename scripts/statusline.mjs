@@ -48,6 +48,15 @@ export function readRouteForSession(cwd, sessionId) {
   }
 }
 
+export function readCurrentTurnForSession(cwd, sessionId) {
+  try {
+    const state = JSON.parse(fs.readFileSync(resolveStateFileForWorkspace(cwd), "utf8"));
+    return state?.sessions?.[sessionId]?.currentTurn || null;
+  } catch {
+    return null;
+  }
+}
+
 export function readActiveRunEvent(cwd, sessionId) {
   try {
     const state = JSON.parse(fs.readFileSync(resolveStateFileForWorkspace(cwd), "utf8"));
@@ -122,6 +131,33 @@ function truncate(s, n) {
   return str.length <= n ? str : str.slice(0, n - 1) + "…";
 }
 
+function buildFallbackTurnLabel(turn) {
+  if (!turn) {
+    return null;
+  }
+
+  const route = typeof turn.route === "string" ? turn.route.trim() : "";
+  const provider = typeof turn.provider === "string" ? turn.provider.trim() : "";
+  const phase = typeof turn.phase === "string" ? turn.phase.trim() : "";
+  const status = typeof turn.status === "string" ? turn.status.trim() : "";
+  const confidence = typeof turn.confidence === "string" ? turn.confidence.trim() : "";
+
+  const primary = phase || status || confidence;
+  if (route && primary) {
+    return `[${route}] ${primary}`;
+  }
+  if (provider && primary) {
+    return `-> ${provider}: ${primary}`;
+  }
+  if (route) {
+    return `[${route}]`;
+  }
+  if (provider) {
+    return `-> ${provider}`;
+  }
+  return primary || null;
+}
+
 export function buildStatusLineOutput(payload) {
   const modelName = payload?.model?.display_name || payload?.model?.id || "unknown";
   const workspaceDir = payload?.workspace?.current_dir || process.cwd();
@@ -131,6 +167,7 @@ export function buildStatusLineOutput(payload) {
   const durationMs = Number(payload?.cost?.total_duration_ms || 0);
   const sessionId = payload?.session_id || "";
   const route = readRouteForSession(workspaceDir, sessionId);
+  const currentTurn = readCurrentTurnForSession(workspaceDir, sessionId);
   const activeEvent = readActiveRunEvent(workspaceDir, sessionId);
   const label = route ? `[cf · ${route}]` : "[cf]";
   const color = progressColor(usedPercentage);
@@ -143,6 +180,12 @@ export function buildStatusLineOutput(payload) {
     const icon = activeEvent.icon || "·";
     const eventLabel = truncate(activeEvent.label, EVENT_LABEL_MAX);
     const line3 = `${MAGENTA}${icon}${RESET} ${DIM}${activeEvent.provider || "?"}:${RESET} ${eventLabel}`;
+    return `${line1}\n${line2}\n${line3}`;
+  }
+
+  const fallbackTurnLabel = buildFallbackTurnLabel(currentTurn);
+  if (fallbackTurnLabel) {
+    const line3 = `${MAGENTA}·${RESET} ${DIM}${truncate(fallbackTurnLabel, EVENT_LABEL_MAX)}${RESET}`;
     return `${line1}\n${line2}\n${line3}`;
   }
 
