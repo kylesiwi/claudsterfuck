@@ -14,7 +14,7 @@ Open a persistent, session-scoped monitor window. The window stays open across t
 Run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-daemon.mjs" --session-id "${CLAUDSTERFUCK_SESSION_ID}" --spawn-window
+node "${CLAUDE_PLUGIN_ROOT}/scripts/monitor-daemon.mjs" --spawn-window
 ```
 
 The command is idempotent:

@@ -46,7 +46,7 @@ import {
   summarizeEnrichmentState
 } from "./lib/openwolf/monitor-daemon-view.mjs";
 import { resolveWolfPaths } from "./lib/openwolf/enrich-status.mjs";
-import { ensurePluginDataEnv, resolveRunArtifactsDir, resolveRunFile, resolveStateFile } from "./lib/state.mjs";
+import { ensurePluginDataEnv, loadState, resolveRunArtifactsDir, resolveRunFile, resolveStateFile } from "./lib/state.mjs";
 import { summarizeEvent } from "./lib/event-stream.mjs";
 
 const POLL_INTERVAL_MS = 1000;
@@ -372,13 +372,22 @@ async function main() {
   const workspaceRoot = process.cwd();
 
   if (!args.sessionId) {
-    // Fallback: pull from env (hook-set variable). The launcher always
-    // passes it explicitly; this just protects against manual invocation.
     args.sessionId = process.env.CLAUDSTERFUCK_SESSION_ID || "";
   }
 
   if (!args.sessionId) {
-    process.stderr.write("Missing --session-id and no CLAUDSTERFUCK_SESSION_ID env var.\n");
+    // Last resort: pick the most recently updated session from state.json.
+    ensurePluginDataEnv(workspaceRoot);
+    const state = loadState(workspaceRoot);
+    const sessions = Object.values(state.sessions || {});
+    if (sessions.length) {
+      sessions.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+      args.sessionId = sessions[0].sessionId;
+    }
+  }
+
+  if (!args.sessionId) {
+    process.stderr.write("Missing --session-id: no env var, no --session-id flag, and no sessions found in state.\n");
     process.exit(1);
   }
 
