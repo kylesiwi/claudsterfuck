@@ -502,9 +502,13 @@ export function classifyTurn(prompt) {
     };
   }
 
-  // Rule A: question mark anywhere in prompt → always chat, regardless of strong signals.
-  // A "?" signals the user wants dialogue, not delegation.
-  if (hasQuestionMark(rawNormalized)) {
+  // Rule A: question mark in SHORT prompts → chat override.
+  // Short prompts with "?" are almost always questions wanting dialogue.
+  // Long prompts often contain incidental questions inside a task description,
+  // so we let normal signal scoring decide.
+  const QUESTION_MARK_WORD_THRESHOLD = 20;
+  const wordCount = rawNormalized.split(/\s+/).length;
+  if (hasQuestionMark(rawNormalized) && wordCount <= QUESTION_MARK_WORD_THRESHOLD) {
     return {
       route: "chat",
       reason: "question-mark-detected",
@@ -515,6 +519,19 @@ export function classifyTurn(prompt) {
   }
 
   const result = classifyCandidates(scoreRoutes(prompt).candidates);
+
+  // Rule A2: question mark in LONG prompts with no strong delegation signal → chat.
+  // The "?" didn't override above because the prompt is long, but if signal
+  // scoring found nothing strong, fall back to chat.
+  if (hasQuestionMark(rawNormalized) && wordCount > QUESTION_MARK_WORD_THRESHOLD && (result.candidates[0]?.strongCount ?? 0) === 0) {
+    return {
+      route: "chat",
+      reason: "question-mark-long-prompt-no-strong-signal",
+      confidence: "medium",
+      matchedSignals: [],
+      candidates: result.candidates
+    };
+  }
 
   // Rule B: question-starter phrasing with no strong delegation signal → chat.
   // Uses rawNormalized (pre-strip) so stripped filler prefixes don't hide the question starter.
