@@ -437,6 +437,19 @@ function ensureResolvedPluginDataEnv(cwd) {
   }
 }
 
+function resolveActiveSessionId(cwd, args) {
+  if (args.sessionId) return args.sessionId;
+
+  const envId = process.env[SESSION_ID_ENV] || "";
+  if (envId) {
+    const turn = resolveCurrentTurn(cwd, envId);
+    if (turn) return envId;
+  }
+
+  const stateCandidate = resolveStateCandidate(cwd);
+  return resolveSessionForStatus(stateCandidate.sessions, "").sessionId || "";
+}
+
 // ---------------------------------------------------------------------------
 // State source / liveness / session helpers
 // ---------------------------------------------------------------------------
@@ -1508,11 +1521,7 @@ export async function handleDispatch(cwd, args, overrides = {}) {
   ensureResolvedPluginDataEnv(cwd);
 
   // Resolve session
-  let sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
-  if (!sessionId) {
-    const stateCandidate = resolveStateCandidate(cwd);
-    sessionId = resolveSessionForStatus(stateCandidate.sessions, "").sessionId || "";
-  }
+  const sessionId = resolveActiveSessionId(cwd, args);
   if (!sessionId) {
     throw new Error(
       "Missing session binding for dispatch. Resolve routed state first with status/inspect, then dispatch in the same session or pass --session-id."
@@ -1760,7 +1769,7 @@ export async function handleWatch(cwd, args) {
   // Resolve run ID
   let runId = args.runId || "";
   if (!runId) {
-    const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+    const sessionId = resolveActiveSessionId(cwd, args);
     const currentTurn = sessionId ? resolveCurrentTurn(cwd, sessionId) : null;
     runId = currentTurn?.latestRunId || "";
   }
@@ -1961,7 +1970,7 @@ export async function handleWatch(cwd, args) {
 // ---------------------------------------------------------------------------
 
 export async function handleStatus(cwd, args) {
-  const requestedSessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const requestedSessionId = resolveActiveSessionId(cwd, args);
   const stateCandidate = resolveStateCandidate(cwd);
   const resolved = resolveSessionForStatus(stateCandidate.sessions, requestedSessionId);
   const sessionId = resolved.sessionId || "";
@@ -1991,7 +2000,7 @@ export async function handleStatus(cwd, args) {
 // ---------------------------------------------------------------------------
 
 export async function handleInspect(cwd, args) {
-  const requestedSessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const requestedSessionId = resolveActiveSessionId(cwd, args);
   const stateCandidate = resolveStateCandidate(cwd);
   const orderedSessions = stateCandidate.sessions;
   const resolved = resolveSessionForStatus(orderedSessions, requestedSessionId);
@@ -2119,7 +2128,7 @@ export async function handleInspect(cwd, args) {
 
 export async function handleResult(cwd, args) {
   ensureResolvedPluginDataEnv(cwd);
-  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const sessionId = resolveActiveSessionId(cwd, args);
   const currentTurn = resolveCurrentTurn(cwd, sessionId);
   const runId = args.runId || currentTurn?.latestRunId || "";
   if (!runId) {
@@ -2183,7 +2192,7 @@ async function handleCancelByRunId(cwd, args) {
   writeRun(cwd, runId, cancelledRun);
 
   // Update matching session turn if one exists
-  const targetSessionId = run.sessionId || args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const targetSessionId = run.sessionId || resolveActiveSessionId(cwd, args);
   if (targetSessionId) {
     updateCurrentTurn(cwd, targetSessionId, (turn) => {
       if (!turn || turn.latestRunId !== runId) {
@@ -2215,7 +2224,7 @@ export async function handleCancel(cwd, args) {
     return handleCancelByRunId(cwd, args);
   }
 
-  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const sessionId = resolveActiveSessionId(cwd, args);
   const currentTurn = resolveCurrentTurn(cwd, sessionId);
 
   if (!currentTurn) {
@@ -2522,7 +2531,7 @@ export async function handleReset(cwd, args) {
 
 export async function handleReroute(cwd, args) {
   ensureResolvedPluginDataEnv(cwd);
-  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const sessionId = resolveActiveSessionId(cwd, args);
   const currentTurn = resolveCurrentTurn(cwd, sessionId);
   if (!currentTurn) {
     throw new Error("No current routed turn is stored for reroute.");
@@ -2649,7 +2658,7 @@ function readAllRunRecords(cwd) {
 }
 
 export async function handleUsage(cwd, args) {
-  const requestedSessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const requestedSessionId = resolveActiveSessionId(cwd, args);
   const allRuns = readAllRunRecords(cwd);
 
   const workspace = emptyAggregate();
@@ -2746,7 +2755,7 @@ function parseLastJsonBlock(text) {
 export async function handleSecondOpinion(cwd, args) {
   ensureResolvedPluginDataEnv(cwd);
 
-  const sessionId = args.sessionId || process.env[SESSION_ID_ENV] || "";
+  const sessionId = resolveActiveSessionId(cwd, args);
   if (!sessionId) {
     throw new Error("No session ID available. Second-opinion requires an active session with a completed run.");
   }
